@@ -1,6 +1,7 @@
 package com.main.datn_sd31.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -15,7 +16,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "khach_hang")
 public class KhachHang {
@@ -25,8 +25,9 @@ public class KhachHang {
     private Integer id;
 
     @Size(max = 50)
+    @NotNull
     @Nationalized
-    @Column(name = "ma", length = 50)
+    @Column(name = "ma", nullable = false, length = 50)
     private String ma;
 
     @Size(max = 100)
@@ -58,6 +59,11 @@ public class KhachHang {
     @Column(name = "mat_khau", length = 100)
     private String matKhau;
 
+    @Nationalized
+    @Lob
+    @Column(name = "dia_chi")
+    private String diaChi;
+
     @Column(name = "nguoi_tao")
     private Integer nguoiTao;
 
@@ -76,19 +82,15 @@ public class KhachHang {
     private Boolean trangThai;
 
     @OneToMany(mappedBy = "khachHang")
-    @ToString.Exclude
     private Set<DanhGia> danhGias = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "khachHang")
-    @ToString.Exclude
-    private Set<GioHang> gioHangs = new LinkedHashSet<>();
+    private Set<GioHangChiTiet> gioHangChiTiets = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "khachHang")
-    @ToString.Exclude
     private Set<HoaDon> hoaDons = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "khachHang")
-    @ToString.Exclude
     private Set<SpYeuThich> spYeuThiches = new LinkedHashSet<>();
 
 }

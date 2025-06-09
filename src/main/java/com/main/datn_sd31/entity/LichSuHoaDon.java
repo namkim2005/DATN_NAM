@@ -1,6 +1,7 @@
 package com.main.datn_sd31.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
@@ -12,7 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "lich_su_hoa_don")
 public class LichSuHoaDon {
@@ -35,17 +35,19 @@ public class LichSuHoaDon {
     @Column(name = "ngay_sua")
     private LocalDate ngaySua;
 
-    @Column(name = "trang_thai")
-    private Boolean trangThai;
+    @NotNull
+    @Column(name = "trang_thai", nullable = false)
+    private Integer trangThai;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hoa_don_id")
-    @ToString.Exclude
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "hoa_don_id", nullable = false)
     private HoaDon hoaDon;
 
+    @NotNull
     @Nationalized
     @Lob
-    @Column(name = "mo_ta_hoat_dong")
-    private String moTaHoatDong;
+    @Column(name = "ghi_chu", nullable = false)
+    private String ghiChu;
 
 }

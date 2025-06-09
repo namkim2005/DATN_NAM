@@ -1,6 +1,7 @@
 package com.main.datn_sd31.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -16,7 +17,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "hoa_don")
 public class HoaDon {
@@ -26,67 +26,65 @@ public class HoaDon {
     private Integer id;
 
     @Size(max = 50)
+    @NotNull
     @Nationalized
-    @Column(name = "ma", length = 50)
+    @Column(name = "ma", nullable = false, length = 50)
     private String ma;
 
-    @Column(name = "nguoi_tao")
-    private Integer nguoiTao;
-
-    @Column(name = "nguoi_sua")
-    private Integer nguoiSua;
-
+    @NotNull
     @ColumnDefault("getdate()")
-    @Column(name = "ngay_tao")
+    @Column(name = "ngay_tao", nullable = false)
     private LocalDate ngayTao;
 
+    @NotNull
     @ColumnDefault("getdate()")
-    @Column(name = "ngay_sua")
+    @Column(name = "ngay_sua", nullable = false)
     private LocalDate ngaySua;
 
-    @Column(name = "trang_thai")
-    private Boolean trangThai;
+    @NotNull
+    @Column(name = "trang_thai", nullable = false)
+    private Boolean trangThai = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "thanh_toan_id")
-    @ToString.Exclude
-    private ThanhToan thanhToan;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "khach_hang_id")
-    @ToString.Exclude
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "khach_hang_id", nullable = false)
     private KhachHang khachHang;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nhan_vien_id")
-    @ToString.Exclude
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "nhan_vien_id", nullable = false)
     private NhanVien nhanVien;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "phieu_giam_gia_id")
-    @ToString.Exclude
     private PhieuGiamGia phieuGiamGia;
 
-    @Column(name = "ngay_mua")
+    @NotNull
+    @Column(name = "ngay_mua", nullable = false)
     private LocalDate ngayMua;
 
-    @Column(name = "gia_goc", precision = 18, scale = 2)
+    @Size(max = 100)
+    @NotNull
+    @Nationalized
+    @Column(name = "phuong_thuc", nullable = false, length = 100)
+    private String phuongThuc;
+
+    @NotNull
+    @Column(name = "gia_goc", nullable = false, precision = 18, scale = 2)
     private BigDecimal giaGoc;
 
-    @Column(name = "gia_giam_gia", precision = 18, scale = 2)
+    @NotNull
+    @Column(name = "gia_giam_gia", nullable = false, precision = 18, scale = 2)
     private BigDecimal giaGiamGia;
 
-    @Column(name = "thanh_tien", precision = 18, scale = 2)
+    @NotNull
+    @Column(name = "thanh_tien", nullable = false, precision = 18, scale = 2)
     private BigDecimal thanhTien;
 
-    @Size(max = 50)
-    @Nationalized
-    @Column(name = "loai_hoa_don", length = 50)
-    private String loaiHoaDon;
-
     @Size(max = 100)
+    @NotNull
     @Nationalized
-    @Column(name = "ten_nguoi_nhan", length = 100)
+    @Column(name = "ten_nguoi_nhan", nullable = false, length = 100)
     private String tenNguoiNhan;
 
     @Size(max = 20)
@@ -109,15 +107,20 @@ public class HoaDon {
     @Column(name = "ghi_chu")
     private String ghiChu;
 
-    @Column(name = "tien_van_chuyen", precision = 18, scale = 2)
-    private BigDecimal tienVanChuyen;
+    @Column(name = "nguoi_tao")
+    private Integer nguoiTao;
+
+    @Column(name = "nguoi_sua")
+    private Integer nguoiSua;
+
+    @NotNull
+    @Column(name = "phi_van_chuyen", nullable = false, precision = 18, scale = 2)
+    private BigDecimal phiVanChuyen;
 
     @OneToMany(mappedBy = "hoaDon")
-    @ToString.Exclude
     private Set<HoaDonChiTiet> hoaDonChiTiets = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "hoaDon")
-    @ToString.Exclude
     private Set<LichSuHoaDon> lichSuHoaDons = new LinkedHashSet<>();
 
 }

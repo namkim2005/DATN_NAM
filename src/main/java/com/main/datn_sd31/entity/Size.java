@@ -1,6 +1,7 @@
 package com.main.datn_sd31.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
@@ -14,7 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "\"size\"")
 public class Size {
@@ -24,13 +24,15 @@ public class Size {
     private Integer id;
 
     @jakarta.validation.constraints.Size(max = 50)
+    @NotNull
     @Nationalized
-    @Column(name = "ma", length = 50)
+    @Column(name = "ma", nullable = false, length = 50)
     private String ma;
 
     @jakarta.validation.constraints.Size(max = 100)
+    @NotNull
     @Nationalized
-    @Column(name = "ten", length = 100)
+    @Column(name = "ten", nullable = false, length = 100)
     private String ten;
 
     @Column(name = "nguoi_tao")
@@ -51,7 +53,6 @@ public class Size {
     private Boolean trangThai;
 
     @OneToMany(mappedBy = "size")
-    @ToString.Exclude
     private Set<ChiTietSanPham> chiTietSanPhams = new LinkedHashSet<>();
 
 }

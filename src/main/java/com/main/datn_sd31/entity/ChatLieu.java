@@ -15,7 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "chat_lieu")
 public class ChatLieu {
@@ -52,7 +51,6 @@ public class ChatLieu {
     private Boolean trangThai;
 
     @OneToMany(mappedBy = "chatLieu")
-    @ToString.Exclude
     private Set<SanPham> sanPhams = new LinkedHashSet<>();
 
 }

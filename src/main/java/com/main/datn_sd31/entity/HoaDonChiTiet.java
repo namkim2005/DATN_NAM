@@ -1,6 +1,7 @@
 package com.main.datn_sd31.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -12,7 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "hoa_don_chi_tiet")
 public class HoaDonChiTiet {
@@ -35,26 +35,30 @@ public class HoaDonChiTiet {
     @Column(name = "ngay_sua")
     private LocalDate ngaySua;
 
-    @Column(name = "trang_thai")
-    private Boolean trangThai;
+    @NotNull
+    @Column(name = "trang_thai", nullable = false)
+    private Boolean trangThai = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hoa_don_id")
-    @ToString.Exclude
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "hoa_don_id", nullable = false)
     private HoaDon hoaDon;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chi_tiet_san_pham_id")
-    @ToString.Exclude
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "chi_tiet_san_pham_id", nullable = false)
     private ChiTietSanPham chiTietSanPham;
 
-    @Column(name = "gia_sau_giam", precision = 18, scale = 2)
+    @NotNull
+    @Column(name = "gia_sau_giam", nullable = false, precision = 18, scale = 2)
     private BigDecimal giaSauGiam;
 
-    @Column(name = "gia_giam", precision = 18, scale = 2)
+    @NotNull
+    @Column(name = "gia_giam", nullable = false, precision = 18, scale = 2)
     private BigDecimal giaGiam;
 
-    @Column(name = "so_luong")
+    @NotNull
+    @Column(name = "so_luong", nullable = false)
     private Integer soLuong;
 
 }
