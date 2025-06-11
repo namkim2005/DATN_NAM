@@ -11,6 +11,16 @@
         margin-bottom: 10px;
     }
 
+    .filter-buttons a:hover {
+        color: white;
+    }
+
+    .filter-buttons a {
+        color: #0d6efd;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
     .table-section {
         background-color: #fff;
         padding: 20px;
@@ -37,6 +47,7 @@
     .action-btn.cancel {
         color: red;
     }
+
 </style>
 
 <div th:fragment="page">
@@ -46,44 +57,43 @@
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="filter-buttons mb-3">
-                <button class="btn btn-outline-primary">Tất cả</button>
                 <button class="btn btn-outline-primary">
-                    Chờ Xác Nhận
+                    <a th:href="@{/admin/hoa-don}">Tất cả</a>
+                </button>
+                <button class="btn btn-outline-primary position-relative">
+                    <a th:href="@{/admin/hoa-don/cho-xac-nhan}">Chờ Xác Nhận</a>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     [[${trangThaiCount['Chờ xác nhận'] ?: 0}]]
                     </span>
                 </button>
-                <button class="btn btn-outline-primary">
-                    Xác nhận
+                <button class="btn btn-outline-primary position-relative">
+                    <a th:href="@{/admin/hoa-don/xac-nhan}">Xác Nhận</a>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     [[${trangThaiCount['Xác nhận'] ?: 0}]]
                     </span>
                 </button>
-                <button class="btn btn-outline-primary">
-                    Chờ giao hàng
+                <button class="btn btn-outline-primary position-relative">
+                    <a th:href="@{/admin/hoa-don/cho-giao-hang}">Chờ giao hàng</a>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     [[${trangThaiCount['Chờ giao hàng'] ?: 0}]]
                     </span>
                 </button>
-                <button class="btn btn-outline-primary">
-                    Đã Giao
+                <button class="btn btn-outline-primary position-relative">
+                    <a th:href="@{/admin/hoa-don/da-giao}">Đã giao</a>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     [[${trangThaiCount['Đã giao'] ?: 0}]]
                     </span>
                 </button>
-                <button class="btn btn-outline-primary">
-                    Hoàn Thành
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                <button class="btn btn-outline-primary position-relative">
+                    <a th:href="@{/admin/hoa-don/hoan-thanh}">Hoàn thành</a>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    >
                     [[${trangThaiCount['Hoàn thành'] ?: 0}]]
                     </span>
                 </button>
                 <button class="btn btn-outline-primary position-relative">
-                    Đã hủy
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    [[${trangThaiCount['Hủy'] ?: 0}]]
-                    </span>
+                    <a th:href="@{/admin/hoa-don/huy}">Hủy</a>
                 </button>
-<!--                <button class="btn btn-outline-primary">Xác Nhận Hoàn Trả</button>-->
             </div>
 
             <div class="row g-3 align-items-end">

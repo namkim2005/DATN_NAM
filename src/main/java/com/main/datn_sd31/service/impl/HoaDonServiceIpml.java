@@ -9,9 +9,8 @@ import com.main.datn_sd31.service.HoaDonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +47,19 @@ public class HoaDonServiceIpml implements HoaDonService {
         }
 
         return hoaDonList;
+    }
+
+    @Override
+    public Map<String, Long> getTrangThaiCount() {
+        return getAllHoaDon().stream()
+                .collect(Collectors.groupingBy(HoaDonDTO::getTrangThai, Collectors.counting()));
+    }
+
+    @Override
+    public List<HoaDonDTO> getAllHoaDonByStatus(String status) {
+        return getAllHoaDon().stream()
+                .filter(hd -> Objects.equals(hd.getTrangThai(), status))
+                .toList();
     }
 
 }
