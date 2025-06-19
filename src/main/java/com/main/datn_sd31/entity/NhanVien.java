@@ -7,7 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -38,7 +38,7 @@ public class NhanVien {
 
     @NotNull
     @Column(name = "ngay_sinh", nullable = false)
-    private LocalDate ngaySinh;
+    private LocalDateTime ngaySinh;
 
     @Size(max = 20)
     @NotNull
@@ -48,7 +48,7 @@ public class NhanVien {
 
     @NotNull
     @Column(name = "ngay_tham_gia", nullable = false)
-    private LocalDate ngayThamGia;
+    private LocalDateTime ngayThamGia;
 
     @Size(max = 20)
     @NotNull
@@ -86,11 +86,11 @@ public class NhanVien {
 
     @ColumnDefault("getdate()")
     @Column(name = "ngay_sua")
-    private LocalDate ngaySua;
+    private LocalDateTime ngaySua;
 
     @ColumnDefault("getdate()")
     @Column(name = "ngay_tao")
-    private LocalDate ngayTao;
+    private LocalDateTime ngayTao;
 
     @Size(max = 50)
     @NotNull

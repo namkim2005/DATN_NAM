@@ -8,7 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -34,12 +34,12 @@ public class HoaDon {
     @NotNull
     @ColumnDefault("getdate()")
     @Column(name = "ngay_tao", nullable = false)
-    private LocalDate ngayTao;
+    private LocalDateTime ngayTao;
 
     @NotNull
     @ColumnDefault("getdate()")
     @Column(name = "ngay_sua", nullable = false)
-    private LocalDate ngaySua;
+    private LocalDateTime ngaySua;
 
     @NotNull
     @Column(name = "trang_thai", nullable = false)
@@ -61,7 +61,7 @@ public class HoaDon {
 
     @NotNull
     @Column(name = "ngay_mua", nullable = false)
-    private LocalDate ngayMua;
+    private LocalDateTime ngayMua;
 
     @Size(max = 100)
     @NotNull

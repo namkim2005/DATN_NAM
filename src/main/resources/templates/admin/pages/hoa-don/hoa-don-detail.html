@@ -1,0 +1,8 @@
+<div th:fragment="detail">
+  <p><strong>Mã hóa đơn:</strong> <span th:text="${hoaDonDetail.ma}"></span></p>
+  <p><strong>Khách hàng:</strong> <span th:text="${hoaDonDetail.tenKH}"></span></p>
+  <p><strong>Trạng thái:</strong> <span th:text="${hoaDonDetail.trangThai1}"></span></p>
+  <p><strong>Thành tiền:</strong> <span th:text="${@utils.formatCurrency(hoaDonDetail.thanhTien)}"></span></p>
+  <p><strong>Ngày tạo:</strong> <span th:text="${hoaDonDetail.ngayTao}"></span></p>
+  <!-- Bạn có thể thêm chi tiết hơn như danh sách sản phẩm, lịch sử,... -->
+</div>

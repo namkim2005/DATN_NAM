@@ -1,6 +1,5 @@
-package com.main.datn_sd31;
+package com.main.datn_sd31.util;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

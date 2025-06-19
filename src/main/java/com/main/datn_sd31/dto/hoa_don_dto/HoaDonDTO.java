@@ -1,8 +1,6 @@
 package com.main.datn_sd31.dto.hoa_don_dto;
 
 import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -24,7 +22,9 @@ public class HoaDonDTO {
 
     private BigDecimal thanhTien;
 
-    public String getTrangThai() {
+    private String ngayTao;
+
+    public String getTrangThai1() {
         TrangThaiLichSuHoaDon tt = TrangThaiLichSuHoaDon.fromValue(this.trangThai);
         return tt != null ? tt.getMoTa() : "Không rõ";
     }
