@@ -1,0 +1,241 @@
+<style>
+    .filter-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .filter-buttons .btn {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    .filter-buttons a:hover {
+        color: white;
+    }
+
+    .filter-buttons a {
+        color: #0d6efd;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .table-section {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-section .table thead th {
+        background-color: #f1f1f1;
+    }
+
+    .action-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 5px;
+    }
+
+    .action-btn.accept {
+        color: green;
+    }
+
+    .action-btn.cancel {
+        color: red;
+    }
+
+</style>
+
+<div th:fragment="page">
+    <div class="container mt-4">
+        <h2 class="mb-4 text-center">Quản Lý Hóa Đơn</h2>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-buttons mb-3">
+                <button class="btn btn-outline-primary">
+                    <a th:href="@{/admin/hoa-don}">Tất cả</a>
+                </button>
+                <button th:each="status : ${T(com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon).values()}"
+                        class="btn btn-outline-primary position-relative">
+                    <a th:href="@{/admin/hoa-don(trang-thai=${status.value})}" th:text="${status.moTa}"></a>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          th:if="${trangThaiCount[status.moTa] != null and trangThaiCount[status.moTa] != 0}"
+                          th:text="${trangThaiCount[status.moTa]}">
+                    </span>
+                </button>
+            </div>
+
+            <form method="get" th:action="@{/admin/hoa-don}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label">Ngày bắt đầu</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate"
+                               th:value="${startDate}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label">Ngày kết thúc</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate"
+                               th:value="${endDate}">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+                    </div>
+                    <div class="col-md-3">
+                        <a th:href="@{/admin/hoa-don}" class="btn btn-outline-secondary w-100">Làm mới</a>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-section">
+            <div class="row mb-3 align-items-center">
+                <div class="col-md-2">
+                    <label for="entries" class="form-label">Hiển thị</label>
+                    <select id="entries" class="form-select">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="col-md-10 text-end">
+                    <form th:action="@{/admin/hoa-don/search}" method="get">
+                        <div>
+                            <label for="keyword" class="form-label me-2">Tìm kiếm:</label>
+                            <input type="text" name="keyword" id="keyword" class="form-control d-inline-block" style="width: 400px;"
+                                   placeholder="Tìm theo mã, tên KH, SĐT">
+                            <button class="btn btn-primary">Tìm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã</th>
+                    <th>Khách hàng</th>
+                    <th>Trạng Thái</th>
+                    <th>Thành Tiền (VNĐ)</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="hoaDon, index : ${hoaDonList}">
+                    <td th:text="${index.count}"></td>
+                    <td th:text="${hoaDon.ma}"></td>
+                    <td th:text="${hoaDon.tenKH != null ? hoaDon.tenKH : 'Khách lẻ' }"></td>
+                    <td th:text="${hoaDon.trangThai1}"></td>
+                    <td th:text="${@utils.formatCurrency(hoaDon.thanhTien)}"></td>
+                    <td th:text="${hoaDon.ngayTao}"></td>
+                    <td>
+                        <button class="action-btn accept">✔</button>
+                        <button class="action-btn cancel">✖</button>
+                        <button class="action-btn cancel btn-detail" type="button" th:attr="data-ma=${hoaDon.ma}" >
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p th:if="${pageInfo.totalElements} > 0"
+                       th:text="'Đang hiển thị từ ' + ${pageInfo.number * pageInfo.size + 1} + ' đến ' + ${pageInfo.number * pageInfo.size + pageInfo.numberOfElements} + ' của ' + ${pageInfo.totalElements} + ' bản ghi'"></p>
+                    <p th:if="${pageInfo.totalElements} == 0">Không có dữ liệu</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-end mb-0">
+                            <li class="page-item" th:classappend="${pageInfo.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/hoa-don(page=${pageInfo.number - 1}, trangThai=${param.trangThai})}">Trước</a>
+                            </li>
+                            <li th:if="${pageInfo.totalPages > 0}"
+                                class="page-item"
+                                th:each="i : ${#numbers.sequence(0, pageInfo.totalPages - 1)}"
+                                th:classappend="${i == pageInfo.number} ? 'active'">
+
+                                <a class="page-link"
+                                   th:href="@{/admin/hoa-don(page=${i}, trangThai=${param.trangThai})}"
+                                   th:text="${i + 1}"></a>
+                            </li>
+                            <li class="page-item" th:classappend="${pageInfo.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/hoa-don(page=${pageInfo.number + 1}, trangThai=${param.trangThai})}">Sau</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hóa đơn chi tiết -->
+    <div class="modal fade" id="hoaDonDetailModal" tabindex="-1" aria-labelledby="hoaDonDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="hoaDonDetailModalLabel">Chi tiết Hóa đơn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Nội dung chi tiết sẽ load ở đây -->
+                    <div id="modal-body-content">
+                        <p>Đang tải...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const detailButtons = document.querySelectorAll(".btn-detail");
+        const modal = new bootstrap.Modal(document.getElementById('hoaDonDetailModal'));
+        const modalBodyContent = document.getElementById("modal-body-content");
+
+        detailButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const maHoaDon = this.getAttribute("data-ma");
+
+                // ✅ Kiểm tra giá trị mã hóa đơn
+                console.log("Mã hóa đơn được lấy:", maHoaDon);
+
+                // Hiển thị modal
+                modal.show();
+
+                // Hiển thị loading tạm thời
+                modalBodyContent.innerHTML = "<p>Đang tải...</p>";
+
+                // Gọi API lấy chi tiết hóa đơn (ví dụ API: /admin/hoa-don/detail?ma=...)
+                fetch(`/admin/hoa-don/detail?ma=${encodeURIComponent(maHoaDon)}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Lỗi khi tải dữ liệu");
+                        return response.text(); // Hoặc json() tùy API trả về
+                    })
+                    .then(html => {
+                        // Đổ nội dung chi tiết vào modal
+                        modalBodyContent.innerHTML = html;
+                    })
+                    .catch(error => {
+                        modalBodyContent.innerHTML = `<p class="text-danger">${error.message}</p>`;
+                    });
+            });
+        });
+    });
+</script>
