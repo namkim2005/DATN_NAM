@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -41,17 +42,44 @@ public class HoaDonServiceIpml implements HoaDonService {
             dto.setTenKH("Khách vãng lai");
         }
 
+        dto.setDiaChi(hoaDon.getDiaChi());
+        dto.setEmail(hoaDon.getEmail());
+        dto.setSoDienThoai(hoaDon.getSoDienThoai());
+
+        if (hoaDon.getNhanVien() != null) {
+            dto.setMaNV(hoaDon.getNhanVien().getMa());
+            dto.setTenNhanVien(hoaDon.getNhanVien().getTen());
+        } else {
+            dto.setMaKH(null);
+            dto.setTenKH("Auto");
+        }
+
         // Lấy lịch sử trạng thái mới nhất
         LichSuHoaDon lichSuMoiNhat = lichSuHoaDonRepository.findTopByHoaDonOrderByIdDesc(hoaDon);
         if (lichSuMoiNhat != null) {
-            dto.setTrangThai(lichSuMoiNhat.getTrangThai());
+            dto.setTrangThaiLichSuHoaDon(lichSuMoiNhat.getTrangThai());
         } else {
-            dto.setTrangThai(9);
+            dto.setTrangThaiLichSuHoaDon(9);
+        }
+
+        dto.setPhuongThuc(hoaDon.getPhuongThuc());
+
+        dto.setGiaGoc(hoaDon.getGiaGoc());
+
+        if (hoaDon.getPhieuGiamGia().getMa() != null) {
+            dto.setMaGiamGia(hoaDon.getPhieuGiamGia().getMa());
+            dto.setGiaGiamGia(hoaDon.getGiaGiamGia());
+        } else {
+            dto.setMaGiamGia(null);
+            dto.setGiaGiamGia(BigDecimal.valueOf(0));
         }
 
         dto.setThanhTien(hoaDon.getThanhTien());
+        dto.setPhiVanChuyen(hoaDon.getPhiVanChuyen());
         dto.setNgayTao(DateTimeUtils.format(hoaDon.getNgayTao()));
+        dto.setTrangThaiHoaDon(hoaDon.getTrangThai() ? "Đã thanh toán" : "Chưa thanh toán");
 
+        dto.setGhiChu(hoaDon.getGhiChu());
         return dto;
     }
 
@@ -87,9 +115,9 @@ public class HoaDonServiceIpml implements HoaDonService {
 
             LichSuHoaDon lichSuMoiNhat = lichSuHoaDonRepository.findTopByHoaDonOrderByIdDesc(hoaDon);
             if (lichSuMoiNhat != null) {
-                hoaDonDTO.setTrangThai(lichSuMoiNhat.getTrangThai());
+                hoaDonDTO.setTrangThaiLichSuHoaDon(lichSuMoiNhat.getTrangThai());
             } else {
-                hoaDonDTO.setTrangThai(9);
+                hoaDonDTO.setTrangThaiLichSuHoaDon(9);
             }
 
             hoaDonDTO.setThanhTien(hoaDon.getThanhTien());
@@ -102,7 +130,7 @@ public class HoaDonServiceIpml implements HoaDonService {
     @Override
     public Map<String, Long> getTrangThaiCount() {
         return getAllHoaDon().stream()
-                .collect(Collectors.groupingBy(HoaDonDTO::getTrangThai1, Collectors.counting()));
+                .collect(Collectors.groupingBy(HoaDonDTO::getTrangThaiLichSuHoaDon, Collectors.counting()));
     }
 
     @Override
@@ -114,7 +142,7 @@ public class HoaDonServiceIpml implements HoaDonService {
                 LocalDate.of(2030, 1, 1)
         ).getContent();
         List<HoaDonDTO> filtered = all.stream()
-                .filter(hd -> Objects.equals(hd.getTrangThai(), status))
+                .filter(hd -> Objects.equals(hd.getTrangThaiLichSuHoaDon(), status))
                 .toList();
 
         int total = filtered.size();

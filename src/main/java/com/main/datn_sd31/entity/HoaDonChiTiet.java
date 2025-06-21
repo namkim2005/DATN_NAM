@@ -61,4 +61,10 @@ public class HoaDonChiTiet {
     @Column(name = "so_luong", nullable = false)
     private Integer soLuong;
 
+    @Column(name = "ten_ctsp")
+    private String tenCtsp;
+
+    @Column(name = "gia_goc", precision = 18, scale = 2)
+    private BigDecimal giaGoc;
+
 }

@@ -18,14 +18,38 @@ public class HoaDonDTO {
 
     private String tenKH;
 
-    private Integer trangThai;
+    private String diaChi;
+
+    private String email;
+
+    private String soDienThoai;
+
+    private String maNV;
+
+    private String tenNhanVien;
+
+    private Integer trangThaiLichSuHoaDon;
+
+    private String phuongThuc;
+
+    private String maGiamGia;
+
+    private BigDecimal giaGoc;
+
+    private BigDecimal giaGiamGia;
+
+    private BigDecimal phiVanChuyen;
 
     private BigDecimal thanhTien;
 
     private String ngayTao;
 
-    public String getTrangThai1() {
-        TrangThaiLichSuHoaDon tt = TrangThaiLichSuHoaDon.fromValue(this.trangThai);
+    private String trangThaiHoaDon;
+
+    private String ghiChu;
+
+    public String getTrangThaiLichSuHoaDon() {
+        TrangThaiLichSuHoaDon tt = TrangThaiLichSuHoaDon.fromValue(this.trangThaiLichSuHoaDon);
         return tt != null ? tt.getMoTa() : "Không rõ";
     }
 

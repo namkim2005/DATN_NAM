@@ -3,6 +3,7 @@ package com.main.datn_sd31.controller.admin_controller;
 import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
 import com.main.datn_sd31.dto.Pagination;
 import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
+import com.main.datn_sd31.service.HoaDonChiTietService;
 import com.main.datn_sd31.service.HoaDonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class HoaDonController {
 
     private final HoaDonService hoaDonService;
+    private final HoaDonChiTietService hoaDonChiTietService;
 
     @GetMapping("")
     public String hoaDon(
@@ -85,8 +87,8 @@ public class HoaDonController {
         HoaDonDTO hoaDonDetail = hoaDonService.getHoaDonByMa(ma);
         System.out.println("Controller:" +hoaDonDetail);
         model.addAttribute("hoaDonDetail", hoaDonDetail);
-        // Trả về fragment Thymeleaf chứa chi tiết (ví dụ: admin/fragments/hoa-don-detail :: detail)
-        return "admin/fragments/hoa-don-detail :: detail";
+        model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
+        return "admin/pages/hoa-don/hoa-don-detail";
     }
 
 }

@@ -126,6 +126,7 @@
                     <th>Trạng Thái</th>
                     <th>Thành Tiền (VNĐ)</th>
                     <th>Ngày tạo</th>
+                    <th>Thanh toán</th>
                     <th>Thao Tác</th>
                 </tr>
                 </thead>
@@ -134,9 +135,10 @@
                     <td th:text="${index.count}"></td>
                     <td th:text="${hoaDon.ma}"></td>
                     <td th:text="${hoaDon.tenKH != null ? hoaDon.tenKH : 'Khách lẻ' }"></td>
-                    <td th:text="${hoaDon.trangThai1}"></td>
+                    <td th:text="${hoaDon.getTrangThaiLichSuHoaDon}"></td>
                     <td th:text="${@utils.formatCurrency(hoaDon.thanhTien)}"></td>
                     <td th:text="${hoaDon.ngayTao}"></td>
+                    <td th:text="${hoaDon.trangThaiHoaDon}"></td>
                     <td>
                         <button class="action-btn accept">✔</button>
                         <button class="action-btn cancel">✖</button>
@@ -181,7 +183,8 @@
     </div>
 
     <!-- Modal Hóa đơn chi tiết -->
-    <div class="modal fade" id="hoaDonDetailModal" tabindex="-1" aria-labelledby="hoaDonDetailModalLabel" aria-hidden="true">
+    <div class="modal fade" id="hoaDonDetailModal" tabindex="-1" aria-labelledby="hoaDonDetailModalLabel" aria-hidden="true"
+    style="margin-top: 55px;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -212,9 +215,6 @@
         detailButtons.forEach(button => {
             button.addEventListener("click", function () {
                 const maHoaDon = this.getAttribute("data-ma");
-
-                // ✅ Kiểm tra giá trị mã hóa đơn
-                console.log("Mã hóa đơn được lấy:", maHoaDon);
 
                 // Hiển thị modal
                 modal.show();
