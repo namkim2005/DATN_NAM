@@ -1,13 +1,10 @@
 package com.main.datn_sd31.controller.admin_controller;
 
-import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
 import com.main.datn_sd31.dto.Pagination;
 import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
 import com.main.datn_sd31.service.HoaDonChiTietService;
 import com.main.datn_sd31.service.HoaDonService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/hoa-don")
@@ -45,7 +39,6 @@ public class HoaDonController {
             endDate = LocalDate.now();
         }
 
-        model.addAttribute("page", "admin/pages/hoa-don");
         Pagination<HoaDonDTO> hoaDonList = (trangThai == null)
                 ? hoaDonService.getAll(page, size, startDate, endDate)
                 : hoaDonService.getAllHoaDonByStatus(trangThai, page, size);
@@ -54,7 +47,7 @@ public class HoaDonController {
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount());
-        return "admin/index";
+        return "admin/pages/hoa-don/hoa-don";
     }
 
     @GetMapping("/search")
@@ -73,10 +66,9 @@ public class HoaDonController {
         model.addAttribute("hoaDonList", hoaDonList.getContent());
         model.addAttribute("pageInfo", hoaDonList);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("page", "admin/pages/hoa-don");
         model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount());
 
-        return "admin/index";
+        return "admin/pages/hoa-don/hoa-don";
     }
 
     @GetMapping("/detail")
@@ -84,9 +76,7 @@ public class HoaDonController {
             @RequestParam("ma") String ma,
             Model model
     ) {
-        HoaDonDTO hoaDonDetail = hoaDonService.getHoaDonByMa(ma);
-        System.out.println("Controller:" +hoaDonDetail);
-        model.addAttribute("hoaDonDetail", hoaDonDetail);
+        model.addAttribute("hoaDonDetail", hoaDonService.getHoaDonByMa(ma));
         model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
         return "admin/pages/hoa-don/hoa-don-detail";
     }
