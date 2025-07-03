@@ -17,16 +17,16 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     Page<HoaDon> findByNgayTaoBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     @Query("""
-        SELECT hd FROM HoaDon hd 
-        WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :keyword, '%'))
-        OR LOWER(hd.tenNguoiNhan) LIKE LOWER(CONCAT('%', :keyword, '%'))
-        OR hd.soDienThoai LIKE CONCAT('%', :keyword, '%')
-    """)
+                SELECT hd FROM HoaDon hd 
+                WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(hd.tenNguoiNhan) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR hd.soDienThoai LIKE CONCAT('%', :keyword, '%')
+            """)
     Page<HoaDon> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("""
-    SELECT hd FROM HoaDon hd 
-    WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :ma, '%'))
-""")
+                SELECT hd FROM HoaDon hd 
+                WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :ma, '%'))
+            """)
     List<HoaDon> findByMaContainingIgnoreCase(@Param("ma") String ma);
 }

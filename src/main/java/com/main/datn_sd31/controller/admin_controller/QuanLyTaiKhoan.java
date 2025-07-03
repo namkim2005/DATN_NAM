@@ -55,7 +55,7 @@ public class QuanLyTaiKhoan {
         return "redirect:/admin/quan-ly-tai-khoan?activeTab=nhanvien";
     }
 
-    @GetMapping("/searchNhanVien")
+    @GetMapping("/search-nhan-vien")
     public String searchNhanVien(@RequestParam("id") Integer id, Model model) {
         NhanVien nv = nhanVienRepository.findById(id).orElse(null);
         model.addAttribute("nhanvienList", nv != null ? List.of(nv) : List.of());

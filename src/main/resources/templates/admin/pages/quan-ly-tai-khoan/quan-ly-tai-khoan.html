@@ -22,16 +22,16 @@
     <h1 class="text-center mb-4">Quản lý tài khoản</h1>
 
     <div class="text-center mb-3">
-      <a th:href="@{/admin/quanlytaikhoan(activeTab='nhanvien')}" class="btn btn-primary tab-button"
+      <a th:href="@{/admin/quan-ly-tai-khoan(activeTab='nhanvien')}" class="btn btn-primary tab-button"
          th:classappend="${activeTab} == 'nhanvien' ? 'btn-success' : ''">Nhân viên</a>
-      <a th:href="@{/admin/quanlytaikhoan(activeTab='khachhang')}" class="btn btn-primary tab-button"
+      <a th:href="@{/admin/quan-ly-tai-khoan(activeTab='khachhang')}" class="btn btn-primary tab-button"
          th:classappend="${activeTab} == 'khachhang' ? 'btn-success' : ''">Khách hàng</a>
     </div>
 
     <!-- Nhân viên -->
     <div th:if="${activeTab} == 'nhanvien'">
       <div class="d-flex justify-content-end mb-2">
-        <form th:action="@{/admin/quanlytaikhoan/searchNhanVien}" method="get" class="d-flex">
+        <form th:action="@{/admin/quan-ly-tai-khoan/search-nhan-vien}" method="get" class="d-flex">
           <input type="number" name="id" class="form-control me-2" placeholder="Tìm ID nhân viên" required>
           <button type="submit" class="btn btn-secondary">Tìm</button>
         </form>
@@ -39,7 +39,7 @@
 
       <div class="card p-3 mb-4">
         <h5 th:text="${nhanvien.id} != null ? 'Cập nhật nhân viên' : 'Thêm nhân viên'"></h5>
-        <form th:action="@{/admin/quanlytaikhoan/saveNhanVien}" method="post" class="row g-3">
+        <form th:action="@{/admin/quan-ly-tai-khoan/save-nhan-vien}" method="post" class="row g-3">
           <input type="hidden" th:field="${nhanvien.id}"/>
           <div class="col-md-4"><input class="form-control" placeholder="Mã" th:field="${nhanvien.ma}" required></div>
           <div class="col-md-4"><input class="form-control" placeholder="Tên" th:field="${nhanvien.ten}" required></div>
@@ -92,8 +92,8 @@
           <td th:text="${nv.chucVu}"></td>
           <td th:text="${nv.trangThai}"></td>
           <td>
-            <a class="btn btn-sm btn-warning" th:href="@{'/admin/quanlytaikhoan/editNhanVien?id=' + ${nv.id}}">Sửa</a>
-            <a class="btn btn-sm btn-danger" th:href="@{'/admin/quanlytaikhoan/deleteNhanVien?id=' + ${nv.id}}">Xóa</a>
+            <a class="btn btn-sm btn-warning" th:href="@{'/admin/quan-ly-tai-khoan/edit-nhan-vien?id=' + ${nv.id}}">Sửa</a>
+            <a class="btn btn-sm btn-danger" th:href="@{'/admin/quan-ly-tai-khoan/delete-nhan-vien?id=' + ${nv.id}}">Xóa</a>
           </td>
         </tr>
         </tbody>
@@ -103,7 +103,7 @@
     <!-- Khách hàng -->
     <div th:if="${activeTab} == 'khachhang'">
       <div class="d-flex justify-content-end mb-2">
-        <form th:action="@{/admin/quanlytaikhoan/searchKhachHang}" method="get" class="d-flex">
+        <form th:action="@{/admin/quan-ly-tai-khoan/search-khach-hang}" method="get" class="d-flex">
           <input type="number" name="id" class="form-control me-2" placeholder="Tìm ID khách hàng" required>
           <button type="submit" class="btn btn-secondary">Tìm</button>
         </form>
@@ -111,7 +111,7 @@
 
       <div class="card p-3 mb-4">
         <h5 th:text="${khachhang.id} != null ? 'Cập nhật khách hàng' : 'Thêm khách hàng'"></h5>
-        <form th:action="@{/admin/quanlytaikhoan/saveKhachHang}" method="post" class="row g-3">
+        <form th:action="@{/admin/quan-ly-tai-khoan/save-Khach-hang}" method="post" class="row g-3">
           <input type="hidden" th:field="${khachhang.id}"/>
           <div class="col-md-4"><input class="form-control" placeholder="Mã" th:field="${khachhang.ma}" required></div>
           <div class="col-md-4"><input class="form-control" placeholder="Tên" th:field="${khachhang.ten}" required></div>
@@ -158,8 +158,8 @@
           <td th:text="${kh.ngayTao}"></td>
           <td th:text="${kh.trangThai}"></td>
           <td>
-            <a class="btn btn-sm btn-warning" th:href="@{'/admin/quanlytaikhoan/editKhachHang?id=' + ${kh.id}}">Sửa</a>
-            <a class="btn btn-sm btn-danger" th:href="@{'/admin/quanlytaikhoan/deleteKhachHang?id=' + ${kh.id}}">Xóa</a>
+            <a class="btn btn-sm btn-warning" th:href="@{'/admin/quan-ly-tai-khoan/edit-khach-hang?id=' + ${kh.id}}">Sửa</a>
+            <a class="btn btn-sm btn-danger" th:href="@{'/admin/quan-ly-tai-khoan/delete-khach-hang?id=' + ${kh.id}}">Xóa</a>
           </td>
         </tr>
         </tbody>

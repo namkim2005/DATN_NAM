@@ -58,8 +58,8 @@ public class PhieuGiamGia {
     @Size(max = 50)
     @NotNull
     @Nationalized
-    @Column(name = "loai_phieu_giam_gia", nullable = false, length = 50)
-    private String loaiPhieuGiamGia;
+    @Column(name = "loai_phieu_giam_gia", nullable = false)
+    private Integer loaiPhieuGiamGia;
 
     @Column(name = "ngay_bat_dau")
     private LocalDateTime ngayBatDau;

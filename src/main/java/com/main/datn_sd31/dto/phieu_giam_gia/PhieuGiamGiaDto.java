@@ -15,7 +15,9 @@ public class PhieuGiamGiaDto {
     private Integer id;
     private String ma;
     private String ten;
-    private String loaiPhieuGiamGia;
+
+    //Thay bằng kieeur Integer, 1: Phan tram, 2: So tien
+    private Integer loaiPhieuGiamGia;
     private LocalDateTime ngayBatDau;
     private LocalDateTime ngayKetThuc;
     private BigDecimal mucDo;
