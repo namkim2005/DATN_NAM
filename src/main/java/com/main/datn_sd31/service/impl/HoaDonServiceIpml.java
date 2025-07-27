@@ -54,8 +54,8 @@ public class HoaDonServiceIpml implements HoaDonService {
             dto.setMaNV(hoaDon.getNhanVien().getMa());
             dto.setTenNhanVien(hoaDon.getNhanVien().getTen());
         } else {
-            dto.setMaKH(null);
-            dto.setTenKH("Auto");
+            dto.setMaNV(null);
+            dto.setTenNhanVien("Auto");
         }
 
         // Lấy lịch sử trạng thái mới nhất
@@ -70,9 +70,10 @@ public class HoaDonServiceIpml implements HoaDonService {
 
         dto.setGiaGoc(hoaDon.getGiaGoc());
 
-        if (hoaDon.getPhieuGiamGia().getMa() != null) {
+        if (hoaDon.getPhieuGiamGia() != null && hoaDon.getPhieuGiamGia().getMa() != null) {
             dto.setMaGiamGia(hoaDon.getPhieuGiamGia().getMa());
-            dto.setGiamGia((ThymleafHelper.formatCurrency(hoaDon.getPhieuGiamGia().getMucDo())) + (hoaDon.getPhieuGiamGia().getLoaiPhieuGiamGia() == 1 ? " %" : " đ"));
+            dto.setGiamGia((ThymleafHelper.formatCurrency(hoaDon.getPhieuGiamGia().getMucDo())) +
+                    (hoaDon.getPhieuGiamGia().getLoaiPhieuGiamGia() == 1 ? " %" : " đ"));
             dto.setGiaGiamGia(hoaDon.getGiaGiamGia());
         } else {
             dto.setMaGiamGia(null);
@@ -83,9 +84,15 @@ public class HoaDonServiceIpml implements HoaDonService {
         dto.setThanhTien(hoaDon.getThanhTien());
         dto.setPhiVanChuyen(hoaDon.getPhiVanChuyen());
         dto.setNgayTao(DateTimeUtils.format(hoaDon.getNgayTao()));
-        dto.setTrangThaiHoaDon(hoaDon.getTrangThai() ? "Đã thanh toán" : "Chưa thanh toán");
+        dto.setTrangThaiHoaDonString(hoaDon.getTrangThaiMoTa());
+        dto.setTrangThaiHoaDonInteger(hoaDon.getTrangThai());
 
-        dto.setGhiChu(hoaDon.getGhiChu());
+        if (hoaDon.getGhiChu() != null && !hoaDon.getGhiChu().isEmpty()) {
+            dto.setGhiChu(hoaDon.getGhiChu());
+        } else {
+            dto.setGhiChu("");
+        }
+
         return dto;
     }
 
@@ -95,7 +102,7 @@ public class HoaDonServiceIpml implements HoaDonService {
         LocalDateTime start = (startDate != null) ? startDate.atStartOfDay() : null;
         LocalDateTime end = (endDate != null) ? endDate.atTime(LocalTime.MAX) : null;
 
-        Page<HoaDon> pageData = hoaDonRepository.findByNgayTaoBetween(start, end, pageable);
+        Page<HoaDon> pageData = hoaDonRepository.findByNgayTaoBetweenOrderByNgayTaoDesc(start, end, pageable);
 
         // Chuyển Page<HoaDon> → Page<HoaDonDTO>
         Page<HoaDonDTO> pageDTO = pageData.map(this::mapToDTO);
@@ -187,6 +194,13 @@ public class HoaDonServiceIpml implements HoaDonService {
     public HoaDonDTO getHoaDonByMa(String ma) {
         List<HoaDon> hoaDon = hoaDonRepository.findByMaContainingIgnoreCase(ma);
         return mapToDTO(hoaDon.get(0));
+    }
+
+    @Override
+    public void capNhatGhiChuHoaDon(String ma, String ghiChu) {
+        HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(ma);
+        hoaDon.setGhiChu(ghiChu);
+        hoaDonRepository.save(hoaDon);
     }
 
 

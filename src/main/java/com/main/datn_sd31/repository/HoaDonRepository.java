@@ -1,5 +1,6 @@
 package com.main.datn_sd31.repository;
 
+import com.main.datn_sd31.entity.GioHangChiTiet;
 import com.main.datn_sd31.entity.HoaDon;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,19 +15,53 @@ import java.util.List;
 @Repository
 public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
-    Page<HoaDon> findByNgayTaoBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<HoaDon> findByNgayTaoBetweenOrderByNgayTaoDesc(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     @Query("""
-                SELECT hd FROM HoaDon hd 
-                WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                OR LOWER(hd.tenNguoiNhan) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                OR hd.soDienThoai LIKE CONCAT('%', :keyword, '%')
-            """)
+        SELECT hd FROM HoaDon hd 
+        WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(hd.tenNguoiNhan) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR hd.soDienThoai LIKE CONCAT('%', :keyword, '%')
+        ORDER BY hd.ngayTao Desc
+    """)
     Page<HoaDon> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("""
-                SELECT hd FROM HoaDon hd 
-                WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :ma, '%'))
-            """)
+    SELECT hd FROM HoaDon hd 
+    WHERE LOWER(hd.ma) LIKE LOWER(CONCAT('%', :ma, '%'))
+    ORDER BY hd.ngayTao Desc
+""")
     List<HoaDon> findByMaContainingIgnoreCase(@Param("ma") String ma);
+
+    @Query("select n from GioHangChiTiet n where n.id=:id")
+    GioHangChiTiet find(Integer id);
+
+    @Query("select n from GioHangChiTiet n where n.khachHang.id = :username and n.id IN :selectedId ")
+    List<GioHangChiTiet> laySanPhamTheoIds(
+            @Param("username") Integer username,
+            @Param("selectedId") List<Integer> selectedId
+
+    );
+    @Query("select n from HoaDon n where n.khachHang.id = :id ")
+    List<HoaDon> findbyidkhachhang(
+            @Param("id") Integer id
+    );
+
+    @Query("SELECT n FROM HoaDon n WHERE n.ma = :orderCode")
+    HoaDon findByMa(@Param("orderCode") String orderCode);
+
+    HoaDon getHoaDonByMa(String ma);
+
+    @Query("""
+    SELECT hd FROM HoaDon hd
+    WHERE (hd.ngayThanhToan >= :startOfDay
+      AND hd.ngayThanhToan < :startOfNextDay)
+      AND hd.trangThai = :trangThai
+    """)
+    List<HoaDon> findHoaDonByNgayAndTrangThai(
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("startOfNextDay") LocalDateTime startOfNextDay,
+            @Param("trangThai") Integer trangThai
+
+    );
 }

@@ -1,12 +1,16 @@
 package com.main.datn_sd31.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -14,9 +18,9 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Getter
 @Setter
-@Entity
 @Table(name = "nhan_vien")
 public class NhanVien {
     @Id
@@ -36,23 +40,26 @@ public class NhanVien {
     @Column(name = "ten", nullable = false, length = 100)
     private String ten;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @NotNull
     @Column(name = "ngay_sinh", nullable = false)
-    private LocalDateTime ngaySinh;
+    private LocalDate ngaySinh;
 
     @Size(max = 20)
     @NotNull
     @Nationalized
+    @Pattern(regexp = "^\\d{9,12}$", message = "Số điện thoại phải từ 9 đến 12 chữ số")
     @Column(name = "so_dien_thoai", nullable = false, length = 20)
     private String soDienThoai;
 
-    @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "ngay_tham_gia", nullable = false)
-    private LocalDateTime ngayThamGia;
+    private LocalDate ngayThamGia;
 
     @Size(max = 20)
     @NotNull
     @Nationalized
+    @Pattern(regexp = "^\\d{12}$", message = "CMND phải gồm 12 chữ số")
     @Column(name = "chung_minh_thu", nullable = false, length = 20)
     private String chungMinhThu;
 
@@ -63,13 +70,17 @@ public class NhanVien {
     @NotNull
     @Nationalized
     @Lob
-    @Column(name = "anh", nullable = false)
+    @Column(name = "anh", nullable = true)
     private String anh;
 
     @Size(max = 100)
     @NotNull
     @Nationalized
-    @Column(name = "email", nullable = false, length = 100)
+    @NotBlank(message = "Email không được để trống")
+    @Pattern(
+            regexp = "^[A-Za-z0-9._%+-]+@gmail\\.com$",
+            message = "Email phải kết thúc bằng @gmail.com"
+    )    @Column(name = "email", nullable = false, length = 100)
     private String email;
 
     @Size(max = 100)
@@ -84,11 +95,9 @@ public class NhanVien {
     @Column(name = "nguoi_sua")
     private Integer nguoiSua;
 
-    @ColumnDefault("getdate()")
     @Column(name = "ngay_sua")
     private LocalDateTime ngaySua;
 
-    @ColumnDefault("getdate()")
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
 

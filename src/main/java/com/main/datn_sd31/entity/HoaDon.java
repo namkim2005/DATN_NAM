@@ -1,5 +1,6 @@
 package com.main.datn_sd31.entity;
 
+import com.main.datn_sd31.Enum.TrangThaiHoaDon;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -43,14 +44,12 @@ public class HoaDon {
 
     @NotNull
     @Column(name = "trang_thai", nullable = false)
-    private Boolean trangThai = false;
+    private Integer trangThai;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "khach_hang_id", nullable = false)
     private KhachHang khachHang;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "nhan_vien_id", nullable = false)
     private NhanVien nhanVien;
@@ -60,8 +59,8 @@ public class HoaDon {
     private PhieuGiamGia phieuGiamGia;
 
     @NotNull
-    @Column(name = "ngay_mua", nullable = false)
-    private LocalDateTime ngayMua;
+    @Column(name = "ngay_thanh_toan", nullable = false)
+    private LocalDateTime ngayThanhToan;
 
     @Size(max = 100)
     @NotNull
@@ -80,6 +79,9 @@ public class HoaDon {
     @NotNull
     @Column(name = "thanh_tien", nullable = false, precision = 18, scale = 2)
     private BigDecimal thanhTien;
+
+    @Column(name = "loai_hoa_don", nullable = false)
+    private String loaihoadon;
 
     @Size(max = 100)
     @NotNull
@@ -122,5 +124,11 @@ public class HoaDon {
 
     @OneToMany(mappedBy = "hoaDon")
     private Set<LichSuHoaDon> lichSuHoaDons = new LinkedHashSet<>();
+
+    @Transient
+    public String getTrangThaiMoTa() {
+        TrangThaiHoaDon enumTrangThai = TrangThaiHoaDon.fromValue(this.trangThai);
+        return (enumTrangThai != null) ? enumTrangThai.getMoTa() : "Không xác định";
+    }
 
 }

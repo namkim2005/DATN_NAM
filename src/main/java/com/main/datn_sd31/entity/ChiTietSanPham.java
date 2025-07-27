@@ -25,27 +25,29 @@ public class ChiTietSanPham {
     private Integer id;
 
     @Size(max = 200)
-    @NotNull
     @Nationalized
     @Column(name = "ten_ct", nullable = false, length = 200)
     private String tenCt;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "san_pham_id", nullable = false)
     private SanPham sanPham;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "gia_goc")
+    private BigDecimal giaGoc;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "dot_giam_gia_id")
     private DotGiamGia dotGiamGia;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "size_id", nullable = false)
     private com.main.datn_sd31.entity.Size size;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "mau_sac_id", nullable = false)
     private MauSac mauSac;
 
@@ -54,6 +56,9 @@ public class ChiTietSanPham {
 
     @Column(name = "gia_nhap", precision = 18, scale = 2)
     private BigDecimal giaNhap;
+
+    @Column(name = "ma_vach")
+    private String maVach;
 
     @Nationalized
     @Lob

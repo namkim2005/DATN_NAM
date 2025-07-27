@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,8 +16,6 @@ public class PhieuGiamGiaDto {
     private Integer id;
     private String ma;
     private String ten;
-
-    //Thay bằng kieeur Integer, 1: Phan tram, 2: So tien
     private Integer loaiPhieuGiamGia;
     private LocalDateTime ngayBatDau;
     private LocalDateTime ngayKetThuc;
