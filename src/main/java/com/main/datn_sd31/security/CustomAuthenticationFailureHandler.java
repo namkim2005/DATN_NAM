@@ -9,31 +9,31 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
+
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
-        String error = "Lỗi đăng nhập!";
-        if (exception instanceof BadCredentialsException) {
-            error = "Mật khẩu không đúng!";
-        } else if (exception instanceof UsernameNotFoundException) {
-            error = exception.getMessage();
-        } else if (exception instanceof DisabledException) {
-            error = "Tài khoản đã bị vô hiệu hóa!";
-        } else if (exception instanceof LockedException) {
-            error = "Tài khoản đã bị khóa!";
-        } else if (exception instanceof AccountExpiredException) {
-            error = "Tài khoản đã hết hạn!";
-        } else if (exception instanceof CredentialsExpiredException) {
-            error = "Mật khẩu đã hết hạn!";
+        String error = "Lỗi đăng nhập không xác định!";
+
+        if (exception instanceof UsernameNotFoundException) {
+            error = "Không tìm thấy tài khoản với email: " + request.getParameter("username");
+            System.out.println("[LOGIN ERROR] Không tìm thấy tài khoản: " + request.getParameter("username"));
+        } else if (exception instanceof BadCredentialsException) {
+            error = "Mật khẩu không đúng cho tài khoản: " + request.getParameter("username");
+            System.out.println("[LOGIN ERROR] Sai mật khẩu cho tài khoản: " + request.getParameter("username"));
         } else {
-            error = exception.getMessage();
+            error = "Đăng nhập thất bại!";
         }
 
-        // Xác định trang login phù hợp dựa trên request
-        String loginPage = "/login";
+        // Redirect về trang login với thông báo lỗi
+        String loginPage = "/admin/dang-nhap";
         String uri = request.getRequestURI();
         if (uri != null && uri.contains("/khach-hang")) {
             loginPage = "/khach-hang/dang-nhap";

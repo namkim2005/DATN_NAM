@@ -32,22 +32,23 @@ public class SecurityConfig {
     @Order(1)           // Ưu tiên cao nhất
     public SecurityFilterChain adminSecurity(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/admin/**")      // Chỉ áp dụng filter‑chain này cho /admin/**
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
-                )
-                .formLogin(form -> form
-                        .loginPage("/admin/dang-nhap")
-                        .loginProcessingUrl("/admin/dang-nhap") // phải khớp với form
-                        .defaultSuccessUrl("/admin", true)
-                        .failureHandler(customAuthenticationFailureHandler)
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/admin/logout")
-                        .logoutSuccessUrl("/admin/dang-nhap?logout=true")
-                        .permitAll()
-                );
+            .securityMatcher("/admin/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/admin/dang-nhap", "/admin/logout").permitAll()
+                .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
+            )
+            .formLogin(form -> form
+                .loginPage("/admin/dang-nhap")
+                .loginProcessingUrl("/admin/dang-nhap")
+                .defaultSuccessUrl("/admin", true)
+                .failureHandler(customAuthenticationFailureHandler)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/admin/logout")
+                .logoutSuccessUrl("/admin/dang-nhap?logout=true")
+                .permitAll()
+            );
         return http.build();
     }
 
@@ -111,13 +112,19 @@ public class SecurityConfig {
 //        return new CustomUserDetailsService();      // Phải trả về ROLE_ADMIN hoặc ROLE_CUSTOMER tương ứng
 //    }
 
+
     @Bean
-    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setHideUserNotFoundExceptions(false); // Quan trọng để nhận đúng UsernameNotFoundException
+        return authProvider;
+    }
 
-        return new ProviderManager(authProvider);
+    @Bean
+    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
+        return new ProviderManager(authenticationProvider());
     }
 
     @Bean
