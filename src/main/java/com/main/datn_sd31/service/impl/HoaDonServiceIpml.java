@@ -102,7 +102,7 @@ public class HoaDonServiceIpml implements HoaDonService {
         LocalDateTime start = (startDate != null) ? startDate.atStartOfDay() : null;
         LocalDateTime end = (endDate != null) ? endDate.atTime(LocalTime.MAX) : null;
 
-        Page<HoaDon> pageData = hoaDonRepository.findByNgayTaoBetweenOrderByNgayTaoDesc(start, end, pageable);
+        Page<HoaDon> pageData = hoaDonRepository.getHoaDon(start, end, pageable);
 
         // Chuyển Page<HoaDon> → Page<HoaDonDTO>
         Page<HoaDonDTO> pageDTO = pageData.map(this::mapToDTO);
@@ -201,6 +201,20 @@ public class HoaDonServiceIpml implements HoaDonService {
         HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(ma);
         hoaDon.setGhiChu(ghiChu);
         hoaDonRepository.save(hoaDon);
+    }
+
+    @Override
+    public Pagination<HoaDonDTO> getAllDonHang(Integer pageNo, Integer pageSize, LocalDate startDate, LocalDate endDate) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        LocalDateTime start = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime end = (endDate != null) ? endDate.atTime(LocalTime.MAX) : null;
+
+        Page<HoaDon> pageData = hoaDonRepository.getDonHang(start, end, pageable);
+
+        // Chuyển Page<HoaDon> → Page<HoaDonDTO>
+        Page<HoaDonDTO> pageDTO = pageData.map(this::mapToDTO);
+
+        return new Pagination<>(pageDTO);
     }
 
 

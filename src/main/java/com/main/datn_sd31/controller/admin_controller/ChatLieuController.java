@@ -1,7 +1,7 @@
 package com.main.datn_sd31.controller.admin_controller;
 
 import com.main.datn_sd31.entity.ChatLieu;
-import com.main.datn_sd31.repository.Chatlieurepository;
+import com.main.datn_sd31.repository.ChatLieuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ChatLieuController {
 
-    private final Chatlieurepository chatLieuRepository;
+    private final ChatLieuRepository chatLieuRepository;
 
     // Hiển thị trang với form rỗng + danh sách
     @GetMapping

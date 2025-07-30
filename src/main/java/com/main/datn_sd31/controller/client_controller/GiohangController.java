@@ -221,6 +221,7 @@ public class GiohangController {
         lichSu.setTrangThai(1);
         lichSu.setNguoiTao(hoaDon.getNguoiTao());
         lichSu.setNguoiSua(hoaDon.getNguoiSua());
+        lichSu.setNgayTao(LocalDateTime.now());
         lichSu.setGhiChu("Tạo đơn hàng mới, chờ xác nhận");
         lichsuhoadonrepository.save(lichSu);
 
@@ -235,6 +236,8 @@ public class GiohangController {
             ct.setGiaGoc(spct.getGiaBan());
             ct.setGiaSauGiam(spct.getGiaBan().subtract(tienGiam));
             ct.setGiaGiam(tienGiam);
+            ct.setNgayTao(LocalDateTime.now());
+//            ct.setNguoiTao();
 
             // 👉 Gộp tên sản phẩm + chi tiết
             String tenSanPham = spct.getSanPham().getTen();

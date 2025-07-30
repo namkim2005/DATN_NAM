@@ -85,7 +85,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                 }
                 yield List.of(TrangThaiLichSuHoaDon.CHO_GIAO_HANG, TrangThaiLichSuHoaDon.HOAN_THANH, TrangThaiLichSuHoaDon.HUY);
             }
-            case CHO_GIAO_HANG -> List.of(TrangThaiLichSuHoaDon.DA_GIAO);
+            case CHO_GIAO_HANG -> List.of(TrangThaiLichSuHoaDon.DA_GIAO, TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG);
             case DA_GIAO -> {
                 if ("Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
                     yield List.of();
@@ -137,28 +137,6 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
         return mapToDTO(lichSuHoaDons);
     }
 
-//    public Boolean flagTrangThaiTruocDo(String maHoaDon){
-//        HoaDon hoaDon = hoaDonRepository.findByMaContainingIgnoreCase(maHoaDon).get(0);
-//        List<LichSuHoaDon> lichSu = lichSuHoaDonRepository.findLichSuHoaDonsByHoaDonOrderByNgayTaoDesc(hoaDon);
-//
-//        if (lichSu.size() < 2) return true;
-//
-//        int trangThaiTruoc = lichSu.get(1).getTrangThai();
-//
-//        for (int i = 2; i < lichSu.size(); i++) {
-//            LichSuHoaDon lichSuHoaDon = lichSu.get(i);
-//
-//            // BỎ QUA các bản ghi quay lui
-////            if (Boolean.TRUE.equals(lichSuHoaDon.getIsRollBack())) continue;
-//
-//            if (lichSuHoaDon.getTrangThai() == trangThaiTruoc) {
-//                return true; // Đã từng có trạng thái này trong lịch sử "thực sự" => vòng lặp
-//            }
-//        }
-//
-//        return false;
-//    }
-
     public TrangThaiLichSuHoaDon getTrangThaiTruocDo(String maHoaDon) {
         HoaDon hoaDon = hoaDonRepository.findByMaContainingIgnoreCase(maHoaDon).get(0);
         List<LichSuHoaDon> lichSu = lichSuHoaDonRepository.findLichSuHoaDonsByHoaDonOrderByNgayTaoDesc(hoaDon);
@@ -192,7 +170,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                 }
                 yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.CHO_GIAO_HANG || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY;
             }
-            case CHO_GIAO_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_GIAO;
+            case CHO_GIAO_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_GIAO || trangThaiMoiEnum == TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG;
             case DA_GIAO -> {
                 if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH && "Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
                     yield false;

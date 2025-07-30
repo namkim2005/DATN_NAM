@@ -22,10 +22,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        System.out.println("Đang đăng nhập với email: " + email);
 
         /* ==== 1. Thử tìm nhân viên ==== */
         NhanVien nv = nhanVienRepository.findByEmail(email).orElse(null);
         if (nv != null) {
+            System.out.println("Tìm thấy nhân viên, mật khẩu (BCrypt): " + nv.getMatKhau());
             return buildUser(
                     nv.getEmail(),
                     nv.getMatKhau(),
@@ -36,6 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         /* ==== 2. Thử tìm khách hàng ==== */
         KhachHang kh = khachHangRepository.findByEmail(email).orElse(null);
         if (kh != null) {
+            System.out.println("Tìm thấy khách hàng, mật khẩu (BCrypt): " + kh.getMatKhau());
             return buildUser(
                     kh.getEmail(),
                     kh.getMatKhau(),
@@ -55,4 +58,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .authorities(new SimpleGrantedAuthority(role))
                 .build();
     }
+
+
 }

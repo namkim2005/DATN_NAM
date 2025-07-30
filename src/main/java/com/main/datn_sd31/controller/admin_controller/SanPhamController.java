@@ -8,7 +8,7 @@ import com.main.datn_sd31.entity.HinhAnh;
 import com.main.datn_sd31.entity.MauSac;
 import com.main.datn_sd31.entity.SanPham;
 import com.main.datn_sd31.entity.Size;
-import com.main.datn_sd31.repository.Chatlieurepository;
+import com.main.datn_sd31.repository.ChatLieuRepository;
 import com.main.datn_sd31.repository.Chitietsanphamrepository;
 import com.main.datn_sd31.repository.Danhmucrepository;
 import com.main.datn_sd31.repository.Dotgiamgiarepository;
@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +49,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Controller
@@ -60,7 +58,7 @@ public class SanPhamController {
 
     private final Sanphamservice sanPhamService;
     private final NhanVienRepository nhanvienRepo;
-    private final Chatlieurepository chatLieuRepo;
+    private final ChatLieuRepository chatLieuRepo;
     private final Danhmucrepository danhMucRepo;
     private final Thuonghieurepository thuongHieuRepo;
     private final Xuatxurepository xuatXuRepo;

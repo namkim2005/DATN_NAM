@@ -1,9 +1,14 @@
 package com.main.datn_sd31.config;
 
 import com.main.datn_sd31.security.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
     /* ===== 1. Bảo vệ khu vực ADMIN ===== */
     @Bean
     @Order(1)           // Ưu tiên cao nhất
@@ -25,12 +33,16 @@ public class SecurityConfig {
                         .anyRequest().hasRole("ADMIN")  // Phải có ROLE_ADMIN
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
+                        .loginPage("/admin/dang-nhap")
+                        .loginProcessingUrl("/admin/dang-nhap") // phải khớp với form
                         .defaultSuccessUrl("/admin", true)
+                        .failureUrl("/admin/dang-nhap?error=true") // ✅ Xử lý khi đăng nhập sai
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")
+                        .logoutUrl("/admin/logout")
+                        .logoutSuccessUrl("/admin/dang-nhap?logout=true")
+                        .permitAll()
                 );
         return http.build();
     }
@@ -81,16 +93,26 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")      // Trang đăng nhập chung
+                        .loginProcessingUrl("/login") // ✅ Thêm dòng này
                         .permitAll()
                 )
                 .logout(lg -> lg.logoutSuccessUrl("/"));
         return http.build();
     }
 
-    /* ===== Bean chung ===== */
+//    /* ===== Bean chung ===== */
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return new CustomUserDetailsService();      // Phải trả về ROLE_ADMIN hoặc ROLE_CUSTOMER tương ứng
+//    }
+
     @Bean
-    public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService();      // Phải trả về ROLE_ADMIN hoặc ROLE_CUSTOMER tương ứng
+    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+
+        return new ProviderManager(authProvider);
     }
 
     @Bean

@@ -2,7 +2,7 @@ package com.main.datn_sd31.service.impl;
 
 import com.main.datn_sd31.dto.san_pham_DTO.Sanphamform;
 import com.main.datn_sd31.entity.SanPham;
-import com.main.datn_sd31.repository.Chatlieurepository;
+import com.main.datn_sd31.repository.ChatLieuRepository;
 import com.main.datn_sd31.repository.Chitietsanphamrepository;
 import com.main.datn_sd31.repository.Danhmucrepository;
 import com.main.datn_sd31.repository.Hinhanhrepository;
@@ -15,7 +15,6 @@ import com.main.datn_sd31.repository.Xuatxurepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import java.util.List;
 public class Sanphamservice {
 
     @Autowired private SanPhamRepository sanPhamRepo;
-    @Autowired private Chatlieurepository chatLieuRepo;
+    @Autowired private ChatLieuRepository chatLieuRepo;
     @Autowired private Xuatxurepository xuatXuRepo;
     @Autowired private Danhmucrepository danhmucrepository;
     @Autowired private Kieudangrepository kieudangrepository;

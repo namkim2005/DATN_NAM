@@ -11,9 +11,9 @@ public class AdminController {
         return "admin/pages/dashboard";
     }
 
-    @GetMapping("/admin/logout")
+    @GetMapping("/admin/dang-xuat")
     public String logout(HttpSession session) {
         session.invalidate(); // Xoá session
-        return "redirect:/admin/login"; // Trả về trang login admin
+        return "redirect:/admin/dang-nhap"; // Trả về trang login admin
     }
 }

@@ -4,7 +4,7 @@ import com.main.datn_sd31.entity.GioHangChiTiet;
 import com.main.datn_sd31.entity.HoaDon;
 import com.main.datn_sd31.entity.HoaDonChiTiet;
 import com.main.datn_sd31.entity.KhachHang;
-import com.main.datn_sd31.repository.Chatlieurepository;
+import com.main.datn_sd31.repository.ChatLieuRepository;
 import com.main.datn_sd31.repository.Chitiethoadonrepository;
 import com.main.datn_sd31.repository.Chitietsanphamrepository;
 import com.main.datn_sd31.repository.Danhmucrepository;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,7 +29,7 @@ import java.util.List;
 public class Giohangservice {
     @Autowired
     private SanPhamRepository sanPhamRepo;
-    @Autowired private Chatlieurepository chatLieuRepo;
+    @Autowired private ChatLieuRepository chatLieuRepo;
     @Autowired private Xuatxurepository xuatXuRepo;
     @Autowired private Danhmucrepository danhmucrepository;
     @Autowired private Kieudangrepository kieudangrepository;

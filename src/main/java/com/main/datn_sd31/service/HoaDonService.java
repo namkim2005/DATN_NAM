@@ -28,4 +28,6 @@ public interface HoaDonService {
 
     void capNhatGhiChuHoaDon(String ma, String ghiChu);
 
+    Pagination<HoaDonDTO> getAllDonHang(Integer pageNo, Integer pageSize, LocalDate startDate, LocalDate endDate);
+
 }

@@ -3,7 +3,6 @@ package com.main.datn_sd31.controller.admin_controller;
 import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
 import com.main.datn_sd31.dto.Pagination;
 import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
-import com.main.datn_sd31.entity.NhanVien;
 import com.main.datn_sd31.repository.NhanVienRepository;
 import com.main.datn_sd31.service.HoaDonChiTietService;
 import com.main.datn_sd31.service.HoaDonService;
@@ -12,8 +11,6 @@ import com.main.datn_sd31.util.GetNhanVien;
 import com.main.datn_sd31.util.ThongBaoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/admin/hoa-don")
+@RequestMapping("/admin/don-hang")
 @RequiredArgsConstructor
-public class HoaDonController {
+public class DonHangController {
 
     private final GetNhanVien getNhanVien;
 
@@ -58,7 +55,7 @@ public class HoaDonController {
         }
 
         Pagination<HoaDonDTO> hoaDonList = (trangThai == null)
-                ? hoaDonService.getAll(page, size, startDate, endDate)
+                ? hoaDonService.getAllDonHang(page, size, startDate, endDate)
                 : hoaDonService.getAllHoaDonByStatus(trangThai, page, size);
         model.addAttribute("hoaDonList", hoaDonList.getContent());
         model.addAttribute("pageInfo", hoaDonList);
@@ -72,7 +69,7 @@ public class HoaDonController {
         }
         model.addAttribute("trangThaiHopLeMap", trangThaiHopLeMap);
 
-        return "admin/pages/hoa-don/hoa-don";
+        return "admin/pages/don-hang/don-hang";
     }
 
     @GetMapping("/search")
@@ -83,7 +80,7 @@ public class HoaDonController {
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return "redirect:/admin/hoa-don";
+            return "redirect:/admin/don-hang";
         }
 
         Pagination<HoaDonDTO> hoaDonList = hoaDonService.searchByKeyword(keyword, page, size);
@@ -93,7 +90,7 @@ public class HoaDonController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount());
 
-        return "admin/pages/hoa-don/hoa-don";
+        return "admin/pages/don-hang/don-hang";
     }
 
     @GetMapping("/detail")
@@ -131,7 +128,7 @@ public class HoaDonController {
 
         redirectAttributes.addAttribute("ma-hoa-don", maHoaDon);
 
-        return "redirect:/admin/hoa-don";
+        return "redirect:/admin/don-hang";
     }
 
 }
