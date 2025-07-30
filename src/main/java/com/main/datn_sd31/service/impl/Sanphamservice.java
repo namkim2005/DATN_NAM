@@ -15,6 +15,7 @@ import com.main.datn_sd31.repository.Xuatxurepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,6 +35,36 @@ public class Sanphamservice {
 
     public List<SanPham> getAll() {
         return sanPhamRepo.findAll();
+    }
+
+    public List<SanPham> search(
+            String q,
+            Integer danhMucId,
+            Integer loaiThuId,
+            Integer chatLieuId,
+            Integer kieuDangId,
+            Integer xuatXuId,
+            String priceRange
+    ) {
+        // normalize keyword
+        String keyword = (q == null ? "" : q.trim());
+
+        // parse priceRange
+        BigDecimal min = null, max = null;
+        if (priceRange != null && !priceRange.isEmpty()) {
+            String[] parts = priceRange.split("-");
+            min = new BigDecimal(parts[0]);
+            if (parts.length > 1) {
+                max = new BigDecimal(parts[1]);
+            }
+        }
+
+        // if no filter at all, trả về all
+        if (keyword.isEmpty() && danhMucId == null && loaiThuId == null && chatLieuId == null && kieuDangId == null && xuatXuId == null &&  min == null) {
+            return sanPhamRepo.findAll();
+        }
+
+        return sanPhamRepo.filter(keyword, danhMucId, loaiThuId, chatLieuId, kieuDangId, xuatXuId, min, max);
     }
 
     public SanPham createSanPham(Sanphamform form) {

@@ -91,7 +91,8 @@ public class SecurityConfig {
                                 "/", "/login", "/uploads/**",
                                 "/css/**", "/js/**", "/images/**",
                                 "/vendors/**", "/webjars/**",
-                                "/static/**", "/favicon.ico"
+                                "/static/**", "/favicon.ico",
+                                "/san-pham/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
