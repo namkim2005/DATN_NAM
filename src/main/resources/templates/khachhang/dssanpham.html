@@ -1,9 +1,9 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Pet Closet - Trang chủ</title>
+    <title>D&C Fashions - Trang chủ</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-pink-50 text-gray-800 font-sans">
@@ -19,11 +19,33 @@
             <a href="#" class="hover:text-pink-600">Liên hệ</a>
         </nav>
         <div class="flex items-center gap-4">
-            <a th:href="@{/khach-hang/dang-nhap}"
-               class="text-sm bg-pink-500 text-white px-3 py-1.5 rounded hover:bg-pink-600">Đăng nhập</a>
-            <form th:action="@{/khach-hang/dang-xuat}" method="post">
-                <button type="submit" class="dropdown-item">Sign Out</button>
-            </form>
+            <a th:if="${session.khachHang == null}"
+               th:href="@{/khach-hang/dang-nhap}"
+               class="text-sm bg-pink-500 text-white px-3 py-1.5 rounded hover:bg-pink-600">
+                Đăng nhập
+            </a>
+
+            <div th:if="${session.khachHang != null}" class="relative group">
+                <img src='/uploads/3cb9ad05-ebce-4331-9e34-ae73d3c33364_364547917_670262361332031_5054924062400926916_n.jpg'
+                     }
+                     alt="Avatar"
+                     class="w-10 h-10 rounded-full border-2 border-pink-500 cursor-pointer"
+                     id="avatarDropdownToggle"/>
+
+                <!-- Dropdown menu -->
+                <div id="avatarDropdownMenu"
+                     class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-50 hidden">
+                    <a th:href="@{/khach-hang/thong-tin}"
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-100">👤 Thông tin tài khoản</a>
+
+                    <form th:action="@{/khach-hang/dang-xuat}" method="post">
+                        <button type="submit"
+                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
+                            🔓 Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
 
             <a th:href="@{/gio-hang/hien_thi}" class="relative text-2xl text-pink-600">
                 🛒
@@ -93,18 +115,18 @@
                 <h3 class="text-lg font-semibold text-pink-600 mb-1" th:text="${sp.ten}">Tên sản phẩm</h3>
                 <p class="text-sm text-gray-600 flex-grow" th:text="${sp.moTa}">Mô tả sản phẩm</p>
 
-                <p class="text-sm text-pink-700 font-semibold mt-2">
-    <span th:if="${giaBanMinMap[sp.id] != null and giaGocMinMap[sp.id] != null and giaBanMinMap[sp.id].compareTo(giaGocMinMap[sp.id]) < 0}">
-        <span class="line-through text-gray-500 mr-2"
-              th:text="${#numbers.formatDecimal(giaGocMinMap[sp.id],0,'COMMA',0,'POINT')} + ' đ'">100,000 đ</span>
-        <span th:text="${#numbers.formatDecimal(giaBanMinMap[sp.id],0,'COMMA',0,'POINT')} + ' đ'">80,000 đ</span>
-    </span>
+                <div th:with="giaBan = ${giaBanMinMap[sp.id]}, giaGoc = ${giaGocMinMap[sp.id]}, giaGocMax = ${giaGocMaxMap[sp.id]}">
+                    <span th:if="${giaBan != null and giaGoc != null and giaBan.compareTo(giaGoc) < 0}">
+                        <span class="line-through text-gray-500 mr-2"
+                              th:text="${#numbers.formatDecimal(giaGoc,0,'COMMA',0,'POINT')} + ' đ'">100,000 đ</span>
+                        <span th:text="${#numbers.formatDecimal(giaBan,0,'COMMA',0,'POINT')} + ' đ'">80,000 đ</span>
+                    </span>
+                                    <span th:if="${giaBan != null and giaGoc != null and giaBan.compareTo(giaGoc) >= 0}"
+                                          th:text="${#numbers.formatDecimal(giaGoc,0,'COMMA',0,'POINT')+ ' đ – ' + #numbers.formatDecimal(giaGocMax,0,'COMMA',0,'POINT')} + ' đ'">
+                        100.000 đ – 150.000 đ
+                    </span>
+                </div>
 
-                    <span th:if="${giaBanMinMap[sp.id] != null and giaGocMinMap[sp.id] != null and giaBanMinMap[sp.id].compareTo(giaGocMinMap[sp.id]) >= 0}"
-                          th:text="${#numbers.formatDecimal(giaGocMinMap[sp.id],0,'COMMA',0,'POINT')+ ' đ – ' + #numbers.formatDecimal(giaGocMaxMap[sp.id],0,'COMMA',0,'POINT')} + ' đ'">
-        100.000 đ – 150.000 đ
-    </span>
-                </p>
 
                 <a th:href="@{/khach-hang/chi-tiet/{id}(id=${sp.id})}"
                    class="mt-4 inline-block text-center bg-pink-600 text-white py-2 px-4 rounded-full hover:bg-pink-700 transition">
@@ -114,11 +136,29 @@
         </div>
     </div>
 </section>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("avatarDropdownToggle");
+        const menu = document.getElementById("avatarDropdownMenu");
+
+        // Toggle khi click vào avatar
+        toggle.addEventListener("click", function (e) {
+            menu.classList.toggle("hidden");
+        });
+
+        // Ẩn menu khi click ra ngoài
+        document.addEventListener("click", function (e) {
+            if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+    });
+</script>
 
 <!-- 🐾 Footer -->
 <footer class="bg-white border-t mt-12">
     <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-gray-600">
-        © 2025 Pet Closet. Yêu thương thú cưng mỗi ngày 🐾
+        © 2025 D&C Fashions. Yêu thương thú cưng mỗi ngày 🐾
     </div>
 </footer>
 

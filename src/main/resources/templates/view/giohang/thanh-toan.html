@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Thanh Toán</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .product-img {
             width: 60px;
@@ -13,177 +14,173 @@
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h2 class="mb-4">🔒 Xác Nhận Thanh Toán</h2>
+<header class="bg-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
+        <h1 class="text-2xl font-bold text-pink-600">D&C Fashions</h1>
+        <a href="/" class="text-sm text-gray-600 hover:text-pink-500">← Tiếp tục mua sắm</a>
+    </div>
+</header>
 
-    <!-- Bảng sản phẩm khách hàng chọn -->
-    <table class="table table-bordered align-middle">
-        <thead class="table-dark">
-        <tr>
-            <th>#</th>
-            <th>Ảnh</th>
-            <th>Tên sản phẩm</th>
-            <th>Size</th>
-            <th>Màu sắc</th>
-            <th>Giá</th>
-            <th>Số lượng</th>
-            <th>Thành tiền</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item, iterStat : ${selectedItems}">
-            <td th:text="${iterStat.count}">1</td>
-            <td><img th:src="@{${item.chiTietSp.sanPham.hinhAnhs[0].url}}" alt="Ảnh" class="product-img" /></td>
-            <td th:text="${item.chiTietSp.sanPham.ten}">Tên sản phẩm</td>
-            <td th:text="${item.chiTietSp.size.ten}">Size</td>
-            <td th:text="${item.chiTietSp.mauSac.ten}">Màu sắc</td>
-            <td th:text="${#numbers.formatDecimal(item.chiTietSp.giaBan,0,'COMMA',0,'POINT')} + '₫'">0₫</td>
-            <td th:text="${item.soLuong}">1</td>
-            <td th:text="${#numbers.formatDecimal(item.thanhTien,0,'COMMA',0,'POINT')} + '₫'">0₫</td>
-        </tr>
-        </tbody>
-    </table>
+<div class="container mt-5">
+    <h2 class="text-2xl font-bold text-pink-600 mb-4">🔒 Xác Nhận Thanh Toán</h2>
+
+    <!-- Sản phẩm được chọn -->
+    <div class="overflow-x-auto bg-white rounded-xl shadow-md mb-5">
+        <table class="min-w-full text-sm text-left">
+            <thead class="bg-pink-100 text-pink-700 uppercase text-xs">
+            <tr>
+                <th class="p-4">#</th>
+                <th class="p-4">Mã</th>
+                <th class="p-4">Ảnh</th>
+                <th class="p-4">Sản phẩm</th>
+                <th class="p-4">Size</th>
+                <th class="p-4">Màu</th>
+                <th class="p-4">Giá</th>
+                <th class="p-4">SL</th>
+                <th class="p-4">Tổng</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, iterStat : ${selectedItems}" class="border-b hover:bg-pink-50 transition">
+                <td class="p-4" th:text="${iterStat.count}">1</td>
+                <td class="p-4" th:text="${item.chiTietSp.sanPham.ma}">1</td>
+                <td class="p-4">
+                    <img th:src="@{${item.chiTietSp.sanPham.hinhAnhs[0].url}}" class="w-16 h-16 rounded shadow" />
+                </td>
+                <td class="p-4 font-medium" th:text="${item.chiTietSp.sanPham.ten}">Tên</td>
+                <td class="p-4" th:text="${item.chiTietSp.size.ten}">Size</td>
+                <td class="p-4" th:text="${item.chiTietSp.mauSac.ten}">Màu</td>
+                <td class="p-4 " th:text="${#numbers.formatDecimal(item.chiTietSp.giaBan,0,'COMMA',0,'POINT')} + '₫'">0₫</td>
+                <td class="p-4 text-center" th:text="${item.soLuong}">1</td>
+                <td class="p-4 ext-red-500 font-semibold" th:text="${#numbers.formatDecimal(item.thanhTien,0,'COMMA',0,'POINT')} + '₫'">0₫</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
     <!-- Tổng tiền -->
-    <h4 class="text-end text-danger fw-bold mb-4">
-        Tổng tiền: <span th:text="${#numbers.formatDecimal(tongTien,0,'COMMA',0,'POINT')} + '₫'">0₫</span>
-    </h4>
+    <div class="flex justify-end mb-4">
+        <h4 class="text-xl text-danger font-bold">
+            Tổng tiền hàng: <span th:text="${#numbers.formatDecimal(tongTien,0,'COMMA',0,'POINT')} + '₫'">0₫</span>
+        </h4>
+    </div>
 
-    <!-- Form nhập thông tin thanh toán -->
-    <form th:action="@{/gio-hang/thanh-toan/xac-nhan}" method="post">
+    <!-- Form thanh toán -->
+    <form th:action="@{/gio-hang/thanh-toan/xac-nhan}" method="post" class="bg-white p-4 rounded-xl shadow">
         <th:block th:each="item : ${selectedItems}">
             <input type="hidden" name="selectedId" th:value="${item.id}" />
         </th:block>
-
         <input type="hidden" name="tongTien" th:value="${tongTien}" />
+        <input type="hidden" id="loaiHoaDon" name="loaiHoaDon" value="Online" />
+        <input type="hidden" id="tienVanChuyenInput" name="tienVanChuyen" value="0" />
+        <input type="hidden" name="tenTinh" id="tenTinhHidden" />
+        <input type="hidden" name="tenHuyen" id="tenHuyenHidden" />
+        <input type="hidden" name="tenXa" id="tenXaHidden" />
+        <input type="hidden" name="tienGiam" id="tienGiamInput" value="0" />
 
-        <!-- Bạn có thể thêm nhiều trường khách hàng khác nếu cần -->
-
-        <div class="mb-3">
-            <label for="tenNguoiNhan" class="form-label">Tên người nhận <span class="text-danger">*</span></label>
-            <input type="text" id="tenNguoiNhan" th:value="${khachHang.ten}"  name="tenNguoiNhan" class="form-control" placeholder="Nhập tên người nhận" required />
+        <!-- Thông tin người nhận -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Tên người nhận <span class="text-danger">*</span></label>
+                <input type="text" name="tenNguoiNhan" th:value="${khachHang.ten}" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                <input type="tel" name="soDienThoai" th:value="${khachHang.soDienThoai}" class="form-control" required pattern="[0-9]{9,11}" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" name="email" th:value="${khachHang.email}" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Ghi chú</label>
+                <textarea name="ghiChu" rows="1" class="form-control"></textarea>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="soDienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-            <input type="tel" id="soDienThoai" name="soDienThoai" th:value="${khachHang.soDienThoai}" class="form-control" placeholder="Nhập số điện thoại" required pattern="[0-9]{9,11}" />
+        <!-- Địa chỉ -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Tỉnh / Thành phố</label>
+                <select name="provinceId" id="provinceSelect" class="form-select">
+                    <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                    <option th:each="province : ${provinces}" th:value="${province.get('ProvinceID')}" th:text="${province.get('ProvinceName')}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Quận / Huyện</label>
+                <select name="districtId" id="districtSelect" class="form-select">
+                    <option value="">-- Chọn Quận / Huyện --</option>
+                    <option th:each="district : ${districts}" th:value="${district['DistrictID']}" th:text="${district['DistrictName']}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Phường / Xã</label>
+                <select name="wardId" id="wardSelect" class="form-select">
+                    <option value="">-- Chọn Phường / Xã --</option>
+                    <option th:each="ward : ${wards}" th:value="${ward.get('WardCode')}" th:text="${ward.get('WardName')}"></option>
+                </select>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-            <input type="email" id="email" name="email" th:value="${khachHang.email}" class="form-control" placeholder="Nhập email" required />
-        </div>
-
-        <!--        <div class="mb-3">-->
-        <!--            <label for="diaChi" class="form-label">Địa chỉ nhận hàng <span class="text-danger">*</span></label>-->
-        <!--            <textarea id="diaChi" name="diaChi" rows="3" th:value="${khachHang.diaChi}" class="form-control" placeholder="Nhập địa chỉ nhận hàng" required></textarea>-->
-        <!--        </div>-->
-
-        <div class="mb-3">
-            <label for="ghiChu" class="form-label">Ghi chú (tuỳ chọn)</label>
-            <textarea id="ghiChu" name="ghiChu" rows="2" class="form-control" placeholder="Ghi chú thêm cho đơn hàng"></textarea>
-        </div>
-
+        <!-- Phương thức thanh toán -->
         <div class="mb-3">
             <label class="form-label fw-bold">Phương thức thanh toán <span class="text-danger">*</span></label>
-
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="phuongThucThanhToan" id="pttt_cod" value="tien_mat" required>
                 <label class="form-check-label" for="pttt_cod">💵 Tiền mặt khi nhận hàng (COD)</label>
             </div>
-
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="phuongThucThanhToan" id="pttt_ck" value="chuyen_khoan">
                 <label class="form-check-label" for="pttt_ck">🏦 Chuyển khoản ngân hàng</label>
             </div>
         </div>
 
-        <input type="hidden" id="loaiHoaDon" name="loaiHoaDon" value="Online" />
-
-
-        <!-- Phí vận chuyển -->
-        <input type="hidden" id="tienVanChuyenInput" name="tienVanChuyen" value="0" />
-
+        <!-- Mã giảm giá -->
         <div class="mb-3">
-            <label class="form-label">Chọn Tỉnh / Thành phố</label>
-            <select name="provinceId" id="provinceSelect" class="form-control">
-                <option value="">-- Chọn Tỉnh / Thành phố --</option>
-                <th:block th:each="province : ${provinces}">
-                    <option th:value="${province.get('ProvinceID')}" th:text="${province.get('ProvinceName')}"></option>
-                </th:block>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Quận / Huyện</label>
-            <select name="districtId" id="districtSelect" class="form-select">
-                <option value="">-- Chọn Quận / Huyện --</option>
-                <th:block th:if="${districts != null}">
-                    <option th:each="district : ${districts}"
-                            th:value="${district['DistrictID']}"
-                            th:text="${district['DistrictName']}">
-                    </option>
-                </th:block>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Phường / Xã</label>
-            <select id="wardSelect" name="wardId" class="form-select" >
-                <option value="">-- Chọn Phường / Xã --</option>
-                <th:block th:if="${wards != null}">
-                    <option th:each="ward : ${wards}"
-                            th:value="${ward.get('WardCode')}"
-                            th:text="${ward.get('WardName')}">
-                    </option>
-                </th:block>
-            </select>
-        </div>
-
-        <input type="hidden" name="tenTinh" id="tenTinhHidden" />
-        <input type="hidden" name="tenHuyen" id="tenHuyenHidden" />
-        <input type="hidden" name="tenXa" id="tenXaHidden" />
-        <input type="hidden" name="tienGiam" id="tienGiamInput" value="0" />
-        <!-- Mã phiếu giảm giá -->
-        <div class="mb-3">
-            <label for="phieuGiamGia" class="form-label">Chọn mã phiếu giảm giá</label>
+            <label class="form-label">Mã giảm giá</label>
             <select id="phieuGiamGia" name="phieuGiamGia" class="form-select">
-                <option value="">-- Không sử dụng --</option>
                 <option th:each="phieu : ${danhSachPhieuGiamGia}"
                         th:value="${phieu.ma}"
+                        th:selected="${phieu.ma == selectedVoucherCode}"
                         th:text="${phieu.ten + ' - Giảm ' + phieu.mucDo}">
                 </option>
+
             </select>
         </div>
-        <!-- Tính toán chi tiết thanh toán -->
-        <div class="mb-4">
-            <div class="row">
-                <div class="col-md-6 offset-md-6">
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Tổng tiền hàng:</span>
-                            <strong th:text="${#numbers.formatDecimal(tongTien,0,'COMMA',0,'POINT')} + '₫'">0₫</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Giảm giá:</span>
-                            <strong id="tienGiamText" th:text="${#numbers.formatDecimal(tienGiam,0,'COMMA',0,'POINT')} + '₫'">0₫</strong>
-                        </li>
 
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Phí vận chuyển:</span>
-                            <strong id="tienVanChuyenText" th:text="${#numbers.formatDecimal(shippingFee,0,'COMMA',0,'POINT')} + '₫'">0₫</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between bg-light">
-                            <span class="fw-bold text-danger">Tiền cần thanh toán:</span>
-                            <strong id="tongThanhToanText" class="text-danger fs-5" th:text="${tongThanhToan} + '₫'">0₫</strong>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <!-- Tóm tắt thanh toán -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Tổng tiền hàng:</span>
+                    <strong th:text="${#numbers.formatDecimal(tongTien,0,'COMMA',0,'POINT')} + '₫'">0₫</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Giảm giá:</span>
+                    <strong id="tienGiamText" th:text="${#numbers.formatDecimal(tienGiam,0,'COMMA',0,'POINT')} + '₫'">0₫</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Phí vận chuyển:</span>
+                    <strong id="tienVanChuyenText" th:text="${#numbers.formatDecimal(shippingFee,0,'COMMA',0,'POINT')} + '₫'">0₫</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between bg-light text-danger fw-bold fs-5">
+                    <span>Tiền cần thanh toán:</span>
+                    <strong id="tongThanhToanText" th:text="${tongThanhToan} + '₫'">0₫</strong>
+                </li>
+            </ul>
         </div>
-        <button type="submit" class="btn btn-success btn-lg">✅ Xác nhận thanh toán</button>
-        <a th:href="@{/gio-hang/hien_thi}" class="btn btn-secondary ms-2">← Quay lại giỏ hàng</a>
-    </form>
 
+        <!-- Nút hành động -->
+        <div class="d-flex justify-content-end gap-3">
+            <a th:href="@{/gio-hang/hien_thi}" class="btn btn-outline-secondary">← Quay lại giỏ hàng</a>
+            <button type="submit" class="btn btn-success btn-lg">✅ Xác nhận thanh toán</button>
+        </div>
+    </form>
 </div>
+
+
+
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
         // Khai báo phần tử
@@ -346,12 +343,48 @@
         tienGiamText.innerText = "0₫";
         shippingFeeText.innerText = "0₫";
         tongThanhToanText.innerText = tongTien.toLocaleString('vi-VN') + "₫";
+
+        function autoSelectBestVoucher() {
+            const currentValue = phieuGiamGia.value;
+            if (currentValue) return; // Đã có mã được chọn => không auto nữa
+
+            const options = [...phieuGiamGia.options].filter(o => o.value !== "");
+            if (options.length === 0) return;
+
+            let bestVoucher = null;
+            let maxDiscount = 0;
+
+            const promises = options.map(option => {
+                const maPhieu = option.value;
+                return fetch(`/gio-hang/phieu-giam-gia/tien-giam?maPhieu=${maPhieu}&tongTien=${tongTien}`)
+                    .then(res => res.json())
+                    .then(discount => {
+                        if (discount > maxDiscount) {
+                            maxDiscount = discount;
+                            bestVoucher = maPhieu;
+                        }
+                    }).catch(() => {});
+            });
+
+            Promise.all(promises).then(() => {
+                if (bestVoucher) {
+                    phieuGiamGia.value = bestVoucher;
+
+                    // ⚡ GỌI TÍNH GIẢM GIÁ TỰ ĐỘNG
+                    phieuGiamGia.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        autoSelectBestVoucher();
+        // Nếu đã có mã giảm giá được chọn sẵn từ server
+        if (phieuGiamGia.value) {
+            phieuGiamGia.dispatchEvent(new Event('change'));
+        }
+
     });
+
 </script>
-
-
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

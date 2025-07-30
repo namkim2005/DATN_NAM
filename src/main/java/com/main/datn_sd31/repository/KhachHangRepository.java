@@ -24,4 +24,7 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
             "   or k.soDienThoai like %:search% " +
             "   or k.email like %:search%")
     List<KhachHang> search(@Param("search") String search);
+
+    @Query("select n from KhachHang n where n.email=:email")
+    KhachHang findByEmaill(String email);
 }

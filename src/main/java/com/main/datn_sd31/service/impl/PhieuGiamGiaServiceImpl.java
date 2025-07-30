@@ -7,6 +7,7 @@ import com.main.datn_sd31.service.PhieuGiamGiaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import java.util.List;
@@ -64,5 +65,26 @@ public class PhieuGiamGiaServiceImpl implements PhieuGiamGiaService {
     @Override
     public void delete(Integer id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public BigDecimal tinhTienGiam(String maPhieu, BigDecimal tongTien) {
+        PhieuGiamGia phieu = repository.findByMa(maPhieu);
+        if (phieu == null) return BigDecimal.ZERO;
+
+        // Kiểm tra điều kiện áp dụng (nếu có)
+        if (tongTien.compareTo(phieu.getDieuKien()) < 0) {
+            return BigDecimal.ZERO;
+        }
+
+        // Tính tiền giảm theo loại
+        if (phieu.getLoaiPhieuGiamGia()==1) {
+            BigDecimal phanTram = phieu.getMucDo(); // Ví dụ: 10 -> 10%
+            return tongTien.multiply(phanTram).divide(BigDecimal.valueOf(100));
+        } else if (phieu.getLoaiPhieuGiamGia()>0) {
+            return phieu.getMucDo(); // Ví dụ: giảm 50k
+        }
+
+        return BigDecimal.ZERO;
     }
 }

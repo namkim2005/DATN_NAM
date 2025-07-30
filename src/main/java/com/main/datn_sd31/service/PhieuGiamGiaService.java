@@ -1,5 +1,6 @@
 package com.main.datn_sd31.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.main.datn_sd31.entity.PhieuGiamGia;
@@ -14,4 +15,6 @@ public interface PhieuGiamGiaService {
     List<PhieuGiamGia> findByFilter(LocalDate startDate, LocalDate endDate, String status);
     void save(PhieuGiamGia pg);
     void delete(Integer id);
+
+    BigDecimal tinhTienGiam(String maPhieu, BigDecimal tongTien);
 }

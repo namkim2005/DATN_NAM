@@ -169,12 +169,12 @@
                         th:if="${(status.value == 5 or status.value == 8 or status.value == 9 or status.value == 10)}"
                         class="btn btn-outline-primary position-relative">
                     <a th:href="@{/admin/hoa-don(trang-thai=${status.name()})}" th:text="${status.moTa}"></a>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                          th:if="${trangThaiCount[status.moTa] != null and
-                                   trangThaiCount[status.moTa] != 0 and
-                                   !(status.name() == 'HOAN_THANH' or status.name() == 'DA_HOAN' or status.name() == 'HUY')}"
-                          th:text="${trangThaiCount[status.moTa]}">
-                    </span>
+<!--                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"-->
+<!--                          th:if="${trangThaiCount[status.moTa] != null and-->
+<!--                                   trangThaiCount[status.moTa] != 0 and-->
+<!--                                   !(status.name() == 'HOAN_THANH' or status.name() == 'DA_HOAN' or status.name() == 'HUY')}"-->
+<!--                          th:text="${trangThaiCount[status.moTa]}">-->
+<!--                    </span>-->
                 </button>
             </div>
 

@@ -1,5 +1,6 @@
 package com.main.datn_sd31.config;
 
+import com.main.datn_sd31.security.CustomAuthenticationFailureHandler;
 import com.main.datn_sd31.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,9 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Autowired
+    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+
+    @Autowired
     private CustomUserDetailsService userDetailsService;
 
     /* ===== 1. Bảo vệ khu vực ADMIN ===== */
@@ -30,13 +34,13 @@ public class SecurityConfig {
         http
                 .securityMatcher("/admin/**")      // Chỉ áp dụng filter‑chain này cho /admin/**
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().hasRole("ADMIN")  // Phải có ROLE_ADMIN
+                        .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
                 )
                 .formLogin(form -> form
                         .loginPage("/admin/dang-nhap")
                         .loginProcessingUrl("/admin/dang-nhap") // phải khớp với form
                         .defaultSuccessUrl("/admin", true)
-                        .failureUrl("/admin/dang-nhap?error=true") // ✅ Xử lý khi đăng nhập sai
+                        .failureHandler(customAuthenticationFailureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -62,7 +66,7 @@ public class SecurityConfig {
                                 "/khach-hang/quen-mat-khau",
                                 "/khach-hang/public/**"
                         ).permitAll()
-                        .anyRequest().hasRole("CUSTOMER")
+                        .anyRequest().hasRole("KHACHHANG")
                 )
                 .formLogin(form -> form
                         .loginPage("/khach-hang/dang-nhap")
