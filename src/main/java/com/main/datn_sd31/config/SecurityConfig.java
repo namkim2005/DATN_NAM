@@ -97,13 +97,14 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**",
                                 "/vendors/**", "/webjars/**",
                                 "/static/**", "/favicon.ico",
-                                "/san-pham/**"
+                                "/san-pham/**",
+                                "/client-static/**" // Cho phép truy cập công khai thư mục client-static
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/error"); // 👉 Trang bạn tự tạo
+                            response.sendRedirect("/error"); // 👉 Trang tự tạo
                         })
                 )
                 .logout(lg -> lg.logoutSuccessUrl("/"))

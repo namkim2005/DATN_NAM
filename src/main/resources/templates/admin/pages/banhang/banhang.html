@@ -14,318 +14,368 @@
 </head>
 <body>
 <section layout:fragment="content">
-    <div class="container mt-4">
+    <div class="container-fluid mt-5">
+        <div class="row">
 
-        <h2 class="text-center mb-4">Bán Hàng Trực Tiếp</h2>
+            <h2 class="text-center mb-4">Bán Hàng Trực Tiếp</h2>
 
-        <!-- Tabs Giỏ hàng -->
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item" th:each="key, iterStat : ${tatCaGio}">
-                <a class="nav-link" th:classappend="${key == cartKey} ? 'active'" th:href="@{/admin/ban-hang(cartKey=${key})}">
-                    <span th:text="'Giỏ ' + ${iterStat.index + 1}">Giỏ</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-success"
-                   th:href="@{/admin/ban-hang(cartKey='gio-' + ${tatCaGio.size() + 1})}">
-                    + Giỏ mới
-                </a>
-            </li>
-        </ul>
+            <!-- Tabs Giỏ hàng -->
 
-        <!-- Chọn sản phẩm -->
-        <div class="card p-3">
-            <form id="formThemGio" method="post" th:action="@{/admin/ban-hang/them-gio}">
-                <input type="hidden" name="cartKey" th:value="${cartKey}" />
-                <input type="hidden" name="idChiTietSp" id="idChiTietSp" />
-                <div class="row g-2">
-                    <!-- Tìm kiếm sản phẩm -->
-                    <div class="col-md-6 position-relative">
-                        <input type="text" class="form-control" id="timSanPham" placeholder="Tìm theo tên sản phẩm..." autocomplete="off" />
-                        <div id="goiYSanPham" class="list-group position-absolute w-100 z-3" style="max-height: 200px; overflow-y: auto;"></div>
-                    </div>
-                    <!-- Nhập số lượng -->
-                    <div class="col-md-2">
-                        <input type="number" name="soLuong" class="form-control" value="1" min="1" required />
-                    </div>
-                    <!-- Modal Quét Mã -->
-                    <div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Quét mã sản phẩm</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            <div class="col-md-6">
+                <!-- Chọn sản phẩm -->
+                <div class="card p-3">
+                    <form id="formThemGio" method="post" th:action="@{/admin/ban-hang/them-gio}">
+                        <input type="hidden" name="cartKey" th:value="${cartKey}" />
+                        <input type="hidden" name="idChiTietSp" id="idChiTietSp" />
+                        <div class="row g-2">
+                            <!-- Tìm kiếm sản phẩm -->
+                            <div class="col-md-6 position-relative">
+                                <input type="text" class="form-control" id="timSanPham" placeholder="Tìm theo tên sản phẩm..." autocomplete="off" />
+                                <div id="goiYSanPham" class="list-group position-absolute w-100 z-3" style="max-height: 200px; overflow-y: auto;"></div>
+                            </div>
+                            <!-- Nhập số lượng -->
+                            <div class="col-md-2">
+                                <input type="number" name="soLuong" class="form-control" value="1" min="1" required />
+                            </div>
+                            <!-- Modal Quét Mã -->
+                            <div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Quét mã sản phẩm</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div id="scanner" style="width: 100%; height: 400px;"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="modal-body">
-                                    <div id="scanner" style="width: 100%; height: 400px;"></div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="openScanner()">📷 Quét mã</button>
+                            </div>
+                            <div th:if="${error}" class="alert alert-danger" role="alert">
+                                <p th:text="${error}"></p>
+                            </div>
+
+                            <!-- Nút thêm vào giỏ -->
+                            <!--                            <div class="col-md-2">-->
+                            <!--                                <button type="submit" class="btn btn-primary w-100">Thêm vào giỏ</button>-->
+                            <!--                            </div>-->
+                        </div>
+                    </form>
+                </div>
+
+
+                <!-- Chọn chi tiết sản phẩm -->
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="p-3">#</th>
+                        <th class="p-3">Mã</th>
+                        <th class="p-3">Ảnh</th>
+                        <th class="p-3">Tên Sản phẩm</th>
+                    </tr>
+                    </thead>
+                    <tbody id="ketQuaTimSanPham">
+                    <tr th:each="sp, stat : ${dsSanPham}">
+                        <td class="p-3" th:text="${stat.index + 1}">1</td>
+                        <td class="p-3" th:text="${sp.ma}">SP001</td>
+                        <td class="p-3">
+                            <img th:src="@{${sp.hinhAnhs[0]?.url}}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
+                        </td>
+                        <td class="p-3" th:text="${sp.ten}">SP001</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <!-- Giỏ hàng -->
+            <div class="col-md-6">
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item d-flex align-items-center" th:each="key, iterStat : ${tatCaGio}">
+                        <a class="nav-link d-flex align-items-center" th:classappend="${key == cartKey} ? 'active'"
+                           th:href="@{/admin/ban-hang(cartKey=${key})}">
+                            <span th:text="'Giỏ ' + ${iterStat.index + 1}">Giỏ</span>
+                            <form th:action="@{/admin/ban-hang/xoa-gio}" method="post" class="ms-2 mb-0" style="display:inline;">
+                                <input type="hidden" name="cartKey" th:value="${key}" />
+                                <button type="submit" class="btn btn-sm btn-close" title="Xóa giỏ này" style="margin-left: 8px;"></button>
+                            </form>
+
+                        </a>
+                        <!-- Nút X để xóa giỏ -->
+
+                    </li>
+
+                    <!-- Thêm mới nếu chưa đủ 10 giỏ -->
+                    <li class="nav-item" th:if="${tatCaGio.size() < 10}">
+                        <a class="nav-link text-success"
+                           th:href="@{/admin/ban-hang(cartKey='gio-' + ${tatCaGio.size() + 1})}">
+                            + Giỏ mới
+                        </a>
+                    </li>
+                </ul>
+                <div class="card p-3">
+                    <h4>Giỏ hàng</h4>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th>Hàng Động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${gioHang}">
+                            <td th:text="${item.tenCtsp}"></td>
+                            <td th:text="${#numbers.formatDecimal(item.giaSauGiam, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></td>
+                            <td>
+                            <td>
+                                <form th:action="@{/admin/ban-hang/cap-nhat-so-luong}" method="post"
+                                      onsubmit="return validateSoLuong(this)">
+                                    <input type="hidden" name="idChiTietSp" th:value="${item.chiTietSanPham.id}" />
+                                    <input type="hidden" name="cartKey" th:value="${cartKey}" />
+                                    <input type="number" name="soLuong"
+                                           th:value="${item.soLuong}"
+                                           min="1"
+                                           th:attr="max=${item.chiTietSanPham.soLuong}"
+                                           class="form-control so-luong-input"
+                                           onchange="this.form.submit()"
+                                           required />
+                                </form>
+
+                            </td>
+
+                            </td>
+
+                            <td th:text="${#numbers.formatDecimal(item.giaSauGiam * item.soLuong, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></td>
+                            <td>
+                                <form th:action="@{/admin/ban-hang/xoa-san-pham}" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này không?');">
+                                    <input type="hidden" name="cartKey" th:value="${cartKey}" />
+                                    <input type="hidden" name="idChiTietSp" th:value="${item.chiTietSanPham.id}" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${gioHang.isEmpty()}">
+                            <td colspan="4" class="text-center text-muted">Chưa có sản phẩm nào</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+
+                    <p>Tổng tiền: <span class="total" th:text="${#numbers.formatDecimal(tongTien, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
+                    <form method="post" th:action="@{/admin/ban-hang/xoa-gio}">
+                        <input type="hidden" name="cartKey" th:value="${cartKey}" />
+                        <button class="btn btn-danger">Xóa giỏ hàng</button>
+                    </form>
+                </div>
+
+                <!-- Mã giảm giá -->
+                <div class="card p-3">
+                    <form method="post" th:action="@{/admin/ban-hang/ap-dung-ma}">
+                        <input type="hidden" name="cartKey" th:value="${cartKey}" />
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <select class="form-select" name="maGiamGia">
+                                    <option value="">-- Mã giảm giá --</option>
+                                    <option th:each="p : ${dsPhieuGiamGia}" th:value="${p.ma}"
+                                            th:text="${p.ma + '-' + (#numbers.formatDecimal(p.mucDo, 0, 'COMMA', 0, 'POINT')) + (p.loaiPhieuGiamGia == 1 ? '%' : 'đ') + ' - giảm tối đa:' + (#numbers.formatDecimal(p.giamToiDa, 0, 'COMMA', 0, 'POINT'))}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-secondary" type="submit">Áp dụng mã</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Thanh toán -->
+                <div class="card p-3">
+                    <form method="post" th:action="@{/admin/ban-hang/thanh-toan}" onsubmit="updateDiaChiHienThi()">
+                        <input type="hidden" name="giagiam" th:value="${giamGia}" />
+                        <input type="hidden" name="diaChiTinh" id="hiddenTinh">
+                        <input type="hidden" name="diaChiHuyen" id="hiddenHuyen">
+                        <input type="hidden" name="diaChiXa" id="hiddenXa">
+
+                        <!-- Checkbox để bật/tắt tính năng vận chuyển -->
+                        <div class="form-check my-3">
+                            <input class="form-check-input" type="checkbox" id="muonVanChuyen">
+                            <label class="form-check-label fw-bold" for="muonVanChuyen">
+                                🚚 Tôi muốn giao hàng tới địa chỉ
+                            </label>
+                        </div>
+
+                        <!-- Địa chỉ giao hàng -->
+                        <div id="diaChiVanChuyen" style="display: none;">
+                            <h5>Địa chỉ giao hàng</h5>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-4"><select id="province" class="form-select" name="province"></select></div>
+                                <div class="col-md-4"><select id="district" class="form-select" name="district"></select></div>
+                                <div class="col-md-4"><select id="ward" class="form-select" name="ward"></select></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="soDienThoai" class="form-label">Số điện thoại:</label>
+                                <input type="text" name="soDienThoai" class="form-control" id="soDienThoai" placeholder="Nhập số điện thoại">
+                            </div>
+
+                            <!-- Nút tạo đơn vận chuyển -->
+
+                        </div>
+
+                        <div th:if="${maGiamGia != null}">
+                            <p>Mã giảm giá đã áp dụng: <strong th:text="${maGiamGia}"></strong></p>
+                        </div>
+
+                        <div>
+                            <p>Phí vận chuyển: <strong id="shippingFee" th:text="${phiVanChuyen != null ? #numbers.formatDecimal(phiVanChuyen, 0, 'POINT', 0, 'COMMA') + ' ₫' : 'Chưa tính'}">Chưa tính</strong></p>
+                            <p>Tổng tiền: <span class="total" th:text="${#numbers.formatDecimal(tongTien, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
+                            <p th:if="${giamGia != null and giamGia > 0}">
+                                Giảm giá: <span class="total" th:text="${#numbers.formatDecimal(giamGia, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span>
+                            </p>
+                            <p>Thành tiền sau giảm: <span class="total" id="tongTien" th:text="${#numbers.formatDecimal(tongTienSauGiam, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap">
+                            <!-- Cột trái: phương thức thanh toán -->
+                            <div class="me-4">
+                                <label class="form-label fw-bold">Phương thức thanh toán <span class="text-danger">*</span></label>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="phuongThucThanhToan" id="pttt_cod" value="tien_mat" required onchange="toggleQrImage()">
+                                    <label class="form-check-label" for="pttt_cod">💵 Tiền mặt khi nhận hàng (COD)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="phuongThucThanhToan" id="pttt_ck" value="chuyen_khoan" onchange="toggleQrImage()">
+                                    <label class="form-check-label" for="pttt_ck">🏦 Chuyển khoản ngân hàng</label>
+                                </div>
+                            </div>
+
+                            <!-- Cột phải: ảnh QR -->
+                            <div id="qrChuyenKhoan" style="display: none;">
+                                <div class="text-center">
+                                    <p class="fw-bold mb-2">Quét mã QR để chuyển khoản</p>
+                                    <img src="/uploads/Qr.jpg" alt="QR chuyển khoản"
+                                         style="max-width: 150px;" class="img-fluid border rounded">
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-outline-secondary w-100" onclick="openScanner()">📷 Quét mã</button>
-                    </div>
-                    <div th:if="${error}" class="alert alert-danger" role="alert">
-                        <p th:text="${error}"></p>
-                    </div>
 
-                    <!-- Nút thêm vào giỏ -->
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">Thêm vào giỏ</button>
-                    </div>
+                        <input type="hidden" name="cartKey" th:value="${cartKey}" />
+
+                        <button class="btn btn-success w-100 mt-2">Thanh toán</button>
+                    </form>
+                    <!--                    <div class="mb-3">-->
+                    <!--                        <button type="button" class="btn btn-outline-primary" id="btnTaoDonVanChuyen">🚀 Tạo đơn vận chuyển</button>-->
+                    <!--                    </div>-->
                 </div>
-            </form>
+            </div>
         </div>
-
-        <!-- Chọn chi tiết sản phẩm -->
-        <div class="card p-3" th:if="${dsChiTietSanPham != null and !dsChiTietSanPham.isEmpty()}">
-            <form method="post" th:action="@{/admin/ban-hang/them-gio}">
-                <input type="hidden" name="cartKey" th:value="${cartKey}" />
-                <div class="row g-2">
-                    <div class="col-md-6">
-                        <select class="form-select" name="idChiTietSp" required>
-                            <option value="">-- Chọn màu / size --</option>
-                            <option th:each="ct : ${dsChiTietSanPham}"
-                                    th:if="${ct.soLuong > 0}"
-                                    th:value="${ct.id}"
-                                    th:text="${ct.mauSac.ten + ' / ' + ct.size.ten + ' - SL: ' + ct.soLuong + ' - Giá: ' + ct.giaBan}">
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="number" name="soLuong" class="form-control" min="1" value="1" required />
-                    </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-primary w-100" type="submit">Thêm vào giỏ</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Giỏ hàng -->
-        <div class="card p-3">
-            <h4>Giỏ hàng</h4>
-            <table class="table table-bordered">
-                <thead class="table-light">
-                <tr>
-                    <th>Sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${gioHang}">
-                    <td th:text="${item.tenCtsp}"></td>
-                    <td th:text="${#numbers.formatDecimal(item.giaSauGiam, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></td>
-                    <td>
-                        <form th:action="@{/admin/ban-hang/cap-nhat-so-luong}" method="post" class="d-flex align-items-center">
-                            <input type="hidden" name="cartKey" th:value="${cartKey}" />
-                            <input type="hidden" name="idChiTietSp" th:value="${item.chiTietSanPham.id}" />
-                            <input type="number" name="soLuong" th:value="${item.soLuong}" min="1"
-                                   class="form-control form-control-sm me-2" style="width: 80px;"
-                                   oninput="this.form.submit()" />
-                        </form>
-                    </td>
-
-                    <td th:text="${#numbers.formatDecimal(item.giaSauGiam * item.soLuong, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></td>
-                </tr>
-                <tr th:if="${gioHang.isEmpty()}">
-                    <td colspan="4" class="text-center text-muted">Chưa có sản phẩm nào</td>
-                </tr>
-                </tbody>
-            </table>
-            <p>Tổng tiền: <span class="total" th:text="${#numbers.formatDecimal(tongTien, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
-            <form method="post" th:action="@{/admin/ban-hang/xoa-gio}">
-                <input type="hidden" name="cartKey" th:value="${cartKey}" />
-                <button class="btn btn-danger">Xóa giỏ hàng</button>
-            </form>
-        </div>
-
-        <!-- Mã giảm giá -->
-        <div class="card p-3">
-            <form method="post" th:action="@{/admin/ban-hang/ap-dung-ma}">
-                <input type="hidden" name="cartKey" th:value="${cartKey}" />
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6">
-                        <select class="form-select" name="maGiamGia">
-                            <option value="">-- Mã giảm giá --</option>
-                            <option th:each="p : ${dsPhieuGiamGia}" th:value="${p.ma}"
-                                    th:text="${p.ma + '-' + (#numbers.formatDecimal(p.mucDo, 0, 'COMMA', 0, 'POINT')) + (p.loaiPhieuGiamGia == 1 ? '%' : 'đ') + ' - giảm tối đa:' + (#numbers.formatDecimal(p.giamToiDa, 0, 'COMMA', 0, 'POINT'))}">
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-secondary" type="submit">Áp dụng mã</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Thanh toán -->
-        <div class="card p-3">
-            <form method="post" th:action="@{/admin/ban-hang/thanh-toan}" onsubmit="updateDiaChiHienThi()">
-                <input type="hidden" name="giagiam" th:value="${giamGia}" />
-                <input type="hidden" name="diaChiTinh" id="hiddenTinh">
-                <input type="hidden" name="diaChiHuyen" id="hiddenHuyen">
-                <input type="hidden" name="diaChiXa" id="hiddenXa">
-
-                <h5>Địa chỉ giao hàng</h5>
-                <div class="row g-2">
-                    <div class="col-md-4"><select id="province" class="form-select"></select></div>
-                    <div class="col-md-4"><select id="district" class="form-select"></select></div>
-                    <div class="col-md-4"><select id="ward" class="form-select"></select></div>
-                </div>
-
-                <div class="mb-2">
-                    <label for="soDienThoai" class="form-label">Số điện thoại:</label>
-                    <input type="text" name="soDienThoai" class="form-control" id="soDienThoai" placeholder="Nhập số điện thoại">
-                </div>
-
-                <div class="mb-2">
-                    <label>Địa chỉ nhận hàng:</label>
-                    <p id="hienThiDiaChi" class="form-control-plaintext text-primary fw-bold"></p>
-                </div>
-
-                <div th:if="${maGiamGia != null}">
-                    <p>Mã giảm giá đã áp dụng: <strong th:text="${maGiamGia}"></strong></p>
-                </div>
-
-                <div>
-                    <p>Phí vận chuyển: <strong id="shippingFee" th:text="${#numbers.formatDecimal(phiVanChuyen, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></strong></p>
-                    <p>Tổng tiền: <span class="total" th:text="${#numbers.formatDecimal(tongTien, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
-                    <p th:if="${giamGia != null and giamGia > 0}">
-                        Giảm giá: <span class="total" th:text="${#numbers.formatDecimal(giamGia, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span>
-                    </p>
-                    <p>Thành tiền sau giảm: <span class="total" id="tongTien" th:text="${#numbers.formatDecimal(tongTienSauGiam, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
-                </div>
-
-                <div class="mb-2">
-                    <label class="form-label">Phương thức thanh toán:</label>
-                    <div class="form-check">
-                        <input type="radio" name="phuongThucThanhToan" value="tien_mat" checked />
-                        <label class="form-check-label" >Tiền mặt</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" name="phuongThucThanhToan" value="vnpay" />
-                        <label class="form-check-label">Chuyển khoản</label>
-                    </div>
-                </div>
-
-                <input type="hidden" name="cartKey" th:value="${cartKey}" />
-                <button class="btn btn-success w-100 mt-2">Thanh toán</button>
-            </form>
-        </div>
-
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
-    <script th:inline="javascript">
-        const formatCurrency = (vnd) => vnd.toLocaleString("vi-VN") + " ₫";
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const provinceSelect = document.getElementById("province");
+            const districtSelect = document.getElementById("district");
+            const wardSelect = document.getElementById("ward");
+            const shippingFeeElement = document.getElementById("shippingFee");
 
-        async function loadProvinces() {
-            const res = await fetch("/admin/ban-hang/dia-chi/tinh");
-            const data = await res.json();
-            const select = document.getElementById("province");
-            select.innerHTML = '<option value="">-- Chọn Tỉnh/Thành --</option>';
-            data.forEach(p => select.add(new Option(p.ProvinceName, p.ProvinceID)));
-        }
-
-        async function loadDistricts() {
-            const provinceId = document.getElementById("province").value;
-            const res = await fetch("/admin/ban-hang/dia-chi/huyen?provinceId=" + provinceId);
-            const data = await res.json();
-            const select = document.getElementById("district");
-            select.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
-            data.forEach(d => select.add(new Option(d.DistrictName, d.DistrictID)));
-        }
-
-        async function loadWards() {
-            const districtId = document.getElementById("district").value;
-            const res = await fetch("/admin/ban-hang/dia-chi/xa?districtId=" + districtId);
-            const data = await res.json();
-            const select = document.getElementById("ward");
-            select.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
-            data.forEach(w => select.add(new Option(w.WardName, w.WardCode)));
-        }
-
-        async function calculateShipping() {
-            const districtId = document.getElementById("district").value;
-            const wardCode = document.getElementById("ward").value;
-            if (districtId && wardCode) {
-                const res = await fetch(`/admin/ban-hang/phi-ship?toDistrictId=${districtId}&wardCode=${wardCode}`);
-                const fee = await res.json();
-                document.getElementById("shippingFee").innerText = formatCurrency(fee);
+            // Hàm gọi API lấy danh sách tỉnh/huyện/xã
+            async function fetchData(url) {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Lỗi khi fetch dữ liệu");
+                return await response.json();
             }
-        }
 
-        function updateDiaChiHienThi() {
-            const tinh = document.getElementById("province");
-            const huyen = document.getElementById("district");
-            const xa = document.getElementById("ward");
-
-            const tenTinh = tinh.options[tinh.selectedIndex]?.text || "";
-            const tenHuyen = huyen.options[huyen.selectedIndex]?.text || "";
-            const tenXa = xa.options[xa.selectedIndex]?.text || "";
-
-            document.getElementById("hiddenTinh").value = tenTinh;
-            document.getElementById("hiddenHuyen").value = tenHuyen;
-            document.getElementById("hiddenXa").value = tenXa;
-
-            const full = [tenXa, tenHuyen, tenTinh].filter(Boolean).join(", ");
-            document.getElementById("hienThiDiaChi").innerText = full;
-        }
-
-        function whenAddressChanges() {
-            updateDiaChiHienThi();
-            calculateShipping();
-        }
-
-        window.onload = function () {
-            loadProvinces();
-            document.getElementById("province").addEventListener("change", async function () {
-                await loadDistricts();
-                updateDiaChiHienThi();
+            // Load tỉnh khi vào trang
+            const provinces = await fetchData("/admin/ban-hang/dia-chi/tinh");
+            provinceSelect.innerHTML = '<option value="">-- Chọn tỉnh --</option>';
+            provinces.forEach(p => {
+                provinceSelect.innerHTML += `<option value="${p.ProvinceID}">${p.ProvinceName}</option>`;
             });
-            document.getElementById("district").addEventListener("change", async function () {
-                await loadWards();
-                updateDiaChiHienThi();
+
+            // Khi chọn tỉnh → load huyện
+            provinceSelect.addEventListener("change", async function () {
+                const provinceId = this.value;
+                districtSelect.innerHTML = '<option value="">-- Chọn huyện --</option>';
+                wardSelect.innerHTML = '<option value="">-- Chọn xã --</option>';
+                shippingFeeElement.innerText = "Chưa tính";
+                if (!provinceId) return;
+
+                const districts = await fetchData(`/admin/ban-hang/dia-chi/huyen?provinceId=${provinceId}`);
+                districts.forEach(d => {
+                    districtSelect.innerHTML += `<option value="${d.DistrictID}">${d.DistrictName}</option>`;
+                });
             });
-            document.getElementById("ward").addEventListener("change", whenAddressChanges);
-        };
+
+            // Khi chọn huyện → load xã
+            districtSelect.addEventListener("change", async function () {
+                const districtId = this.value;
+                wardSelect.innerHTML = '<option value="">-- Chọn xã --</option>';
+                shippingFeeElement.innerText = "Chưa tính";
+                if (!districtId) return;
+
+                const wards = await fetchData(`/admin/ban-hang/dia-chi/xa?districtId=${districtId}`);
+                wards.forEach(w => {
+                    wardSelect.innerHTML += `<option value="${w.WardCode}">${w.WardName}</option>`;
+                });
+            });
+
+            // Khi chọn xã → gọi tính phí ship
+            wardSelect.addEventListener("change", async function () {
+                const districtId = districtSelect.value;
+                const wardCode = this.value;
+                if (!districtId || !wardCode) return;
+
+                try {
+                    const response = await fetch(`/admin/ban-hang/phi-ship?toDistrictId=${districtId}&wardCode=${wardCode}`);
+                    const fee = await response.json();
+                    shippingFeeElement.innerText = fee.toLocaleString("vi-VN") + " ₫";
+                } catch (error) {
+                    shippingFeeElement.innerText = "Không thể tính phí";
+                    console.error("Lỗi khi tính phí vận chuyển:", error);
+                }
+            });
+        });
     </script>
+
     <!-- Script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-    <script>
-        const timSanPham = document.getElementById("timSanPham");
-        const goiYBox = document.getElementById("goiYSanPham");
 
-        timSanPham.addEventListener("input", function () {
-            const keyword = this.value;
-            if (keyword.length < 2) {
-                goiYBox.innerHTML = "";
+    <script>
+        btnThemGioHang.addEventListener("click", () => {
+            const idMau = chonMau.value;
+            const idSize = chonSize.value;
+
+            if (!idMau || !idSize || !idSanPhamDangChon) {
+                alert("Vui lòng chọn đầy đủ màu sắc và size!");
                 return;
             }
 
-            fetch(`/admin/ban-hang/tim-kiem-san-pham?keyword=${encodeURIComponent(keyword)}`)
-                .then(res => res.json())
-                .then(data => {
-                    goiYBox.innerHTML = "";
-                    data.forEach(sp => {
-                        const item = document.createElement("button");
-                        item.type = "button";
-                        item.classList.add("list-group-item", "list-group-item-action");
-                        item.textContent = `${sp.tenSanPham} - ${sp.mauSac} / ${sp.size}-SL:${sp.soluong}-Gia:${sp.gia}`;
-                        item.addEventListener("click", () => {
-                            timSanPham.value = item.textContent;
-                            document.getElementById("idChiTietSp").value = sp.idChiTietSp;
-                            goiYBox.innerHTML = "";
-                        });
-                        goiYBox.appendChild(item);
-                    });
-                });
+            // Gửi dữ liệu thêm giỏ hàng (POST)
+            fetch("/admin/ban-hang/them-gio", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    idSanPham: idSanPhamDangChon,
+                    idMauSac: idMau,
+                    idSize: idSize
+                })
+            })
+                .then(res => res.text())
+                .then(msg => alert(msg));
         });
+
+
 
         document.addEventListener("click", function (e) {
             if (!goiYBox.contains(e.target) && e.target !== timSanPham) {
@@ -404,38 +454,151 @@
                         timSanPham.value = "Lỗi kết nối khi tìm sản phẩm.";
                     });
             });
-            // Quagga.onDetected(function (result) {
-            //     const code = result.codeResult.code;
-            //     Quagga.offDetected(); // chỉ bắt 1 lần
-            //     Quagga.stop();
-            //     modal.hide();
-            //
-            //     // Gán vào input và kích hoạt event
-            //     timSanPham.value = code;
-            //     const inputEvent = new Event("input", { bubbles: true });
-            //     timSanPham.dispatchEvent(inputEvent);
-            // });
+
         }
     </script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const btnMomo = document.getElementById("btnMomo");
-            const momoForm = document.getElementById("momoForm");
+        const timSanPham = document.getElementById("timSanPham");
+        const ketQuaBang = document.getElementById("ketQuaTimSanPham");
+        const idChiTietSpInput = document.getElementById("idChiTietSp");
 
-            btnMomo?.addEventListener("click", function () {
-                if (momoForm) {
-                    momoForm.submit();
+        timSanPham.addEventListener("input", function () {
+            const keyword = this.value.trim();
+
+            const url = keyword.length < 2
+                ? `/admin/ban-hang/tim-kiem-san-pham`
+                : `/admin/ban-hang/tim-kiem-san-pham?keyword=${encodeURIComponent(keyword)}`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(dsSp => {
+                    // Lọc bỏ sản phẩm có số lượng = 0
+                    const spHienThi = dsSp.filter(sp => sp.soLuong > 0);
+
+                    if (!spHienThi || spHienThi.length === 0) {
+                        ketQuaBang.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Không tìm thấy sản phẩm nào</td>
+                        </tr>`;
+                        return;
+                    }
+
+                    ketQuaBang.innerHTML = spHienThi.map((sp, index) => `
+                    <tr onclick="chonSanPham('${sp.id}', '${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc} - SL: ${sp.soLuong}')">
+                        <td class="p-3">${index + 1}</td>
+                        <td class="p-3">${sp.ma || ''}</td>
+                        <td class="p-3">
+                            <img src="${sp.hinhAnh}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
+                        </td>
+                        <td class="p-3">${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc} - SL: ${sp.soLuong}</td>
+                        <td class="p-3">
+                            <button class="btn btn-primary btn-them-gio"
+                                    onclick="themVaoGioHang('${sp.id}')">
+                                Thêm vào giỏ
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                })
+                .catch(err => {
+                    console.error(err);
+                    ketQuaBang.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-danger">Lỗi khi tìm kiếm sản phẩm</td>
+                    </tr>`;
+                });
+        });
+
+        function chonSanPham(id, text) {
+            document.getElementById("timSanPham").value = text;
+            idChiTietSpInput.value = id;
+        }
+
+        function themVaoGioHang(idChiTietSp) {
+            const csrfToken = document.querySelector('input[name="_csrf"]')?.value;
+
+            // Lấy cartKey từ thẻ input hidden (ví dụ)
+            const cartKey = document.querySelector('input[name="cartKey"]')?.value;
+
+            if (!cartKey) {
+                alert("❌ Thiếu cartKey!");
+                return;
+            }
+
+            const payload = {
+                idChiTietSp: idChiTietSp,
+                soLuong: 1,
+                cartKey: cartKey
+            };
+
+            fetch('/admin/ban-hang/them-gio-hang', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(res => {
+                    if (res.ok) return res.text();
+                    return res.text().then(text => { throw new Error(text); });
+                })
+                .then(data => {
+                    alert("✅ Đã thêm vào giỏ hàng");
+                    window.location.reload();
+                    // Có thể cập nhật giao diện giỏ hàng tại đây
+                })
+                .catch(err => {
+                    console.error("Lỗi khi thêm sản phẩm:", err);
+                    alert("❌ Không thể thêm sản phẩm vào giỏ: " + err.message);
+                });
+        }
+
+        function validateSoLuong(form) {
+            const input = form.querySelector('input[name="soLuong"]');
+            const soLuongMoi = parseInt(input.value);
+            const soLuongTon = parseInt(input.dataset.ton);
+
+            if (soLuongMoi > soLuongTon) {
+                alert("❌ Số lượng vượt quá tồn kho: " + soLuongTon);
+                return false;
+            }
+            return true;
+        }
+        function toggleQrImage() {
+            const ckRadio = document.getElementById('pttt_ck');
+            const qrDiv = document.getElementById('qrChuyenKhoan');
+            if (ckRadio.checked) {
+                qrDiv.style.display = 'block';
+            } else {
+                qrDiv.style.display = 'none';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            toggleQrImage();
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const checkbox = document.getElementById("muonVanChuyen");
+            const diaChiDiv = document.getElementById("diaChiVanChuyen");
+
+            checkbox.addEventListener("change", function () {
+                if (this.checked) {
+                    diaChiDiv.style.display = "block";
+                    calculateShipping();
                 } else {
-                    alert("Có lỗi xảy ra: Không tìm thấy form thanh toán MoMo.");
+                    diaChiDiv.style.display = "none";
                 }
+            });
+
+            document.getElementById("btnTaoDonVanChuyen").addEventListener("click", function () {
+                // TODO: Gọi API tạo đơn vận chuyển tại đây (GHN hoặc GHTK)
+                alert("Đã gửi yêu cầu tạo đơn vận chuyển!");
             });
         });
     </script>
 
 
-
 </section>
-
-
 </body>
 </html>

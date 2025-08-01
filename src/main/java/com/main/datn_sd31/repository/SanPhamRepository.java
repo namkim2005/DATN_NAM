@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
+    List<SanPham> findByTenContainingIgnoreCase(String keyword);
 
 
     @Query("SELECT sp FROM SanPham sp " +
