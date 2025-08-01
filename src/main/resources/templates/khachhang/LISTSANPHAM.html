@@ -36,10 +36,41 @@
       <a href="#" class="hover:text-pink-600">Liên hệ</a>
     </nav>
     <div class="flex items-center gap-4">
-      <a th:href="@{/khach-hang/dang-nhap}" class="text-sm bg-pink-500 text-white px-3 py-1.5 rounded hover:bg-pink-600">Đăng nhập</a>
-      <form th:action="@{/khach-hang/dang-xuat}" method="post">
-        <button type="submit" class="dropdown-item">Sign Out</button>
-      </form>
+      <a th:if="${khachHangLogin == null}"
+         th:href="@{/khach-hang/dang-nhap}"
+         class="text-sm bg-pink-500 text-white px-3 py-1.5 rounded hover:bg-pink-600">
+        Đăng nhập
+      </a>
+
+      <div th:if="${khachHangLogin != null}" class="relative" x-data="{ open: false }">
+        <img
+                src='/uploads/avatar_nguoidung.jpg'
+                alt="Avatar"
+                class="w-10 h-10 rounded-full border-2 border-pink-500 cursor-pointer"
+                @click="open = !open"
+        />
+
+        <div
+                x-show="open"
+                @click.outside="open = false"
+                x-transition
+                class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-50"
+        >
+          <a th:href="@{/khach-hang/thong-tin}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-100">
+            👤 Thông tin tài khoản
+          </a>
+          <a th:href="@{/khach-hang/don-hang/{id}(id = ${ idKhachHang })}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-100">
+            > Lịch sử mua hàng
+          </a>
+          <form th:action="@{/khach-hang/dang-xuat}" method="post">
+            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">
+              🔓 Đăng xuất
+            </button>
+          </form>
+        </div>
+      </div>
+
+
       <a th:href="@{/gio-hang/hien_thi}" class="relative text-2xl text-pink-600">
         🛒
         <span th:if="${soLuongTrongGio > 0}" th:text="${soLuongTrongGio}"
@@ -232,7 +263,7 @@
           </p>
 
 
-          <a th:href="@{/khach-hang/chi-tiet/{id}(id=${sp.id})}"
+          <a th:href="@{/san-pham/chi-tiet/{id}(id=${sp.id})}"
              class="mt-4 inline-block text-center bg-pink-600 text-white py-2 px-4 rounded-full hover:bg-pink-700 transition">
             Xem chi tiết
           </a>

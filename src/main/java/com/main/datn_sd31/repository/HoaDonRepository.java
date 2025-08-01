@@ -42,6 +42,26 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     JOIN LichSuHoaDon lshd on hd.ma = lshd.hoaDon.ma
     WHERE (hd.ngayTao >= :startDate
       AND hd.ngayTao < :endDate)
+      AND NOT EXISTS (
+              SELECT 1 FROM LichSuHoaDon lshd
+              WHERE lshd.hoaDon = hd
+              AND lshd.trangThai IN (5, 8, 9, 10)
+          )
+      AND hd.khachHang.id = :idKhachHang
+    ORDER BY hd.ngayTao Desc
+    """)
+    Page<HoaDon> getDonHangByKhachHang(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("idKhachHang") Integer idKhachHang,
+            Pageable pageable
+    );
+
+    @Query("""
+    SELECT hd FROM HoaDon hd
+    JOIN LichSuHoaDon lshd on hd.ma = lshd.hoaDon.ma
+    WHERE (hd.ngayTao >= :startDate
+      AND hd.ngayTao < :endDate)
       AND EXISTS (
               SELECT 1 FROM LichSuHoaDon lshd
               WHERE lshd.hoaDon = hd

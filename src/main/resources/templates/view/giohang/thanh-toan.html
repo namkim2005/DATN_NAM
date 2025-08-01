@@ -11,9 +11,86 @@
             height: auto;
             border-radius: 6px;
         }
+
+        /*CSS Thong bao*/
+        .custom-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 40px 12px 18px; /* hoặc: padding: 12px 18px; */
+            border-radius: 6px;
+            color: white;
+            z-index: 9999;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            animation: fadeIn 0.3s ease-in-out;
+            overflow: hidden;
+        }
+
+
+        .custom-toast.success {
+            background-color: #28a745;
+        }
+
+        .custom-toast.error {
+            background-color: #dc3545;
+        }
+
+        .custom-toast .close-btn {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .custom-toast .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            animation: progressBar 4s linear forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes progressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /*CSS Thong bao*/
+
     </style>
 </head>
 <body>
+
+<!-- Success Toast -->
+<div id="customSuccess" class="custom-toast success" style="display:none;">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <span id="successMsg"></span>
+    <button class="close-btn" onclick="closeToast('customSuccess')">&times;</button>
+    <div class="progress-bar"></div>
+</div>
+
+<!-- Error Toast -->
+<div id="customError" class="custom-toast error" style="display:none;">
+    <i class="bi bi-x-circle-fill me-2"></i>
+    <span id="errorMsg"></span>
+    <button class="close-btn" onclick="closeToast('customError')">&times;</button>
+    <div class="progress-bar"></div>
+</div>
+
 <header class="bg-white shadow sticky top-0 z-50">
     <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
         <h1 class="text-2xl font-bold text-pink-600">D&C Fashions</h1>
@@ -385,6 +462,45 @@
     });
 
 </script>
+
+<!--  Thong bao-->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const successMsg = [[${success} == null ? 'null' : '' + ${success} + '']];
+    const errorMsg = [[${error} == null ? 'null' : '' + ${error} + '']];
+
+    function showCustomToast(type, message) {
+        const toastId = type === 'success' ? 'customSuccess' : 'customError';
+        const toastEl = document.getElementById(toastId);
+        const msgEl = document.getElementById(type === 'success' ? 'successMsg' : 'errorMsg');
+        const progressBar = toastEl.querySelector('.progress-bar');
+
+        msgEl.textContent = message;
+        toastEl.style.display = 'block';
+
+        // Khởi động lại animation nếu toast được hiển thị lại
+        progressBar.style.animation = 'none';
+        void progressBar.offsetWidth; // force reflow
+        progressBar.style.animation = null;
+
+        // Auto close sau 4s
+        setTimeout(() => {
+            toastEl.style.display = 'none';
+        }, 4000);
+    }
+
+    function closeToast(toastId) {
+        const toastEl = document.getElementById(toastId);
+        toastEl.style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        if (successMsg && successMsg !== "null") showCustomToast('success', successMsg);
+        if (errorMsg && errorMsg !== "null") showCustomToast('error', errorMsg);
+    });
+    /*]]>*/
+</script>
+<!--  Thong bao-->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

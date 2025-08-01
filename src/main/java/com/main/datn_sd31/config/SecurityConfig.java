@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .logoutUrl("/admin/logout")
                         .logoutSuccessUrl("/admin/dang-nhap?logout=true")
                         .permitAll()
+
                 );
         return http.build();
     }
@@ -72,12 +73,15 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/khach-hang/dang-nhap")
                         .loginProcessingUrl("/khach-hang/dang-nhap")
-                        .defaultSuccessUrl("/khach-hang/danh-sach", true)
+                        .defaultSuccessUrl("/san-pham/danh-sach", true)
                         .permitAll()
                 )
                 .logout(lg -> lg
                         .logoutUrl("/khach-hang/dang-xuat")
-                        .logoutSuccessUrl("/khach-hang/dang-nhap?logout")
+                        .logoutSuccessUrl("/san-pham/danh-sach")
+                        .invalidateHttpSession(true)                  // ✅ XÓA SESSION
+                        .deleteCookies("JSESSIONID")                  // ✅ XÓA COOKIE phiên
+                        .clearAuthentication(true)                    // ✅ XÓA thông tin xác thực
                 );
 
         return http.build();

@@ -2,10 +2,12 @@ package com.main.datn_sd31.controller.client_controller;
 
 import com.main.datn_sd31.entity.*;
 import com.main.datn_sd31.repository.*;
+import com.main.datn_sd31.service.ChiTietSanPhamService;
 import com.main.datn_sd31.service.PhieuGiamGiaService;
 import com.main.datn_sd31.service.impl.GHNService;
 import com.main.datn_sd31.service.impl.Giohangservice;
 import com.main.datn_sd31.service.impl.Sanphamservice;
+import com.main.datn_sd31.util.ThongBaoUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -43,6 +45,9 @@ public class GiohangController {
     private final PhieuGiamGiaRepository phieugiamgiarepository;
     private final NhanVienRepository nhanvienrepository;
     private final HoaDonChiTietRepository hoadonCTreposiroty;
+    private final LichSuHoaDonRepository lichSuHoaDonRepository;
+
+    private final ChiTietSanPhamService chiTietSanPhamService;
 
     @Autowired
     private GHNService ghnService;
@@ -99,7 +104,6 @@ public class GiohangController {
         model.addAttribute("list", newList);
         model.addAttribute("tongTien", tongTien);
 
-        System.out.println("▶ Đã vào controller: /gio-hang/hien_thi");
         return "view/giohang/list";
     }
 
@@ -108,7 +112,8 @@ public class GiohangController {
                            @RequestParam("sizeId") Integer sizeId,
                            @RequestParam("mauSacId") Integer mauSacId,
                            @RequestParam("soLuong") Integer soluong,
-                           Model model) {
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
 
         ChiTietSanPham chiTiet = chitietsanphamRepo.findBySanPhamIdAndSizeIdAndMauSacId(sanphamId, sizeId, mauSacId);
         GioHangChiTiet gh = new GioHangChiTiet();
@@ -119,7 +124,13 @@ public class GiohangController {
         gh.setTrangThai(0);
         gh.setThanhTien(chiTiet.getGiaBan().multiply(BigDecimal.valueOf(soluong)));
 
+        if (soluong > chiTiet.getSoLuong()) {
+            ThongBaoUtils.addError(redirectAttributes, "Số lượng vượt quá tồn kho");
+            return "redirect:/san-pham/chi-tiet/" + sanphamId;
+        }
+
         giohangreposiroty.save(gh);
+
         return "redirect:/gio-hang/hien_thi";
     }
 
@@ -143,13 +154,15 @@ public class GiohangController {
             @PathVariable("id") Integer id,
             @RequestParam("action") String action,
             @RequestParam(value = "newSoluong", required = false) Integer newSoluong,
-            @RequestParam(value = "soluong", required = false) Integer soluong
+            @RequestParam(value = "soluong", required = false) Integer soluong,
+            RedirectAttributes redirectAttributes
     ) {
         Optional<GioHangChiTiet> optionalItem = giohangreposiroty.findById(id);
         if (!optionalItem.isPresent()) {
             return "redirect:/gio-hang/hien_thi";
         }
         GioHangChiTiet item = optionalItem.get();
+        int soLuongTonKho = item.getChiTietSp().getSoLuong();
 
         int soLuongMoi;
         if (newSoluong != null && newSoluong > 0 && !"increase".equals(action) && !"decrease".equals(action)) {
@@ -161,6 +174,11 @@ public class GiohangController {
             soLuongMoi = Math.max(item.getSoLuong() - 1, 1);
         } else {
             soLuongMoi = item.getSoLuong();
+        }
+
+        if (soLuongMoi > soLuongTonKho) {
+            ThongBaoUtils.addError(redirectAttributes, "Số lượng vượt quá tồn kho");
+            return "redirect:/gio-hang/hien_thi";
         }
 
         item.setSoLuong(soLuongMoi);
@@ -212,7 +230,7 @@ public class GiohangController {
         List<PhieuGiamGia> danhSachPhieuGiamGia = phieugiamgiarepository.findAll();
         model.addAttribute("danhSachPhieuGiamGia", danhSachPhieuGiamGia);
 
-// Xử lý chọn mã giảm tốt nhất
+        // Xử lý chọn mã giảm tốt nhất
         String selectedVoucherCode = null;
         BigDecimal maxDiscount = BigDecimal.ZERO;
 
@@ -235,7 +253,7 @@ public class GiohangController {
                                    @RequestParam Map<String, String> formData,
                                    HttpSession session,
                                    HttpServletRequest request,
-                                   RedirectAttributes redirect,
+                                   RedirectAttributes redirectAttributes,
                                    Model model) {
 
         String diaChiChiTiet = formData.get("diaChi");
@@ -248,6 +266,16 @@ public class GiohangController {
         }
 
         List<GioHangChiTiet> gioHangChiTiets = giohangreposiroty.findAllById(selectedItemIds);
+
+        // ✅ KIỂM TRA NGAY Ở ĐÂY
+        if (!chiTietSanPhamService.kiemTraTonKho(gioHangChiTiets)) {
+            ThongBaoUtils.addError(redirectAttributes, "Sản phẩm đã vượt quá tồn kho.");
+            String joinedIds = selectedItemIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining("&selectedId="));
+            return "redirect:/gio-hang/thanh-toan?selectedId=" + joinedIds;
+        }
+
         // 4. Lọc sản phẩm khách đã chọn từ giỏ hàng của chính họ
         BigDecimal tongTienGoc = BigDecimal.ZERO;
         for (GioHangChiTiet item : gioHangChiTiets) {
@@ -289,6 +317,15 @@ public class GiohangController {
         }
         hoaDon.setTrangThai(1);
         hoadonreposiroty.save(hoaDon);
+
+        //Thêm lịch sử hóa đơn
+        LichSuHoaDon lichSuHoaDon = new LichSuHoaDon();
+        lichSuHoaDon.setNgayTao(LocalDateTime.now());
+        lichSuHoaDon.setTrangThai(1);
+        lichSuHoaDon.setGhiChu(getCurrentKhachHang().getTen() + " đặt hàng, chờ xác nhận.");
+        lichSuHoaDon.setHoaDon(hoaDon);
+        lichSuHoaDonRepository.save(lichSuHoaDon);
+
         if (phuongThuc.equalsIgnoreCase("tien_mat")) {
             xuLySauKhiDatHang(hoaDon, gioHangChiTiets, tienGiam,2);
             model.addAttribute("ma",  hoaDon.getMa());
@@ -325,11 +362,12 @@ public class GiohangController {
         System.out.println("id san pham gio hang"+gioHangChiTiets);
         giohangreposiroty.deleteAll(gioHangChiTiets);
         System.out.println("hoa don id"+hoaDon.getId());
+
+        //Thêm hóa đơn mới
         HoaDon hd = hoadonreposiroty.findById(hoaDon.getId()).orElse(null);
 
         hd.setTrangThai(trangThai);
         hoadonreposiroty.save(hd);
-
     }
 
 

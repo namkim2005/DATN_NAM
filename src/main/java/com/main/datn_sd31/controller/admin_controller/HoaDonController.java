@@ -64,7 +64,7 @@ public class HoaDonController {
         model.addAttribute("pageInfo", hoaDonList);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount());
+        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
 
         Map<String, List<TrangThaiLichSuHoaDon>> trangThaiHopLeMap = new HashMap<>();
         for (HoaDonDTO hd : hoaDonList.getContent()) {
@@ -91,7 +91,7 @@ public class HoaDonController {
         model.addAttribute("hoaDonList", hoaDonList.getContent());
         model.addAttribute("pageInfo", hoaDonList);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount());
+        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
 
         return "admin/pages/hoa-don/hoa-don";
     }

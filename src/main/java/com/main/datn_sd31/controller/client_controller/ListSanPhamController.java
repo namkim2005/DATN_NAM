@@ -6,6 +6,7 @@ import com.main.datn_sd31.entity.SanPham;
 import com.main.datn_sd31.entity.Size;
 import com.main.datn_sd31.repository.*;
 import com.main.datn_sd31.service.impl.Sanphamservice;
+import com.main.datn_sd31.util.GetKhachHang;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +40,8 @@ public class ListSanPhamController {
     private final Dotgiamgiarepository dotgiamgiarepository;
     private final SanPhamRepository sanPhamRepository;
 
+    private final GetKhachHang getKhachHang;
+
     @GetMapping("/danh-sach")
     public String hienThiDanhSachSanPham(
             @RequestParam(value="q", required=false) String q,
@@ -51,6 +54,10 @@ public class ListSanPhamController {
 
             Model model
     ) {
+        if (getKhachHang.getCurrentKhachHang() != null) {
+            Integer currentId = getKhachHang.getCurrentKhachHang().getId();
+            model.addAttribute("idKhachHang", currentId);
+        }
         // gọi đúng method mới
         List<SanPham> danhSachSanPham = sanPhamService.search(q, danhMucId, loaiThuId, chatLieuId, kieuDangId, xuatXuId, priceRange);
         model.addAttribute("danhSachSanPham", danhSachSanPham);
@@ -144,12 +151,12 @@ public class ListSanPhamController {
         model.addAttribute("giaBanMaxMap", giaBanMaxMap);
         // Nếu còn map nào khác, cứ thêm tương tự:
         // model.addAttribute("giaKhuyenMaiMap", ...);
+        if (getKhachHang.getCurrentKhachHang() != null) {
+            model.addAttribute("khachHangLogin", getKhachHang.getCurrentKhachHang());
+        }
 
         return "khachhang/LISTSANPHAM";
     }
-
-
-
 
 
     @GetMapping("/chi-tiet/{id}")
@@ -205,6 +212,7 @@ public class ListSanPhamController {
 
         return "khachhang/xemchitiet";
     }
+
     @GetMapping("/search")
     public String searchSanPham(
             @RequestParam("q") String q,

@@ -4,6 +4,7 @@ import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
 import com.main.datn_sd31.dto.Pagination;
 import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
 import com.main.datn_sd31.entity.HoaDon;
+import com.main.datn_sd31.entity.KhachHang;
 import com.main.datn_sd31.entity.LichSuHoaDon;
 import com.main.datn_sd31.repository.HoaDonRepository;
 import com.main.datn_sd31.repository.LichSuHoaDonRepository;
@@ -141,8 +142,8 @@ public class HoaDonServiceIpml implements HoaDonService {
     }
 
     @Override
-    public Map<String, Long> getTrangThaiCount() {
-        return getAllHoaDon().stream()
+    public Map<String, Long> getTrangThaiCount(List<HoaDonDTO> list) {
+        return list.stream()
                 .collect(Collectors.groupingBy(HoaDonDTO::getTrangThaiLichSuHoaDonMoTa, Collectors.counting()));
     }
 
@@ -215,6 +216,81 @@ public class HoaDonServiceIpml implements HoaDonService {
         Page<HoaDonDTO> pageDTO = pageData.map(this::mapToDTO);
 
         return new Pagination<>(pageDTO);
+    }
+
+    @Override
+    public Pagination<HoaDonDTO> getAllDonHangByStatus(TrangThaiLichSuHoaDon status, int pageNo, int pageSize) {
+        List<HoaDonDTO> all = getAllDonHang(
+                0,
+                Integer.MAX_VALUE,
+                LocalDate.of(2020, 1, 1),
+                LocalDate.of(2030, 1, 1)
+        ).getContent();
+
+        List<HoaDonDTO> filtered = all.stream()
+                .filter(hd -> Objects.equals(hd.getTrangThaiLichSuHoaDon(), status))
+                .toList();
+
+        int total = filtered.size();
+        int fromIndex = Math.min(pageNo * pageSize, total);
+        int toIndex = Math.min(fromIndex + pageSize, total);
+
+        List<HoaDonDTO> pageContent = filtered.subList(fromIndex, toIndex);
+
+        Pagination<HoaDonDTO> result = new Pagination<>();
+        result.setContent(pageContent);
+        result.setCurrentPage(pageNo);
+        result.setPageSize(pageSize);
+        result.setTotalElements(total);
+        result.setTotalPages((int) Math.ceil((double) total / pageSize));
+        result.setLast(toIndex == total);
+
+        return result;
+    }
+
+    @Override
+    public Pagination<HoaDonDTO> getAllDonHangKhachHang(KhachHang khachHang, Integer pageNo, Integer pageSize, LocalDate startDate, LocalDate endDate) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        LocalDateTime start = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime end = (endDate != null) ? endDate.atTime(LocalTime.MAX) : null;
+
+        Page<HoaDon> pageData = hoaDonRepository.getDonHangByKhachHang(start, end, khachHang.getId(), pageable);
+
+        // Chuyển Page<HoaDon> → Page<HoaDonDTO>
+        Page<HoaDonDTO> pageDTO = pageData.map(this::mapToDTO);
+
+        return new Pagination<>(pageDTO);
+    }
+
+    @Override
+    public Pagination<HoaDonDTO> getAllHoaDonKhachHangByStatus(KhachHang khachHang, TrangThaiLichSuHoaDon status, int pageNo, int pageSize) {
+        List<HoaDonDTO> all = getAllDonHangKhachHang(
+                khachHang,
+                0,
+                Integer.MAX_VALUE,
+                LocalDate.of(2020, 1, 1),
+                LocalDate.of(2030, 1, 1)
+        ).getContent();
+
+        List<HoaDonDTO> filtered = all.stream()
+                .filter(hd -> Objects.equals(hd.getTrangThaiLichSuHoaDon(), status))
+                .toList();
+
+        int total = filtered.size();
+        int fromIndex = Math.min(pageNo * pageSize, total);
+        int toIndex = Math.min(fromIndex + pageSize, total);
+
+        List<HoaDonDTO> pageContent = filtered.subList(fromIndex, toIndex);
+
+        Pagination<HoaDonDTO> result = new Pagination<>();
+        result.setContent(pageContent);
+        result.setCurrentPage(pageNo);
+        result.setPageSize(pageSize);
+        result.setTotalElements(total);
+        result.setTotalPages((int) Math.ceil((double) total / pageSize));
+        result.setLast(toIndex == total);
+
+        return result;
     }
 
 

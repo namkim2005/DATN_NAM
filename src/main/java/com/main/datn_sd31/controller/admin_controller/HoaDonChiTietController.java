@@ -40,7 +40,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/admin/hoa-don/detail1")
 @RequiredArgsConstructor
-
 public class HoaDonChiTietController {
 
     private final HoaDonChiTietService hoaDonChiTietService;
