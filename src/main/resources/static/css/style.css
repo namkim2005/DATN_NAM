@@ -14009,6 +14009,7 @@ input:focus {
       .sidebar .nav .nav-item.active > .nav-link i {
         color: inherit; }
     .sidebar .nav .nav-item.nav-profile .nav-link {
+      padding: 2rem;
       display: -webkit-flex;
       display: flex;
       -webkit-flex-direction: column;
@@ -14119,7 +14120,7 @@ input:focus {
 /* Navbar */
 .navbar.default-layout {
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(120deg, #00e4d0, #5983e8);
+  background: linear-gradient(120deg, #e4d1bc, #fffaf4);
   transition: background 0.25s ease;
   -webkit-transition: background 0.25s ease;
   -moz-transition: background 0.25s ease;
@@ -14129,7 +14130,7 @@ input:focus {
     -webkit-transition: width 0.25s ease, background 0.25s ease;
     -moz-transition: width 0.25s ease, background 0.25s ease;
     -ms-transition: width 0.25s ease, background 0.25s ease;
-    background: #ffffff;
+    background: #FFFFFF;
     width: 255px;
     height: 63px; }
     .sidebar-dark .navbar.default-layout .navbar-brand-wrapper {
