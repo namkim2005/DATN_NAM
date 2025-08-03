@@ -118,8 +118,20 @@
             <ul class="navbar-nav navbar-nav-right">
                 <li class="nav-item dropdown d-none d-xl-inline-block">
                     <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
-                        <span class="profile-text">Hello, Richard V.Welsh !</span>
-                        <img class="img-xs rounded-circle" th:src="@{/images/faces/face6.jpg}" alt="Profile image">
+                        <span class="profile-text" th:if="${currentUser != null}">
+                            Xin chào, <span th:text="${currentUser.ten}"></span>!
+                        </span>
+                        <span class="profile-text" th:if="${currentUser == null}">
+                            Xin chào, Khách!
+                        </span>
+                        <img class="img-xs rounded-circle" 
+                             th:if="${currentUser != null && currentUser.anh != null && !currentUser.anh.isEmpty()}" 
+                             th:src="@{${currentUser.anh.startsWith('/') ? '' : '/'} + ${currentUser.anh}}" 
+                             alt="Ảnh đại diện">
+                        <img class="img-xs rounded-circle" 
+                             th:if="${currentUser == null || currentUser.anh == null || currentUser.anh.isEmpty()}" 
+                             th:src="@{/images/faces/face6.jpg}" 
+                             alt="Ảnh mặc định">
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                         <a class="dropdown-item mt-2">
@@ -149,12 +161,17 @@
                     <div class="nav-link">
                         <div class="user-wrapper">
                             <div class="profile-image">
-                                <img th:src="@{/images/faces/face1.jpg}" alt="profile image">
+                                <img th:if="${currentUser != null && currentUser.anh != null && !currentUser.anh.isEmpty()}" 
+                                     th:src="@{${currentUser.anh.startsWith('/') ? '' : '/'} + ${currentUser.anh}}" 
+                                     alt="profile image">
+                                <img th:if="${currentUser == null || currentUser.anh == null || currentUser.anh.isEmpty()}" 
+                                     th:src="@{/images/faces/face1.jpg}" 
+                                     alt="profile image">
                             </div>
                             <div class="text-wrapper">
-                                <p class="profile-name">Richard V.Welsh</p>
+                                <p class="profile-name" th:text="${currentUser != null ? currentUser.ten : 'Khách'}">Tên người dùng</p>
                                 <div>
-                                    <small class="designation text-muted">Manager</small>
+                                    <small class="designation text-muted" th:text="${currentUser != null ? currentUser.chucVu : 'Khách'}">Chức vụ</small>
                                     <span class="status-indicator online"></span>
                                 </div>
                             </div>

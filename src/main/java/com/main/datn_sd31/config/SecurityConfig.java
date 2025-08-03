@@ -93,13 +93,14 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**",
                                 "/vendors/**", "/webjars/**",
                                 "/static/**", "/favicon.ico",
-                                "/san-pham/**"
+                                "/san-pham/**",
+                                "/uploads/**" // Added this line
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")      // Trang đăng nhập chung
-                        .loginProcessingUrl("/login") // ✅ Thêm dòng này
+                        .loginProcessingUrl("/login") // 
                         .permitAll()
                 )
                 .logout(lg -> lg.logoutSuccessUrl("/"));
