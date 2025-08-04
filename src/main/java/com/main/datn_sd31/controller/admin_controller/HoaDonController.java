@@ -108,7 +108,7 @@ public class HoaDonController {
 
     @PostMapping("/cap-nhat-trang-thai")
     public String capNhatTrangThai(
-            @RequestParam("ma-hoa-don") String maHoaDon,
+            @RequestParam("maHoaDon") String maHoaDon,
             @RequestParam(value = "trangThaiMoi", required = false) Integer trangThaiMoi,
 //            @RequestParam(value = "quayLui", required = false) Boolean quayLui,
             @RequestParam(value = "ghiChu", required = false) String ghiChu,
@@ -129,7 +129,7 @@ public class HoaDonController {
             ThongBaoUtils.addError(redirectAttributes, ketQua.message());
         }
 
-        redirectAttributes.addAttribute("ma-hoa-don", maHoaDon);
+        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
 
         return "redirect:/admin/hoa-don";
     }

@@ -14,11 +14,23 @@ public class HoaDonUtils {
         };
     }
 
+    public static boolean choPhepSuaGhiChuHoaDonKhachHang(TrangThaiLichSuHoaDon trangThai) {
+        return trangThai == TrangThaiLichSuHoaDon.CHO_XAC_NHAN;
+    }
+
     public static boolean khongChoPhepCapNhatTrangThai(TrangThaiLichSuHoaDon trangThai) {
         return switch (trangThai) {
             case HOAN_THANH, DA_HOAN, HUY -> false;
             default -> true;
         };
+    }
+
+    public static boolean choPhepHuyDonKhachHang(TrangThaiLichSuHoaDon trangThai) {
+        return trangThai == TrangThaiLichSuHoaDon.CHO_XAC_NHAN;
+    }
+
+    public static boolean choPhepHoanHangKhachHang(TrangThaiLichSuHoaDon trangThai) {
+        return trangThai == TrangThaiLichSuHoaDon.DA_GIAO;
     }
 
     public static boolean choPhepInHoaDon(TrangThaiLichSuHoaDon trangThai, Integer thanhToan) {

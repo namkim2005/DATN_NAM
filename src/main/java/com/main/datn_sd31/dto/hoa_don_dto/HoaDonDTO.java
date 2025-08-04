@@ -46,6 +46,8 @@ public class HoaDonDTO {
 
     private String ngayTao;
 
+    private String capNhatLanCuoi;
+
     private String trangThaiHoaDonString;
 
     private Integer trangThaiHoaDonInteger;

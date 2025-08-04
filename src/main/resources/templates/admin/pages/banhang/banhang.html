@@ -126,14 +126,13 @@
                             <th>Giá</th>
                             <th>Số lượng</th>
                             <th>Thành tiền</th>
-                            <th>Hàng Động</th>
+                            <th>Hành Động</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="item : ${gioHang}">
                             <td th:text="${item.tenCtsp}"></td>
                             <td th:text="${#numbers.formatDecimal(item.giaSauGiam, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></td>
-                            <td>
                             <td>
                                 <form th:action="@{/admin/ban-hang/cap-nhat-so-luong}" method="post"
                                       onsubmit="return validateSoLuong(this)">
@@ -147,9 +146,6 @@
                                            onchange="this.form.submit()"
                                            required />
                                 </form>
-
-                            </td>
-
                             </td>
 
                             <td th:text="${#numbers.formatDecimal(item.giaSauGiam * item.soLuong, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></td>

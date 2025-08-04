@@ -5,6 +5,7 @@ import com.main.datn_sd31.entity.*;
 import com.main.datn_sd31.repository.*;
 import com.main.datn_sd31.service.impl.GHNService;
 import com.main.datn_sd31.util.GetNhanVien;
+import com.main.datn_sd31.util.ThongBaoUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -254,10 +255,12 @@ public class BanHangController {
     public String themVaoGio(@RequestParam("idChiTietSp") Integer id,
                              @RequestParam("soLuong") Integer soLuong,
                              @RequestParam("cartKey") String cartKey,
+                             RedirectAttributes redirectAttributes,
                              HttpSession session) {
         ChiTietSanPham ctsp = chiTietSanPhamRepository.findWithDetailsById(id);
         if (ctsp == null) {
-            throw new IllegalArgumentException("Không tìm thấy sản phẩm");
+            ThongBaoUtils.addError(redirectAttributes, "Không tìm thấy sản phẩm");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
 
         List<HoaDonChiTiet> gio = getCart(cartKey, session);
@@ -268,7 +271,8 @@ public class BanHangController {
 
         int tongSoLuongMuonThem = soLuong + existingItem.map(HoaDonChiTiet::getSoLuong).orElse(0);
         if (tongSoLuongMuonThem > ctsp.getSoLuong()) {
-            throw new IllegalArgumentException("Sản phẩm không đủ tồn kho");
+            ThongBaoUtils.addError(redirectAttributes, "Sản phẩm không đủ tồn kho");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
 
         if (existingItem.isPresent()) {
@@ -291,6 +295,7 @@ public class BanHangController {
 
     @PostMapping("/them-gio-hang")
     public String themVaoGioBangJson(@RequestBody Map<String, Object> payload,
+                                     RedirectAttributes redirectAttributes,
                                      HttpSession session) {
         Integer id = Integer.parseInt(payload.get("idChiTietSp").toString());
         Integer soLuong = Integer.parseInt(payload.get("soLuong").toString());
@@ -304,7 +309,8 @@ public class BanHangController {
 
         ChiTietSanPham ctsp = chiTietSanPhamRepository.findWithDetailsById(id);
         if (ctsp == null) {
-            throw new IllegalArgumentException("Không tìm thấy sản phẩm");
+            ThongBaoUtils.addError(redirectAttributes, "Không tìm thấy sản phẩm");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
 
         List<HoaDonChiTiet> gio = getCart(cartKey, session);
@@ -315,7 +321,8 @@ public class BanHangController {
 
         int tongSoLuongMuonThem = soLuong + existingItem.map(HoaDonChiTiet::getSoLuong).orElse(0);
         if (tongSoLuongMuonThem > ctsp.getSoLuong()) {
-            throw new IllegalArgumentException("Sản phẩm không đủ tồn kho");
+            ThongBaoUtils.addError(redirectAttributes, "Sản phẩm không đủ tồn kho");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
 
         if (existingItem.isPresent()) {
@@ -400,11 +407,12 @@ public class BanHangController {
         session.setAttribute("cartKeyTam", cartKey);
 
         String diachi=diaChiTinh+'-'+diaChiHuyen+'-'+diaChiXa;
-        return hoanTatThanhToan(cartKey, gio, sdt, giagiam, tongTien, phiShip, "Tiền mặt", true,diachi, session);
+        return hoanTatThanhToan(cartKey, gio, sdt, giagiam, tongTien, phiShip, "Tiền mặt", true,diachi,redirect, session);
     }
     private String hoanTatThanhToan(String cartKey, List<HoaDonChiTiet> gio,
                                     String sdt, BigDecimal giagiam, BigDecimal tongTien,
                                     BigDecimal phiShip, String phuongThuc, boolean trangThai,String diachi,
+                                    RedirectAttributes redirectAttributes,
                                     HttpSession session) {
 
         HoaDon hd = new HoaDon();
@@ -416,6 +424,7 @@ public class BanHangController {
         NhanVien nv = getNhanVien.getCurrentNhanVien();
         if (nv == null) nv = nhanVienRepository.findById(1).orElse(null); // fallback nếu cần
         hd.setNhanVien(nv);
+
 
         hd.setTrangThai(3);
         hd.setDiaChi(diachi);
@@ -463,8 +472,6 @@ public class BanHangController {
         lichSu.setGhiChu("Tạo hóa đơn và thanh toán" + (phuongThuc.equals("chuyen_khoan") ? " bằng chuyển khoản" : " bằng tiền mặt"));
         lichSuHoaDonRepository.save(lichSu);
 
-
-
         // ✅ Dọn session
         Map<String, List<HoaDonChiTiet>> carts = (Map<String, List<HoaDonChiTiet>>) session.getAttribute("tatCaGio");
         if (carts != null) carts.remove(cartKey);
@@ -473,6 +480,8 @@ public class BanHangController {
         session.removeAttribute("maGiamGia");
         session.removeAttribute("hoaDonTam");
         session.removeAttribute("gioTam");
+
+        ThongBaoUtils.addSuccess(redirectAttributes, "Thanh toán thành công");
 
         return "redirect:/admin/ban-hang";
     }

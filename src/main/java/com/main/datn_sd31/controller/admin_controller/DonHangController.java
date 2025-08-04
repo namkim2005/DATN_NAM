@@ -56,7 +56,7 @@ public class DonHangController {
 
         Pagination<HoaDonDTO> hoaDonList = (trangThai == null)
                 ? hoaDonService.getAllDonHang(page, size, startDate, endDate)
-                : hoaDonService.getAllHoaDonByStatus(trangThai, page, size);
+                : hoaDonService.getAllDonHangByStatus(trangThai, page, size);
         model.addAttribute("hoaDonList", hoaDonList.getContent());
         model.addAttribute("pageInfo", hoaDonList);
         model.addAttribute("startDate", startDate);
@@ -105,7 +105,7 @@ public class DonHangController {
 
     @PostMapping("/cap-nhat-trang-thai")
     public String capNhatTrangThai(
-            @RequestParam("ma-hoa-don") String maHoaDon,
+            @RequestParam("maHoaDon") String maHoaDon,
             @RequestParam(value = "trangThaiMoi", required = false) Integer trangThaiMoi,
 //            @RequestParam(value = "quayLui", required = false) Boolean quayLui,
             @RequestParam(value = "ghiChu", required = false) String ghiChu,
@@ -126,7 +126,7 @@ public class DonHangController {
             ThongBaoUtils.addError(redirectAttributes, ketQua.message());
         }
 
-        redirectAttributes.addAttribute("ma-hoa-don", maHoaDon);
+        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
 
         return "redirect:/admin/don-hang";
     }

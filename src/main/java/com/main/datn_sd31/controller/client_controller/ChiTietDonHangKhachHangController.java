@@ -1,4 +1,4 @@
-package com.main.datn_sd31.controller.admin_controller;
+package com.main.datn_sd31.controller.client_controller;
 
 import com.lowagie.text.Font;
 import com.lowagie.text.Document;
@@ -20,6 +20,7 @@ import com.main.datn_sd31.repository.NhanVienRepository;
 import com.main.datn_sd31.service.HoaDonChiTietService;
 import com.main.datn_sd31.service.HoaDonService;
 import com.main.datn_sd31.service.LichSuHoaDonService;
+import com.main.datn_sd31.util.GetKhachHang;
 import com.main.datn_sd31.util.ThongBaoUtils;
 import com.main.datn_sd31.util.ThymleafHelper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,9 +39,9 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/admin/hoa-don/detail1")
+@RequestMapping("/khach-hang/don-hang/{id}/{maHoaDon}")
 @RequiredArgsConstructor
-public class HoaDonChiTietController {
+public class ChiTietDonHangKhachHangController {
 
     private final HoaDonChiTietService hoaDonChiTietService;
 
@@ -54,6 +55,8 @@ public class HoaDonChiTietController {
 
     private final NhanVienRepository nhanVienRepository;
 
+    private final GetKhachHang getKhachHang;
+
     //Lấy thông tin nhân viên
     private NhanVien getCurrentNhanVien() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -64,9 +67,13 @@ public class HoaDonChiTietController {
 
     @GetMapping("")
     public String detailHoaDon(
-            @RequestParam(value = "maHoaDon") String maHoaDon,
+            @PathVariable("id") Integer id,
+            @PathVariable("maHoaDon") String maHoaDon,
             Model model
     ){
+        id = getKhachHang.getCurrentKhachHang().getId();
+        model.addAttribute("idKhachHang", id);
+
         model.addAttribute("lichSuList", lichSuHoaDonService.getLichSuHoaDonByHoaDon(maHoaDon));
         model.addAttribute("lichSuHoaDonList", lichSuHoaDonService.getLichSuHoaDonDTOByHoaDon(maHoaDon));
 
@@ -79,37 +86,39 @@ public class HoaDonChiTietController {
 
         var trangThaiHopLe = lichSuHoaDonService.getTrangThaiTiepTheoHopLe(hoaDon.getTrangThaiLichSuHoaDon(), hoaDon);
         model.addAttribute("trangThaiHopLe", trangThaiHopLe);
-        return "admin/pages/hoa-don/hoa-don-detail";
+        return "khachhang/detail-lich-su-mua-hang";
     }
 
     @PostMapping("/cap-nhat-ghi-chu")
     public String capNhatGhiChu(
-            @RequestParam("maHoaDon") String maHoaDon,
+            @PathVariable("id") Integer id,
+            @PathVariable("maHoaDon") String maHoaDon,
             @RequestParam(value = "ghiChuHoaDon", required = false) String ghiChuHoaDon,
             RedirectAttributes redirectAttributes
     ) {
+
         if (ghiChuHoaDon == null) {
-            return "redirect:/admin/hoa-don/detail1";
+            return "redirect:/khach-hang/don-hang/{id}/{maHoaDon}";
         }
         hoaDonService.capNhatGhiChuHoaDon(maHoaDon, ghiChuHoaDon);
         redirectAttributes.addFlashAttribute("success", "Cập nhật ghi chú thành công.");
-        redirectAttributes.addAttribute("ma-hoa-don", maHoaDon);
-        return "redirect:/admin/hoa-don/detail1";
+        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
+        return "redirect:/khach-hang/don-hang/{id}/{maHoaDon}";
     }
 
     @PostMapping("/cap-nhat-trang-thai")
     public String capNhatTrangThai(
-            @RequestParam("maHoaDon") String maHoaDon,
+            @PathVariable("id") Integer id,
+            @PathVariable("maHoaDon") String maHoaDon,
             @RequestParam(value = "trangThaiMoi", required = false) Integer trangThaiMoi,
-            @RequestParam(value = "quayLui", required = false) Boolean quayLui,
             @RequestParam(value = "ghiChu", required = false) String ghiChu,
             RedirectAttributes redirectAttributes
     ) {
-        var ketQua = lichSuHoaDonService.xuLyCapNhatTrangThai(
+        var ketQua = lichSuHoaDonService.xuLyCapNhatTrangThaiKhachHang(
                 maHoaDon,
                 trangThaiMoi,
                 ghiChu,
-                getCurrentNhanVien()
+                getKhachHang.getCurrentKhachHang()
         );
 
         if (ketQua.thanhCong()) {
@@ -118,13 +127,14 @@ public class HoaDonChiTietController {
             ThongBaoUtils.addError(redirectAttributes, ketQua.message());
         }
 
-        redirectAttributes.addAttribute("ma-hoa-don", maHoaDon);
+        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
 
-        return "redirect:/admin/hoa-don/detail1";
+        return "redirect:/khach-hang/don-hang/{id}/{maHoaDon}";
     }
 
-    @GetMapping("/{maHoaDon}/pdf")
-    public void xuatHoaDonPDF(@PathVariable("maHoaDon") String maHoaDon,
+    @GetMapping("/pdf")
+    public void xuatHoaDonPDF(@PathVariable("id") Integer id,
+                              @PathVariable("maHoaDon") String maHoaDon,
                               HttpServletResponse response) throws Exception {
         HoaDonDTO hoaDon = hoaDonService.getHoaDonByMa(maHoaDon);
         List<HoaDonChiTietDTO> chiTietList = hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(maHoaDon);

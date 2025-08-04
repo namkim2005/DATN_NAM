@@ -20,16 +20,15 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     Page<HoaDon> findByNgayTaoBetweenOrderByNgayTaoDesc(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     @Query("""
-    SELECT hd FROM HoaDon hd
-    JOIN LichSuHoaDon lshd on hd.ma = lshd.hoaDon.ma
-    WHERE (hd.ngayTao >= :startDate
-      AND hd.ngayTao < :endDate)
+    SELECT DISTINCT hd FROM HoaDon hd
+    WHERE (:startDate IS NULL OR hd.ngayTao >= :startDate)
+      AND (:endDate IS NULL OR hd.ngayTao <= :endDate)
       AND NOT EXISTS (
-              SELECT 1 FROM LichSuHoaDon lshd
-              WHERE lshd.hoaDon = hd
-              AND lshd.trangThai IN (5, 8, 9, 10)
-          )
-    ORDER BY hd.ngayTao Desc
+          SELECT 1 FROM LichSuHoaDon lshd
+          WHERE lshd.hoaDon = hd
+            AND lshd.trangThai IN (5, 8, 9, 10)
+      )
+    ORDER BY hd.ngayTao DESC
     """)
     Page<HoaDon> getDonHang(
             @Param("startDate") LocalDateTime startDate,
@@ -38,17 +37,16 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     );
 
     @Query("""
-    SELECT hd FROM HoaDon hd
-    JOIN LichSuHoaDon lshd on hd.ma = lshd.hoaDon.ma
-    WHERE (hd.ngayTao >= :startDate
-      AND hd.ngayTao < :endDate)
+    SELECT DISTINCT hd FROM HoaDon hd
+    WHERE (:startDate IS NULL OR hd.ngayTao >= :startDate)
+      AND (:endDate IS NULL OR hd.ngayTao <= :endDate)
       AND NOT EXISTS (
-              SELECT 1 FROM LichSuHoaDon lshd
-              WHERE lshd.hoaDon = hd
-              AND lshd.trangThai IN (5, 8, 9, 10)
-          )
+          SELECT 1 FROM LichSuHoaDon lshd
+          WHERE lshd.hoaDon = hd
+            AND lshd.trangThai IN (5, 8, 9, 10)
+      )
       AND hd.khachHang.id = :idKhachHang
-    ORDER BY hd.ngayTao Desc
+    ORDER BY hd.ngayTao DESC
     """)
     Page<HoaDon> getDonHangByKhachHang(
             @Param("startDate") LocalDateTime startDate,
@@ -58,22 +56,22 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     );
 
     @Query("""
-    SELECT hd FROM HoaDon hd
-    JOIN LichSuHoaDon lshd on hd.ma = lshd.hoaDon.ma
-    WHERE (hd.ngayTao >= :startDate
-      AND hd.ngayTao < :endDate)
+    SELECT DISTINCT hd FROM HoaDon hd
+    WHERE (:startDate IS NULL OR hd.ngayTao >= :startDate)
+      AND (:endDate IS NULL OR hd.ngayTao <= :endDate)
       AND EXISTS (
-              SELECT 1 FROM LichSuHoaDon lshd
-              WHERE lshd.hoaDon = hd
-              AND lshd.trangThai IN (5, 8, 9, 10)
-          )
-    ORDER BY hd.ngayTao Desc
+          SELECT 1 FROM LichSuHoaDon lshd
+          WHERE lshd.hoaDon = hd
+            AND lshd.trangThai IN (5, 8, 9, 10)
+      )
+    ORDER BY hd.ngayTao DESC
     """)
     Page<HoaDon> getHoaDon(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable
     );
+
 
     @Query("""
         SELECT hd FROM HoaDon hd

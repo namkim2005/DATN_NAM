@@ -171,8 +171,8 @@
           <a th:href="@{/admin/don-hang(trang-thai=${status.name()})}" th:text="${status.moTa}"></a>
           <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                 th:if="${trangThaiCount[status.moTa] != null and
-                                   trangThaiCount[status.moTa] != 0 and
-                                   !(status.name() == 'HOAN_THANH' or status.name() == 'DA_HOAN' or status.name() == 'HUY')}"
+                                   trangThaiCount[status.moTa] != 0
+                                   }"
                 th:text="${trangThaiCount[status.moTa]}">
                     </span>
         </button>
@@ -186,8 +186,9 @@
           <th>Khách hàng</th>
           <th>Trạng Thái</th>
           <th>Thành Tiền</th>
-          <th>Ngày tạo</th>
           <th>Thanh toán</th>
+          <th>Ngày tạo</th>
+          <th>Cập nhật lần cuối</th>
           <th>Thao Tác</th>
         </tr>
         </thead>
@@ -198,8 +199,9 @@
           <td th:text="${hoaDon.tenKH != null ? hoaDon.tenKH : 'Khách lẻ' }"></td>
           <td th:text="${hoaDon.trangThaiLichSuHoaDonMoTa}"></td>
           <td th:text="${@utils.formatCurrency(hoaDon.thanhTien) + ' đ'}"></td>
-          <td th:text="${hoaDon.ngayTao}"></td>
           <td th:text="${hoaDon.trangThaiHoaDonString}"></td>
+          <td th:text="${hoaDon.ngayTao}"></td>
+          <td th:text="${hoaDon.capNhatLanCuoi}"></td>
           <td>
             <!-- Nút mở Modal -->
             <button class="action-btn accept" data-bs-toggle="modal"
@@ -223,7 +225,7 @@
             </button>
             <!-- Detail-->
             <button class="action-btn accept">
-              <a th:href="@{/admin/hoa-don/detail1(ma-hoa-don=${hoaDon.ma})}">
+              <a th:href="@{/admin/hoa-don/detail1(maHoaDon=${hoaDon.ma})}">
                 <i class="fa-solid fa-circle-info"></i>
               </a>
             </button>
@@ -247,7 +249,7 @@
                         aria-label="Đóng"></button>
               </div>
               <div class="modal-body">
-                <input type="hidden" name="ma-hoa-don" th:value="${hoaDon.ma}"/>
+                <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}"/>
 
                 <div class="mb-3" th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'HOAN_THANH'
                                                                 and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'

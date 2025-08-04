@@ -5,10 +5,7 @@ import com.main.datn_sd31.dto.hoa_don_dto.HoaDonChiTietDTO;
 import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
 import com.main.datn_sd31.dto.lich_su_hoa_don_dto.KetQuaCapNhatTrangThai;
 import com.main.datn_sd31.dto.lich_su_hoa_don_dto.LichSuHoaDonDTO;
-import com.main.datn_sd31.entity.ChiTietSanPham;
-import com.main.datn_sd31.entity.HoaDon;
-import com.main.datn_sd31.entity.LichSuHoaDon;
-import com.main.datn_sd31.entity.NhanVien;
+import com.main.datn_sd31.entity.*;
 import com.main.datn_sd31.repository.Chitietsanphamrepository;
 import com.main.datn_sd31.repository.HoaDonRepository;
 import com.main.datn_sd31.repository.LichSuHoaDonRepository;
@@ -16,10 +13,12 @@ import com.main.datn_sd31.repository.NhanVienRepository;
 import com.main.datn_sd31.service.HoaDonChiTietService;
 import com.main.datn_sd31.service.HoaDonService;
 import com.main.datn_sd31.service.LichSuHoaDonService;
+import com.main.datn_sd31.util.HoaDonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +66,30 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                 .ghiChu(finalGhiChu)
                 .ngayTao(LocalDateTime.now())
                 .nguoiTao(nhanVien.getId())
+                .build();
+
+        lichSuHoaDonRepository.save(lichSu);
+    }
+
+    @Override
+    public void capNhatTrangThaiByKhachHang(String maHoaDon, Integer trangThaiMoi, String ghiChu, KhachHang khachHang) {
+        HoaDon hoaDon = hoaDonRepository.findByMaContainingIgnoreCase(maHoaDon).get(0);
+        if (hoaDon == null) return;
+
+        List<LichSuHoaDon> lichSuList = lichSuHoaDonRepository.findLichSuHoaDonsByHoaDon(hoaDon);
+
+        Integer trangThaiGhiNhat = trangThaiMoi;
+
+        String finalGhiChu = (ghiChu != null && !ghiChu.isBlank())
+                ? ghiChu
+                : "Cập nhật trạng thái: " + TrangThaiLichSuHoaDon.fromValue(trangThaiGhiNhat).getMoTa();
+
+        LichSuHoaDon lichSu = LichSuHoaDon.builder()
+                .hoaDon(hoaDon)
+                .trangThai(trangThaiGhiNhat)
+                .ghiChu(finalGhiChu)
+                .ngayTao(LocalDateTime.now())
+                .nguoiTao(khachHang.getId())
                 .build();
 
         lichSuHoaDonRepository.save(lichSu);
@@ -165,14 +188,17 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
         boolean hopLe = switch (trangThaiHienTai) {
             case CHO_XAC_NHAN -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY;
             case XAC_NHAN -> {
-                if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH && "Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
+                if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH
+                        && "Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
                     yield false;
+                } else if (hoaDonDTO.getDiaChi() == null || hoaDonDTO.getDiaChi().isEmpty()) {
+                    yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH;
                 }
-                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.CHO_GIAO_HANG || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY;
+                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.CHO_GIAO_HANG || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY;
             }
             case CHO_GIAO_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_GIAO || trangThaiMoiEnum == TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG;
             case DA_GIAO -> {
-                if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH && "Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
+                if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH && !"Đã thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
                     yield false;
                 }
                 yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH;
@@ -242,7 +268,158 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             }
         }
 
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_GIAO) {
+
+            //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
+            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
+            hoaDon.setTrangThai(3);
+            hoaDonRepository.save(hoaDon);
+
+        }
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG) {
+
+            //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
+            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
+            hoaDon.setTrangThai(2);
+//            hoaDon.setThanhTien(BigDecimal.valueOf(0));
+            hoaDonRepository.save(hoaDon);
+
+        }
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY &&
+                !HoaDonUtils.choPhepHuyDonKhachHang(trangThaiMoiEnum)) {
+            return new KetQuaCapNhatTrangThai(false, "Đơn hàng không thể huỷ ở trạng thái hiện tại.");
+        }
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN &&
+                !HoaDonUtils.choPhepHoanHangKhachHang(trangThaiMoiEnum)) {
+            return new KetQuaCapNhatTrangThai(false, "Đơn hàng chưa được giao nên không thể hoàn.");
+        }
+
         capNhatTrangThai(maHoaDon, trangThaiMoi, ghiChu, nhanVien);
+        return new KetQuaCapNhatTrangThai(true, "Cập nhật trạng thái thành công");
+    }
+
+    @Override
+    public KetQuaCapNhatTrangThai xuLyCapNhatTrangThaiKhachHang(String maHoaDon, Integer trangThaiMoi, String ghiChu, KhachHang khachHang) {
+        HoaDonDTO hoaDonDTO = hoaDonService.getHoaDonByMa(maHoaDon);
+        TrangThaiLichSuHoaDon trangThaiHienTai = hoaDonDTO.getTrangThaiLichSuHoaDon();
+
+        if (trangThaiMoi == null) {
+            return new KetQuaCapNhatTrangThai(false, "Vui lòng chọn trạng thái mới");
+        }
+
+        TrangThaiLichSuHoaDon trangThaiMoiEnum = TrangThaiLichSuHoaDon.fromValue(trangThaiMoi);
+
+        if (trangThaiMoiEnum == trangThaiHienTai) {
+            return new KetQuaCapNhatTrangThai(false, "Trạng thái mới không được trùng với trạng thái hiện tại");
+        }
+
+        //Cho phép thay đổi các trạng thái tiếp theo
+        boolean hopLe = switch (trangThaiHienTai) {
+            case CHO_XAC_NHAN -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY;
+            case XAC_NHAN -> {
+                if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH
+                        && "Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
+                    yield false;
+                } else if (hoaDonDTO.getDiaChi() == null || hoaDonDTO.getDiaChi().isEmpty()) {
+                    yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH;
+                }
+                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.CHO_GIAO_HANG || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY;
+            }
+            case CHO_GIAO_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_GIAO || trangThaiMoiEnum == TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG;
+            case DA_GIAO -> {
+                if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH && !"Đã thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
+                    yield false;
+                }
+                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH;
+            }
+            case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
+            case XAC_NHAN_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
+            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG -> false;
+        };
+
+        if (!hopLe) {
+            return new KetQuaCapNhatTrangThai(false, "Trạng thái mới không hợp lệ theo luồng xử lý");
+        }
+
+        List<HoaDonChiTietDTO> hdctList = hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(maHoaDon);
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN) {
+            for (HoaDonChiTietDTO ct : hdctList) {
+                ChiTietSanPham spct = chitietsanphamrepository.findById(ct.getIdCTSP()).orElse(null);
+                if (spct == null) {
+                    return new KetQuaCapNhatTrangThai(false, "Không tìm thấy sản phẩm có ID: " + ct.getIdCTSP());
+                }
+                if (spct.getSoLuong() < ct.getSoLuong()) {
+                    return new KetQuaCapNhatTrangThai(false, "Sản phẩm \"" + spct.getSanPham().getTen() + "\" không đủ tồn kho!");
+                }
+
+                spct.setSoLuong(spct.getSoLuong() - ct.getSoLuong());
+                chitietsanphamrepository.save(spct);
+            }
+        }
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY) {
+
+            //Đổi trạng thái thành chưa thanh toán cho hóa đơn đã Hủy
+            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
+            hoaDon.setTrangThai(5);
+            hoaDonRepository.save(hoaDon);
+
+            for (HoaDonChiTietDTO ct : hdctList) {
+                ChiTietSanPham spct = chitietsanphamrepository.findById(ct.getIdCTSP()).orElse(null);
+                if (spct == null) {
+                    return new KetQuaCapNhatTrangThai(false, "Không tìm thấy sản phẩm có ID: " + ct.getIdCTSP());
+                }
+
+                // Nếu trước đó đã XÁC NHẬN => cộng lại số lượng
+                if (getTrangThaiTruocDo(maHoaDon) == TrangThaiLichSuHoaDon.XAC_NHAN) {
+                    spct.setSoLuong(spct.getSoLuong() + ct.getSoLuong());
+                    chitietsanphamrepository.save(spct);
+                }
+            }
+        }
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN) {
+
+            //Đổi trạng thái thành chưa thanh toán cho hóa đơn đã Hủy
+            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
+            hoaDon.setTrangThai(4);
+            hoaDonRepository.save(hoaDon);
+
+            for (HoaDonChiTietDTO ct : hdctList) {
+                ChiTietSanPham spct = chitietsanphamrepository.findById(ct.getIdCTSP()).orElse(null);
+                if (spct == null) {
+                    return new KetQuaCapNhatTrangThai(false, "Không tìm thấy sản phẩm có ID: " + ct.getIdCTSP());
+                }
+
+                spct.setSoLuong(spct.getSoLuong() + ct.getSoLuong());
+                chitietsanphamrepository.save(spct);
+            }
+        }
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_GIAO) {
+
+            //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
+            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
+            hoaDon.setTrangThai(3);
+            hoaDonRepository.save(hoaDon);
+
+        }
+
+        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG) {
+
+            //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
+            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
+            hoaDon.setTrangThai(2);
+//            hoaDon.setThanhTien(BigDecimal.valueOf(0));
+            hoaDonRepository.save(hoaDon);
+
+        }
+
+        capNhatTrangThaiByKhachHang(maHoaDon, trangThaiMoi, ghiChu, khachHang);
         return new KetQuaCapNhatTrangThai(true, "Cập nhật trạng thái thành công");
     }
 

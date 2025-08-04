@@ -186,8 +186,9 @@
                     <th>Khách hàng</th>
                     <th>Trạng Thái</th>
                     <th>Thành Tiền</th>
-                    <th>Ngày tạo</th>
                     <th>Thanh toán</th>
+                    <th>Ngày tạo</th>
+                    <th>Cập nhật lần cuối</th>
                     <th>Thao Tác</th>
                 </tr>
                 </thead>
@@ -198,8 +199,9 @@
                     <td th:text="${hoaDon.tenKH != null ? hoaDon.tenKH : 'Khách lẻ' }"></td>
                     <td th:text="${hoaDon.trangThaiLichSuHoaDonMoTa}"></td>
                     <td th:text="${@utils.formatCurrency(hoaDon.thanhTien) + ' đ'}"></td>
-                    <td th:text="${hoaDon.ngayTao}"></td>
                     <td th:text="${hoaDon.trangThaiHoaDonString}"></td>
+                    <td th:text="${hoaDon.ngayTao}"></td>
+                    <td th:text="${hoaDon.capNhatLanCuoi}"></td>
                     <td>
                         <!-- Nút mở Modal -->
                         <button class="action-btn accept" data-bs-toggle="modal"
@@ -211,19 +213,25 @@
                             <i class="fa-solid fa-retweet"></i>
                         </button>
                         <!-- In-->
-                        <button type="button"
-                                class="action-btn cancel"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="${'#confirmPrintModal-' + hoaDon.ma}"
-                                th:classappend="${@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? '' : 'disabled-custom'}"
-                                th:disabled="${!@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger)}"
-                                th:title="${!@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? 'Không thể in ở trạng thái hiện tại' : ''}"
-                                >
+<!--                        <button type="button"-->
+<!--                                class="action-btn cancel"-->
+<!--                                data-ma-hoa-don="${hoaDon.ma}"-->
+<!--                                onclick="printInvoice(this)"-->
+<!--                                th:classappend="${@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? '' : 'disabled-custom'}"-->
+<!--                                th:disabled="${!@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger)}"-->
+<!--                                th:title="${!@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? 'Không thể in ở trạng thái hiện tại' : ''}">-->
+<!--                            <i class="fa-solid fa-print"></i>-->
+<!--                        </button>-->
+                        <a th:href="@{'/admin/hoa-don/detail1/' + ${hoaDon.ma} + '/pdf'}"
+                           class="action-btn cancel"
+                           th:classappend="${@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? '' : 'disabled-custom'}"
+                           th:attr="title=${!@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? 'Không thể in ở trạng thái hiện tại' : null}"
+                           th:if="${@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger)}">
                             <i class="fa-solid fa-print"></i>
-                        </button>
+                        </a>
                         <!-- Detail-->
                         <button class="action-btn accept">
-                            <a th:href="@{/admin/hoa-don/detail1(ma-hoa-don=${hoaDon.ma})}">
+                            <a th:href="@{/admin/hoa-don/detail1(maHoaDon=${hoaDon.ma})}">
                                 <i class="fa-solid fa-circle-info"></i>
                             </a>
                         </button>
@@ -233,35 +241,36 @@
             </table>
         </div>
 
-        <!-- Modal xác nhận in hóa đơn-->
-        <div th:each="hoaDon : ${hoaDonList}">
-            <div class="modal fade"
-                 th:id="${'confirmPrintModal-' + hoaDon.ma}"
-                 tabindex="-1"
-                 aria-labelledby="confirmPrintModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="confirmPrintModalLabel">Xác nhận in hóa đơn</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Bạn có chắc chắn muốn in hóa đơn <strong th:text="${hoaDon.ma}"></strong> không?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                            <button type="button"
-                                    class="btn btn-primary"
-                                    th:onclick="confirmPrint(${hoaDon.ma})">
-                                In
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--        &lt;!&ndash; Modal xác nhận in hóa đơn&ndash;&gt;-->
+<!--        <div th:each="hoaDon : ${hoaDonList}">-->
+<!--            <div class="modal fade"-->
+<!--                 th:id="${'confirmPrintModal-' + hoaDon.ma}"-->
+<!--                 tabindex="-1"-->
+<!--                 aria-labelledby="confirmPrintModalLabel"-->
+<!--                 aria-hidden="true">-->
+<!--                <div class="modal-dialog modal-dialog-centered">-->
+<!--                    <div class="modal-content">-->
+<!--                        <div class="modal-header">-->
+<!--                            <h5 class="modal-title" id="confirmPrintModalLabel">Xác nhận in hóa đơn</h5>-->
+<!--                            <button type="button" class="btn-close" data-bs-dismiss="modal"-->
+<!--                                    aria-label="Close"></button>-->
+<!--                        </div>-->
+<!--                        <div class="modal-body">-->
+<!--                            Bạn có chắc chắn muốn in hóa đơn <strong th:text="${hoaDon.ma}"></strong> không?-->
+<!--                        </div>-->
+<!--                        <div class="modal-footer">-->
+<!--                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>-->
+<!--                            <button type="button"-->
+<!--                                    class="btn btn-primary"-->
+<!--                                    th:attr="data-ma-hoa-don=${hoaDon.ma}"-->
+<!--                                    onclick="confirmPrint(this)">-->
+<!--                                In-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <!-- Modal riêng cho mỗi hóa đơn -->
         <div th:each="hoaDon : ${hoaDonList}">
@@ -277,7 +286,7 @@
                                         aria-label="Đóng"></button>
                             </div>
                             <div class="modal-body">
-                                <input type="hidden" name="ma-hoa-don" th:value="${hoaDon.ma}"/>
+                                <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}"/>
 
                                 <div class="mb-3" th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'HOAN_THANH'
                                                                 and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
@@ -355,17 +364,26 @@
         crossorigin="anonymous"></script>
 
 
-<!--Đóng modal In-->
-<script>
-    function confirmPrint(maHoaDon) {
-        const modalId = 'confirmPrintModal-' + maHoaDon;
-        const modalEl = document.getElementById(modalId);
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.hide();
+<!--&lt;!&ndash;Đóng modal In&ndash;&gt;-->
+<!--<script>-->
+<!--    function confirmPrint(buttonEl) {-->
+<!--        const maHoaDon = buttonEl.getAttribute('data-ma-hoa-don');-->
+<!--        const modalId = 'confirmPrintModal-' + maHoaDon;-->
+<!--        const modalEl = document.getElementById(modalId);-->
+<!--        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);-->
+<!--        modal.hide();-->
 
-        setTimeout(() => {
-            window.location.href = `/admin/hoa-don/detail1/${maHoaDon}/pdf`;
-        }, 300);
+<!--        setTimeout(() => {-->
+<!--            window.location.href = `/admin/hoa-don/detail1/${maHoaDon}/pdf`;-->
+<!--        }, 300);-->
+<!--    }-->
+<!--</script>-->
+
+<!--In-->
+<script>
+    function printInvoice(btn) {
+        const ma = btn.getAttribute("data-ma-hoa-don");
+        window.location.href = "/admin/hoa-don/detail1/" + ma + "/pdf";
     }
 </script>
 

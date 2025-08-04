@@ -63,8 +63,14 @@ public class HoaDonServiceIpml implements HoaDonService {
         LichSuHoaDon lichSuMoiNhat = lichSuHoaDonRepository.findTopByHoaDonOrderByIdDesc(hoaDon);
         if (lichSuMoiNhat != null) {
             dto.setTrangThaiLichSuHoaDon(lichSuMoiNhat.getTrangThai());
+            if (lichSuMoiNhat.getNgayTao() != null) {
+                dto.setCapNhatLanCuoi(DateTimeUtils.format(lichSuMoiNhat.getNgayTao()));
+            } else {
+                dto.setCapNhatLanCuoi(DateTimeUtils.format(hoaDon.getNgayTao()));
+            }
         } else {
             dto.setTrangThaiLichSuHoaDon(10);
+            dto.setCapNhatLanCuoi(DateTimeUtils.format(hoaDon.getNgayTao()));
         }
 
         dto.setPhuongThuc(hoaDon.getPhuongThuc());
