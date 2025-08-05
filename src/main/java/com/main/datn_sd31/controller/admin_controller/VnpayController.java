@@ -77,7 +77,7 @@ public class VnpayController {
         String responseCode = request.getParameter("vnp_ResponseCode");
         String maHoaDon = request.getParameter("vnp_TxnRef");
         String transactionStatus = request.getParameter("vnp_TransactionStatus");
-        System.out.println("mahoadon " + maHoaDon);
+        // Processing payment for order: " + maHoaDon
         HoaDon hoaDon = hoaDonRepository.findByMa(maHoaDon);
 
         if (hoaDon == null) {

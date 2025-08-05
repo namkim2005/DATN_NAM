@@ -25,4 +25,14 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
     @Query("SELECT nv FROM NhanVien nv WHERE nv.ma = :ma")
     List<NhanVien> findByMa(@Param("ma") String ma);
 
+    // Kiểm tra trùng lặp cho validation
+    boolean existsByEmail(String email);
+    boolean existsBySoDienThoai(String soDienThoai);
+    boolean existsByChungMinhThu(String chungMinhThu);
+    
+    // Kiểm tra trùng lặp khi update (loại trừ ID hiện tại)
+    boolean existsByEmailAndIdNot(String email, Integer id);
+    boolean existsBySoDienThoaiAndIdNot(String soDienThoai, Integer id);
+    boolean existsByChungMinhThuAndIdNot(String chungMinhThu, Integer id);
+    boolean existsByMaAndIdNot(String ma, Integer id);
 }

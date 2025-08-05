@@ -144,7 +144,7 @@ public class dotGiamGiaController {
         }
 
         if (result.hasErrors()) {
-            result.getAllErrors().forEach(error -> System.out.println(error.toString()));
+            // Validation errors found
             model.addAttribute("dotGiamGias", dotGiamGiaRepository.findAll());
             return "admin/pages/dot-giam-gia/dot-giam-gia"; // Quay lại view nếu lỗi
         }

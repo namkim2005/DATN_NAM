@@ -99,7 +99,7 @@ public class GiohangController {
         model.addAttribute("list", newList);
         model.addAttribute("tongTien", tongTien);
 
-        System.out.println("▶ Đã vào controller: /gio-hang/hien_thi");
+        // Display cart page
         return "view/giohang/list";
     }
 
@@ -322,9 +322,8 @@ public class GiohangController {
         }
 
         // Xóa khỏi giỏ hàng
-        System.out.println("id san pham gio hang"+gioHangChiTiets);
+        // Process cart items for order
         giohangreposiroty.deleteAll(gioHangChiTiets);
-        System.out.println("hoa don id"+hoaDon.getId());
         HoaDon hd = hoadonreposiroty.findById(hoaDon.getId()).orElse(null);
 
         hd.setTrangThai(trangThai);
@@ -353,10 +352,8 @@ public class GiohangController {
         int fromDistrictId = 3440;
         int weight = 500;
 
-        System.out.println("Request shipping fee - toDistrictId: " + districtId + ", toWardCode: " + wardCode);
-
+        // Calculate shipping fee
         List<Map<String, Object>> services = ghnService.getAvailableServices(fromDistrictId, districtId);
-        System.out.println("Available services: " + services);
 
         if (services.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm thấy dịch vụ vận chuyển phù hợp.");

@@ -9,10 +9,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,9 +25,8 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    /* ===== 1. Bảo vệ khu vực ADMIN ===== */
     @Bean
-    @Order(1)           // Ưu tiên cao nhất
+    @Order(1)
     public SecurityFilterChain adminSecurity(HttpSecurity http) throws Exception {
         http
             .securityMatcher("/admin/**")
@@ -40,7 +37,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/admin/dang-nhap")
                 .loginProcessingUrl("/admin/dang-nhap")
-                .defaultSuccessUrl("/admin", true)
+                .defaultSuccessUrl("/admin/thong-ke", true)
                 .failureHandler(customAuthenticationFailureHandler)
                 .permitAll()
             )
@@ -52,12 +49,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /* ===== 2. Bảo vệ khu vực KHÁCH HÀNG ===== */
     @Order(2)
     @Bean
     public SecurityFilterChain customerSecurity(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/khach-hang/**", "/gio-hang/**", "/khach-hang/dang-nhap")
+                .securityMatcher("/khach-hang/**", "/gio-hang/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/khach-hang/dang-nhap",
@@ -82,44 +78,37 @@ public class SecurityConfig {
 
         return http.build();
     }
-    /* ===== 3. Cấu hình chung cho phần công khai (static, trang chủ, v.v.) ===== */
+
     @Bean
-    @Order(3)           // Thấp nhất
+    @Order(3)
     public SecurityFilterChain publicSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/login", "/uploads/**",
+                                "/", "/login", 
+                                "/uploads/**",
                                 "/css/**", "/js/**", "/images/**",
                                 "/vendors/**", "/webjars/**",
                                 "/static/**", "/favicon.ico",
-                                "/san-pham/**",
-                                "/uploads/**" // Added this line
+                                "/san-pham/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")      // Trang đăng nhập chung
-                        .loginProcessingUrl("/login") // 
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
                         .permitAll()
                 )
                 .logout(lg -> lg.logoutSuccessUrl("/"));
         return http.build();
     }
 
-//    /* ===== Bean chung ===== */
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        return new CustomUserDetailsService();      // Phải trả về ROLE_ADMIN hoặc ROLE_CUSTOMER tương ứng
-//    }
-
-
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-        authProvider.setHideUserNotFoundExceptions(false); // Quan trọng để nhận đúng UsernameNotFoundException
+        authProvider.setHideUserNotFoundExceptions(false);
         return authProvider;
     }
 

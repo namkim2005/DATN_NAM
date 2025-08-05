@@ -1,345 +1,686 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
 <head>
-    <style>
-        .form-floating {
-            position: relative;    /* để chứa các phần tử absolute bên trong */
-        }
-
-        .toggle-password-btn {
-            position: absolute;
-            right: 1rem;           /* cách mép phải input ~1rem */
-            background: transparent;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-    </style>
-    <meta charset="UTF-8">
     <title th:text="${readonly} ? 'Thông tin nhân viên' : 'Cập nhật nhân viên'"></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to not interfere with existing layout
+        tailwind.config = {
+            corePlugins: {
+                preflight: false, // Disable Tailwind's CSS reset
+            }
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Error message styles */
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .form-input.error {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+        }
+        
+        .form-input.valid {
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1) !important;
+        }
+        
+        /* Protect admin layout from Tailwind reset */
+        .admin-layout {
+            /* Reset Tailwind's aggressive resets for admin layout */
+        }
+        
+        /* Remove margin since admin layout handles this */
+        .main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Override Tailwind's box-sizing if needed */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Password section animation */
+        .password-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+        
+        .password-section.show {
+            max-height: 200px;
+            opacity: 1;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container my-5">
-    <h2 class="text-center mb-4"
-        th:text="${readonly} ? 'Thông tin nhân viên' : 'Cập nhật nhân viên'"></h2>
 
-    <form th:action="${readonly}
-                  ? @{/admin/quanlytaikhoan/nhanvien/detail(id=${nhanvien.id})}
-                  : @{/admin/quanlytaikhoan/nhanvien/update}"
-          th:object="${nhanvien}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
-
-        <input type="hidden" th:field="*{id}"/>
-
-        <div class="row g-3">
-
-            <!-- Mã -->
-            <div class="col-md-6 form-floating">
-                <input type="text" th:field="*{ma}"
-                       class="form-control"
-                       placeholder="Mã"
-                       th:readonly="${readonly}"
-                       required>
-                <label>Mã</label>
-                <div th:if="${#fields.hasErrors('ma')}"
-                     th:errors="*{ma}"
-                     class="text-danger small"></div>
-                <div id="err-ma" class="text-danger small js-error"></div>
-            </div>
-
-            <!-- Tên -->
-            <div class="col-md-6 form-floating">
-                <input type="text" th:field="*{ten}"
-                       class="form-control"
-                       placeholder="Tên"
-                       th:readonly="${readonly}"
-                       required>
-                <label>Tên</label>
-                <div th:if="${#fields.hasErrors('ten')}"
-                     th:errors="*{ten}"
-                     class="text-danger small"></div>
-            </div>
-
-            <!-- Ngày sinh -->
-            <div class="col-md-6 form-floating">
-                <input type="date" th:field="*{ngaySinh}"
-                       class="form-control"
-                       th:readonly="${readonly}"
-                       required>
-                <label>Ngày sinh</label>
-                <div th:if="${#fields.hasErrors('ngaySinh')}"
-                     th:errors="*{ngaySinh}"
-                     class="text-danger small"></div>
-            </div>
-
-            <!-- SĐT -->
-            <div class="col-md-6 form-floating">
-                <input type="text" th:field="*{soDienThoai}"
-                       class="form-control"
-                       th:readonly="${readonly}"
-                       required>
-                <label>Số điện thoại</label>
-                <div th:if="${#fields.hasErrors('soDienThoai')}"
-                     th:errors="*{soDienThoai}"
-                     class="text-danger small"></div>
-                <div id="err-sdt" class="text-danger small js-error"></div>
-            </div>
-
-            <!-- Ngày tham gia -->
-            <div class="col-md-6 form-floating">
-                <input type="date" th:field="*{ngayThamGia}"
-                       class="form-control"
-                       th:readonly="true">
-                <label>Ngày tham gia</label>
-                <div th:if="${#fields.hasErrors('ngayThamGia')}"
-                     th:errors="*{ngayThamGia}"
-                     class="text-danger small"></div>
-            </div>
-
-            <!-- CMND -->
-            <div class="col-md-6 form-floating">
-                <input type="text" th:field="*{chungMinhThu}"
-                       class="form-control"
-                       th:readonly="${readonly}"
-                       required>
-                <label>CMND</label>
-                <div th:if="${#fields.hasErrors('chungMinhThu')}"
-                     th:errors="*{chungMinhThu}"
-                     class="text-danger small"></div>
-                <div id="err-cccd" class="text-danger small js-error"></div>
-            </div>
-
-            <!-- Giới tính -->
-            <div class="col-md-6 form-floating">
-                <select th:field="*{gioiTinh}"
-                        class="form-select"
-                        th:disabled="${readonly}"
-                        required>
-                    <option value="true">Nam</option>
-                    <option value="false">Nữ</option>
-                </select>
-                <label>Giới tính</label>
-                <div th:if="${#fields.hasErrors('gioiTinh')}"
-                     th:errors="*{gioiTinh}"
-                     class="text-danger small"></div>
-            </div>
-
-            <!-- Email -->
-            <div class="col-md-6 form-floating">
-                <input type="email" th:field="*{email}"
-                       class="form-control"
-                       th:readonly="${readonly}"
-                       required>
-                <label>Email</label>
-                <div th:if="${#fields.hasErrors('email')}"
-                     th:errors="*{email}"
-                     class="text-danger small"></div>
-                <div id="err-email" class="text-danger small js-error"></div>
-            </div>
-
-            <!-- Chức vụ -->
-            <div class="col-md-6 form-floating">
-                <select th:field="*{chucVu}"
-                        class="form-select"
-                        th:disabled="${readonly}"
-                        required>
-                    <option value="0">Quản lý</option>
-                    <option value="1">Nhân viên</option>
-                </select>
-                <label>Chức vụ</label>
-                <div th:if="${#fields.hasErrors('chucVu')}"
-                     th:errors="*{chucVu}"
-                     class="text-danger small"></div>
-            </div>
-            <!-- Trường mật khẩu -->
-            <div class="col-md-6 form-floating">
-
-                <input th:field="*{matKhau}"
-                       th:type="${passwordVisible} ? 'text' : (readonly? 'text':'password')"
-                       class="form-control"
-                       id="matKhauInput"
-                       placeholder="Mật khẩu"
-                       th:readonly="${readonly}"
-                       th:required="${!readonly}">
-                <label for="matKhauInput">Mật khẩu</label>
-
-                <!-- nút toggle mắt -->
-                <button type="button"
-                        class="btn btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2 border-0"
-                        style="z-index: 10"
-                        onclick="togglePasswordVisibility()"
-                        th:attr="disabled=${readonly}">
-                    <i class="bi" id="eyeIcon"
-                       th:classappend="${passwordVisible} ? 'bi-eye-slash' : 'bi-eye'"></i>
+<body>
+<section layout:fragment="content">
+    <!-- Success/Error Messages với Tailwind -->
+    <div th:if="${updated}" class="fixed top-20 right-4 z-[9999] fade-in" style="z-index: 9999 !important;">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-2xl">
+            <div class="flex items-center">
+                <i class="bi bi-check-circle-fill mr-2"></i>
+                <span class="font-medium">Cập nhật nhân viên thành công!</span>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" class="ml-4 text-green-500 hover:text-green-700">
+                    <i class="bi bi-x-lg"></i>
                 </button>
-                <div class="text-danger"
-                     th:if="${#fields.hasErrors('matKhau')}"
-                     th:errors="*{matKhau}"></div>
             </div>
-            <!-- Trạng thái -->
-            <div class="col-md-6 form-floating">
-                <select th:field="*{trangThai}"
-                        class="form-select"
-                        th:disabled="${readonly}"
-                        required>
-                    <option value="true">Hoạt động</option>
-                    <option value="false">Ngưng hoạt động</option>
-                </select>
-                <label>Trạng thái</label>
-                <div th:if="${#fields.hasErrors('trangThai')}"
-                     th:errors="*{trangThai}"
-                     class="text-danger small"></div>
-            </div>
-
-
-
-            <!-- Ảnh -->
-            <input type="hidden" th:field="*{anh}" />
-
-            <div class="col-md-6 form-floating">
-                <img th:if="${nhanvien.anh}" th:src="@{${nhanvien.anh}}"
-                     class="img-fluid rounded mb-2" style="max-height:150px"/>
-                <input type="file" name="anhFile"
-                       class="form-control"
-                       th:disabled="${readonly}"
-                       accept="image/*">
-                <label>Ảnh nhân viên</label>
-                <div th:if="${#fields.hasErrors('anh')}"
-                     th:errors="*{anh}"
-                     class="text-danger small"></div>
-            </div>
-
         </div>
-
-        <div class="mt-4 d-flex justify-content-between">
-            <a href="/admin/quanlytaikhoan/nhanvien" class="btn btn-secondary">Quay lại</a>
-            <button type="submit"
-                    class="btn btn-primary"
-                    th:if="${!readonly}">
-                Lưu thay đổi
-            </button>
+    </div>
+    
+    <div th:if="${saveError}" class="fixed top-20 right-4 z-[9999] fade-in" style="z-index: 9999 !important;">
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-2xl">
+            <div class="flex items-center">
+                <i class="bi bi-exclamation-triangle-fill mr-2"></i>
+                <span class="font-medium" th:text="${saveError}"></span>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" class="ml-4 text-red-500 hover:text-red-700">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
         </div>
-    </form>
-</div>
+    </div>
+    
+    <div th:if="${validationError}" class="fixed top-20 right-4 z-[9999] fade-in" style="z-index: 9999 !important;">
+        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg shadow-2xl max-w-md">
+            <div class="flex items-start">
+                <i class="bi bi-exclamation-triangle-fill mr-2 mt-1"></i>
+                <div class="flex-1">
+                    <span class="font-medium">Vui lòng kiểm tra lại thông tin!</span>
+                    <div class="mt-2 text-sm whitespace-pre-line" th:text="${validationError}"></div>
+                </div>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" class="ml-2 text-yellow-500 hover:text-yellow-700">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    document.addEventListener('DOMContentLoaded', function() {
-        const form   = document.querySelector('form');
-        const fields = form.querySelectorAll('input[name], select[name]');
-        const initialData = {};
+    <!-- Main Content -->
+    <div class="main-content w-full p-4">
+        <div class="flex items-center justify-center p-4">
+            <div class="font-std mb-10 w-full max-w-4xl rounded-2xl bg-white p-10 font-normal leading-relaxed text-gray-900 shadow-xl">
+                
+                <div class="flex flex-col">
+                    <!-- Form cập nhật nhân viên -->
+                    <form id="formNhanVien" th:action="@{/admin/quanlytaikhoan/nhanvien/update}" 
+                          th:object="${nhanvien}" method="post" enctype="multipart/form-data" class="space-y-6">
+                        
+                        <input type="hidden" th:field="*{id}"/>
+                        
+                        <!-- Header với ảnh đại diện -->
+                        <div class="flex flex-col md:flex-row justify-between mb-8 items-start">
+                            <h2 class="mb-5 text-4xl font-bold text-blue-900" 
+                                th:text="${readonly} ? 'Thông tin nhân viên' : 'Cập nhật nhân viên'"></h2>
+                            <div class="text-center">
+                                <div>
+                                    <img id="profilePreview" 
+                                         th:src="${nhanvien.anh != null and !nhanvien.anh.isEmpty()} ? @{'/uploads/' + ${nhanvien.anh}} : '/images/default-avatar.png'" 
+                                         alt="Profile Picture" 
+                                         class="rounded-full w-32 h-32 mx-auto border-4 border-indigo-800 mb-4 transition-transform duration-300 hover:scale-105 ring ring-gray-300"
+                                         onerror="this.src='/images/default-avatar.png'">
+                                    <input type="file" name="anhFile" id="upload_profile" hidden accept="image/*" th:disabled="${readonly}">
+                                    <input type="hidden" th:field="*{anh}" />
 
-        // Lưu giá trị ban đầu
-        fields.forEach(field => {
-            initialData[field.name] = field.value;
+                                    <label for="upload_profile" class="inline-flex items-center cursor-pointer" th:if="${!readonly}">
+                                        <svg data-slot="icon" class="w-5 h-5 text-blue-700" fill="none" stroke-width="1.5"
+                                            stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                                            aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z">
+                                            </path>
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z">
+                                            </path>
+                                        </svg>
+                                    </label>
+                                </div>
+                                <button type="button" onclick="document.getElementById('upload_profile').click()" 
+                                        class="bg-indigo-800 text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors duration-300 ring ring-gray-300 hover:ring-indigo-300"
+                                        th:if="${!readonly}">
+                                    Chọn ảnh đại diện
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Mã nhân viên và Tên -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="ma" class="block text-sm font-medium text-gray-700">Mã nhân viên</label>
+                                <input type="text" th:field="*{ma}" id="ma" th:readonly="${readonly}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500">
+                                <div class="text-red-600 text-sm mt-1" th:if="${#fields.hasErrors('ma')}" th:errors="*{ma}"></div>
+                            </div>
+                            <div>
+                                <label for="ten" class="block text-sm font-medium text-gray-700">Tên <span class="text-red-500">*</span></label>
+                                <input type="text" th:field="*{ten}" id="ten" required th:readonly="${readonly}"
+                                       class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <div class="text-red-600 text-sm mt-1" th:if="${#fields.hasErrors('ten')}" th:errors="*{ten}"></div>
+                                <div class="error-message" id="tenError"></div>
+                            </div>
+                        </div>
+
+                        <!-- Email và Số điện thoại -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
+                                <input type="email" th:field="*{email}" id="email" required th:readonly="${readonly}"
+                                       class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <div class="text-red-600 text-sm mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                                <div class="error-message" id="emailError"></div>
+                                <p class="text-sm text-gray-500 mt-1">Email phải kết thúc bằng @gmail.com</p>
+                            </div>
+                            <div>
+                                <label for="soDienThoai" class="block text-sm font-medium text-gray-700">Số điện thoại <span class="text-red-500">*</span></label>
+                                <input type="text" th:field="*{soDienThoai}" id="soDienThoai" required th:readonly="${readonly}"
+                                       class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <div class="text-red-600 text-sm mt-1" th:if="${#fields.hasErrors('soDienThoai')}" th:errors="*{soDienThoai}"></div>
+                                <div class="error-message" id="sdtError"></div>
+                                <p class="text-sm text-gray-500 mt-1">Phải đủ 10 chữ số</p>
+                            </div>
+                        </div>
+
+                        <!-- CMND và Ngày sinh -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="chungMinhThu" class="block text-sm font-medium text-gray-700">Số CMND</label>
+                                <input type="text" th:field="*{chungMinhThu}" id="chungMinhThu" th:readonly="${readonly}"
+                                       class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <div class="text-red-600 text-sm mt-1" th:if="${#fields.hasErrors('chungMinhThu')}" th:errors="*{chungMinhThu}"></div>
+                                <div class="error-message" id="cmndError"></div>
+                                <p class="text-sm text-gray-500 mt-1">12 chữ số hoặc để trống</p>
+                            </div>
+                            <div>
+                                <label for="ngaySinh" class="block text-sm font-medium text-gray-700">Ngày sinh <span class="text-red-500">*</span></label>
+                                <input type="date" th:field="*{ngaySinh}" id="ngaySinh" required th:readonly="${readonly}"
+                                       class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <div class="text-red-600 text-sm mt-1" th:if="${#fields.hasErrors('ngaySinh')}" th:errors="*{ngaySinh}"></div>
+                                <div class="error-message" id="ngaySinhError"></div>
+                                <p class="text-sm text-gray-500 mt-1">Phải từ 18 tuổi trở lên</p>
+                            </div>
+                        </div>
+
+                        <!-- Giới tính và Chức vụ -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="gioiTinh" class="block text-sm font-medium text-gray-700">Giới tính <span class="text-red-500">*</span></label>
+                                <select th:field="*{gioiTinh}" id="gioiTinh" required th:disabled="${readonly}"
+                                        class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="true">Nam</option>
+                                    <option value="false">Nữ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="chucVu" class="block text-sm font-medium text-gray-700">Chức vụ <span class="text-red-500">*</span></label>
+                                <select th:field="*{chucVu}" id="chucVu" required th:disabled="${readonly}"
+                                        class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">-- Chọn chức vụ --</option>
+                                    <option value="Nhân viên">Nhân viên</option>
+                                    <option value="Quản lý">Quản lý</option>
+                                </select>
+                                <div class="error-message" id="chucVuError"></div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày tham gia và Trạng thái -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="ngayThamGia" class="block text-sm font-medium text-gray-700">Ngày tham gia</label>
+                                <input type="date" th:field="*{ngayThamGia}" id="ngayThamGia" readonly
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500">
+                                <div class="text-red-600 text-sm mt-1" th:if="${#fields.hasErrors('ngayThamGia')}" th:errors="*{ngayThamGia}"></div>
+                            </div>
+                            <div>
+                                <label for="trangThai" class="block text-sm font-medium text-gray-700">Trạng thái <span class="text-red-500">*</span></label>
+                                <select th:field="*{trangThai}" id="trangThai" required th:disabled="${readonly}"
+                                        class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Ngưng hoạt động</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Password Section với Option 1 -->
+                        <div th:if="${!readonly}">
+                            <!-- Checkbox để chọn đổi mật khẩu -->
+                            <div class="mb-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="changePassword" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="changePassword" class="ml-2 block text-sm font-medium text-gray-700">
+                                        Thay đổi mật khẩu
+                                    </label>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Chỉ chọn nếu bạn muốn thay đổi mật khẩu hiện tại</p>
+                            </div>
+
+                            <!-- Trường mật khẩu chỉ hiện khi checkbox được chọn -->
+                            <div id="passwordSection" class="password-section">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="newPassword" class="block text-sm font-medium text-gray-700">
+                                            Mật khẩu mới <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="password" id="newPassword" name="newPassword" disabled
+                                                   class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 pr-10">
+                                            <button type="button" onclick="togglePasswordVisibility('newPassword', 'eyeIcon1')" 
+                                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                <i class="bi bi-eye text-gray-400 hover:text-gray-600" id="eyeIcon1"></i>
+                                            </button>
+                                        </div>
+                                        <div class="error-message" id="newPasswordError"></div>
+                                        <p class="text-sm text-gray-500 mt-1">Tối thiểu 6 ký tự</p>
+                                    </div>
+                                    <div>
+                                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+                                            Xác nhận mật khẩu <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="password" id="confirmPassword" name="confirmPassword" disabled
+                                                   class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 pr-10">
+                                            <button type="button" onclick="togglePasswordVisibility('confirmPassword', 'eyeIcon2')" 
+                                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                <i class="bi bi-eye text-gray-400 hover:text-gray-600" id="eyeIcon2"></i>
+                                            </button>
+                                        </div>
+                                        <div class="error-message" id="confirmPasswordError"></div>
+                                        <p class="text-sm text-gray-500 mt-1">Nhập lại mật khẩu để xác nhận</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex justify-end space-x-4 pt-6">
+                            <a th:href="@{/admin/quanlytaikhoan/nhanvien}" 
+                               class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-300">
+                                Quay lại
+                            </a>
+                            <button type="submit" id="submitBtn" th:if="${!readonly}"
+                                    class="px-6 py-2 bg-indigo-800 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-300">
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto hide notifications -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifications = document.querySelectorAll('.fixed.top-20.right-4');
+            notifications.forEach(function(notification) {
+                setTimeout(function() {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-20px)';
+                    setTimeout(function() {
+                        notification.remove();
+                    }, 300);
+                }, 7000);
+            });
+            
+            // Preview image when selected
+            const fileInput = document.getElementById('upload_profile');
+            const preview = document.getElementById('profilePreview');
+            
+            // Debug: Log current image src
+            if (preview) {
+                // Update profile image preview
+            }
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        console.log('New file selected:', file.name);
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Password section toggle
+            const changePasswordCheckbox = document.getElementById('changePassword');
+            const passwordSection = document.getElementById('passwordSection');
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+
+            // Đảm bảo trạng thái ban đầu đúng
+            if (newPasswordInput) {
+                newPasswordInput.disabled = true;
+                newPasswordInput.value = '';
+            }
+            if (confirmPasswordInput) {
+                confirmPasswordInput.disabled = true;
+                confirmPasswordInput.value = '';
+            }
+
+            if (changePasswordCheckbox && passwordSection) {
+                changePasswordCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        passwordSection.classList.add('show');
+                        if (newPasswordInput) {
+                            newPasswordInput.required = true;
+                            newPasswordInput.disabled = false;
+                        }
+                        if (confirmPasswordInput) {
+                            confirmPasswordInput.required = true;
+                            confirmPasswordInput.disabled = false;
+                        }
+                    } else {
+                        passwordSection.classList.remove('show');
+                        if (newPasswordInput) {
+                            newPasswordInput.required = false;
+                            newPasswordInput.disabled = true;
+                            newPasswordInput.value = '';
+                        }
+                        if (confirmPasswordInput) {
+                            confirmPasswordInput.required = false;
+                            confirmPasswordInput.disabled = true;
+                            confirmPasswordInput.value = '';
+                        }
+                    }
+                });
+            }
         });
 
-        form.addEventListener('submit', function(event) {
-            // Kiểm tra có thay đổi không
-            let isChanged = false;
-            fields.forEach(field => {
-                if (field.value !== initialData[field.name]) {
-                    isChanged = true;
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+    </script>
+
+    <!-- VALIDATION SCRIPT -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation initialized
+            
+            const form = document.getElementById('formNhanVien');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Các trường cần validate
+            const fields = {
+                ten: document.querySelector('input[name="ten"]'),
+                email: document.querySelector('input[name="email"]'),
+                soDienThoai: document.querySelector('input[name="soDienThoai"]'),
+                chungMinhThu: document.querySelector('input[name="chungMinhThu"]'),
+                ngaySinh: document.querySelector('input[name="ngaySinh"]'),
+                chucVu: document.querySelector('select[name="chucVu"]'),
+                newPassword: document.getElementById('newPassword'),
+                confirmPassword: document.getElementById('confirmPassword')
+            };
+
+            // Error containers
+            const errors = {
+                ten: document.getElementById('tenError'),
+                email: document.getElementById('emailError'),
+                soDienThoai: document.getElementById('sdtError'),
+                chungMinhThu: document.getElementById('cmndError'),
+                ngaySinh: document.getElementById('ngaySinhError'),
+                chucVu: document.getElementById('chucVuError'),
+                newPassword: document.getElementById('newPasswordError'),
+                confirmPassword: document.getElementById('confirmPasswordError')
+            };
+
+            // Validation functions
+            const validators = {
+                ten: function(value) {
+                    if (!value || value.trim().length === 0) {
+                        return 'Tên không được để trống';
+                    }
+                    if (value.trim().length < 2) {
+                        return 'Tên phải có ít nhất 2 ký tự';
+                    }
+                    if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value)) {
+                        return 'Tên chỉ được chứa chữ cái và khoảng trắng';
+                    }
+                    return null;
+                },
+
+                email: function(value) {
+                    if (!value || value.trim().length === 0) {
+                        return 'Email không được để trống';
+                    }
+                    if (!/^[A-Za-z0-9._%+-]+@gmail\.com$/.test(value)) {
+                        return 'Email phải kết thúc bằng @gmail.com';
+                    }
+                    return null;
+                },
+
+                soDienThoai: function(value) {
+                    if (!value || value.trim().length === 0) {
+                        return 'Số điện thoại không được để trống';
+                    }
+                    if (!/^\d{10}$/.test(value)) {
+                        return 'Số điện thoại phải đủ 10 chữ số';
+                    }
+                    return null;
+                },
+
+                chungMinhThu: function(value) {
+                    if (value && value.trim().length > 0) {
+                        if (!/^\d{12}$/.test(value)) {
+                            return 'CMND phải gồm 12 chữ số';
+                        }
+                    }
+                    return null;
+                },
+
+                ngaySinh: function(value) {
+                    if (!value) {
+                        return 'Ngày sinh không được để trống';
+                    }
+                    const birthDate = new Date(value);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                    
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    
+                    if (age < 18) {
+                        return 'Nhân viên phải từ 18 tuổi trở lên';
+                    }
+                    return null;
+                },
+
+                chucVu: function(value) {
+                    if (!value || value.trim().length === 0) {
+                        return 'Vui lòng chọn chức vụ';
+                    }
+                    return null;
+                },
+
+                newPassword: function(value) {
+                    const changePasswordCheckbox = document.getElementById('changePassword');
+                    if (changePasswordCheckbox && changePasswordCheckbox.checked) {
+                        if (!value || value.trim().length === 0) {
+                            return 'Mật khẩu mới không được để trống';
+                        }
+                        if (value.length < 6) {
+                            return 'Mật khẩu phải có ít nhất 6 ký tự';
+                        }
+                    }
+                    return null;
+                },
+
+                confirmPassword: function(value) {
+                    const changePasswordCheckbox = document.getElementById('changePassword');
+                    const newPasswordInput = document.getElementById('newPassword');
+                    if (changePasswordCheckbox && changePasswordCheckbox.checked) {
+                        if (!value || value.trim().length === 0) {
+                            return 'Xác nhận mật khẩu không được để trống';
+                        }
+                        if (newPasswordInput && value !== newPasswordInput.value) {
+                            return 'Mật khẩu xác nhận không khớp';
+                        }
+                    }
+                    return null;
+                }
+            };
+
+            // Show/hide error message
+            function showError(fieldName, message) {
+                const errorElement = errors[fieldName];
+                const inputElement = fields[fieldName];
+                
+                if (errorElement && inputElement) {
+                    errorElement.textContent = message;
+                    errorElement.classList.add('show');
+                    inputElement.classList.add('error');
+                    inputElement.classList.remove('valid');
+                }
+            }
+
+            function hideError(fieldName) {
+                const errorElement = errors[fieldName];
+                const inputElement = fields[fieldName];
+                
+                if (errorElement && inputElement) {
+                    errorElement.classList.remove('show');
+                    inputElement.classList.remove('error');
+                    inputElement.classList.add('valid');
+                }
+            }
+
+            // Validate single field
+            function validateField(fieldName) {
+                const field = fields[fieldName];
+                const validator = validators[fieldName];
+                
+                if (!field || !validator) return true;
+                
+                // Skip password validation if checkbox is not checked
+                if ((fieldName === 'newPassword' || fieldName === 'confirmPassword')) {
+                    const changePasswordCheckbox = document.getElementById('changePassword');
+                    if (!changePasswordCheckbox || !changePasswordCheckbox.checked) {
+                        return true; // Skip validation
+                    }
+                }
+                
+                const error = validator(field.value);
+                if (error) {
+                    showError(fieldName, error);
+                    return false;
+                } else {
+                    hideError(fieldName);
+                    return true;
+                }
+            }
+
+            // Validate all fields
+            function validateForm() {
+                let isValid = true;
+                
+                Object.keys(validators).forEach(fieldName => {
+                    // Skip password fields if not changing password
+                    if ((fieldName === 'newPassword' || fieldName === 'confirmPassword')) {
+                        const changePasswordCheckbox = document.getElementById('changePassword');
+                        if (!changePasswordCheckbox || !changePasswordCheckbox.checked) {
+                            return; // Skip these fields
+                        }
+                    }
+                    
+                    if (!validateField(fieldName)) {
+                        isValid = false;
+                    }
+                });
+                
+                return isValid;
+            }
+
+            // Add event listeners
+            Object.keys(fields).forEach(fieldName => {
+                const field = fields[fieldName];
+                if (field) {
+                    // Real-time validation on input
+                    field.addEventListener('input', function() {
+                        validateField(fieldName);
+                    });
+                    
+                    // Validation on blur
+                    field.addEventListener('blur', function() {
+                        validateField(fieldName);
+                    });
                 }
             });
 
-            if (!isChanged) {
-                // Chưa sửa gì → hủy submit, show alert
-                event.preventDefault();
-                alert('Bạn chưa sửa gì!');
-                return;
+            // Form submission
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    console.log('🚀 Form submitting...');
+                    
+                    const isFormValid = validateForm();
+                    console.log('📋 Form validation result:', isFormValid);
+                    
+                    // Log all field values
+                    Object.keys(fields).forEach(fieldName => {
+                        const field = fields[fieldName];
+                        if (field) {
+                            console.log(`📝 ${fieldName}:`, field.value);
+                        }
+                    });
+                    
+                    // Check password checkbox status
+                    const changePasswordCheckbox = document.getElementById('changePassword');
+                    console.log('🔐 Change password checkbox checked:', changePasswordCheckbox ? changePasswordCheckbox.checked : 'not found');
+                    
+                    if (!isFormValid) {
+                        console.log('❌ Form validation failed');
+                        if (!confirm('Có một số thông tin chưa hợp lệ. Bạn có muốn tiếp tục lưu không?')) {
+                            console.log('🛑 User cancelled form submission');
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                    
+                    console.log('✅ Form will be submitted');
+                });
             }
 
-            // Nếu có sửa → đánh dấu để hiển thị alert thành công ở list page
-            localStorage.setItem('nvUpdated','true');
+            console.log('✅ Validation setup complete');
         });
-    });
-    /*]]>*/
-</script>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    let passwordVisible = false;
-    function togglePasswordVisibility() {
-        const input = document.getElementById("matKhauInput");
-        const icon  = document.getElementById("eyeIcon");
-        passwordVisible = !passwordVisible;
+    </script>
 
-        if (passwordVisible) {
-            input.type = "text";
-            icon.classList.replace("bi-eye", "bi-eye-slash");
-        } else {
-            // Sửa lỗi linter: truyền biến readonly từ Thymeleaf sang JS
-            var isReadonly = /*[[${readonly}]]*/ false;
-            if (!isReadonly) {
-                input.type = "password";
-            }
-            icon.classList.replace("bi-eye-slash", "bi-eye");
-        }
-    }
-    /*]]>*/
-</script>
-<script>
-    function validateForm() {
-        let valid = true;
-        document.querySelectorAll('.js-error').forEach(e => e.innerText = '');
-
-        let ma = document.querySelector('[name="ma"]').value.trim();
-        if (!/^NV\d{3,5}$/.test(ma)) {
-            document.getElementById('err-ma').innerText = "Mã phải có dạng NV + tối đa 5 chữ số";
-            valid = false;
-        }
-        // Kiểm tra mã trùng
-        if (typeof existingMaNhanVien !== "undefined" && existingMaNhanVien.includes(ma)) {
-            document.getElementById('err-ma').innerText = "Mã nhân viên đã tồn tại";
-            valid = false;
-        }
-
-        let email = document.querySelector('[name="email"]').value.trim();
-        if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
-            document.getElementById('err-email').innerText = "Email phải đúng định dạng @gmail.com";
-            valid = false;
-        }
-
-        let cccd = document.querySelector('[name="chungMinhThu"]').value.trim();
-        if (!/^\d{12}$/.test(cccd)) {
-            document.getElementById('err-cccd').innerText = "CMND phải gồm 12 chữ số";
-            valid = false;
-        }
-
-        let sdt = document.querySelector('[name="soDienThoai"]').value.trim();
-        if (!/^\d{9,12}$/.test(sdt)) {
-            document.getElementById('err-sdt').innerText = "Số điện thoại phải từ 9 đến 12 chữ số";
-            valid = false;
-        }
-
-        // So sánh dữ liệu hiện tại với initialData
-        let changed = false;
-        if (
-            document.querySelector('[name="ma"]').value.trim() !== initialData.ma ||
-            document.querySelector('[name="ten"]').value.trim() !== initialData.ten ||
-            document.querySelector('[name="ngaySinh"]').value !== initialData.ngaySinh ||
-            document.querySelector('[name="soDienThoai"]').value.trim() !== initialData.soDienThoai ||
-            document.querySelector('[name="chungMinhThu"]').value.trim() !== initialData.chungMinhThu ||
-            document.querySelector('[name="gioiTinh"]').value !== initialData.gioiTinh ||
-            document.querySelector('[name="email"]').value.trim() !== initialData.email ||
-            document.querySelector('[name="chucVu"]').value !== initialData.chucVu ||
-            document.querySelector('[name="trangThai"]').value !== initialData.trangThai ||
-            document.querySelector('[name="matKhau"]').value.trim() !== initialData.matKhau
-        ) {
-            changed = true;
-        }
-        if (!changed) {
-            alert("Bạn chưa nhập gì cả!");
-            return false;
-        }
-
-        if (!valid) return false;
-        return true;
-    }
-</script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</section>
 </body>
 </html>

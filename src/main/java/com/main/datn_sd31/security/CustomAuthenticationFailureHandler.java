@@ -24,10 +24,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         if (exception instanceof UsernameNotFoundException) {
             error = "Không tìm thấy tài khoản với email: " + request.getParameter("username");
-            System.out.println("[LOGIN ERROR] Không tìm thấy tài khoản: " + request.getParameter("username"));
         } else if (exception instanceof BadCredentialsException) {
             error = "Mật khẩu không đúng cho tài khoản: " + request.getParameter("username");
-            System.out.println("[LOGIN ERROR] Sai mật khẩu cho tài khoản: " + request.getParameter("username"));
         } else {
             error = "Đăng nhập thất bại!";
         }
