@@ -187,6 +187,7 @@
                     <th>Trạng Thái</th>
                     <th>Thành Tiền</th>
                     <th>Thanh toán</th>
+                    <th>Loại hóa đơn</th>
                     <th>Ngày tạo</th>
                     <th>Cập nhật lần cuối</th>
                     <th>Thao Tác</th>
@@ -200,6 +201,7 @@
                     <td th:text="${hoaDon.trangThaiLichSuHoaDonMoTa}"></td>
                     <td th:text="${@utils.formatCurrency(hoaDon.thanhTien) + ' đ'}"></td>
                     <td th:text="${hoaDon.trangThaiHoaDonString}"></td>
+                    <td th:text="${hoaDon.loaihoadon}"></td>
                     <td th:text="${hoaDon.ngayTao}"></td>
                     <td th:text="${hoaDon.capNhatLanCuoi}"></td>
                     <td>

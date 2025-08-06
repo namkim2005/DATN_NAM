@@ -15,11 +15,13 @@ import com.main.datn_sd31.service.HoaDonService;
 import com.main.datn_sd31.service.LichSuHoaDonService;
 import com.main.datn_sd31.util.HoaDonUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,9 +97,6 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
         lichSuHoaDonRepository.save(lichSu);
     }
 
-
-
-
     @Override
     public List<TrangThaiLichSuHoaDon> getTrangThaiTiepTheoHopLe(TrangThaiLichSuHoaDon hienTai, HoaDonDTO hoaDonDTO) {
         return switch (hienTai) {
@@ -108,12 +107,11 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                 }
                 yield List.of(TrangThaiLichSuHoaDon.CHO_GIAO_HANG, TrangThaiLichSuHoaDon.HOAN_THANH, TrangThaiLichSuHoaDon.HUY);
             }
-            case CHO_GIAO_HANG -> List.of(TrangThaiLichSuHoaDon.DA_GIAO, TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG);
-            case DA_GIAO -> {
+            case CHO_GIAO_HANG -> {
                 if ("Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
                     yield List.of();
                 }
-                yield List.of(TrangThaiLichSuHoaDon.HOAN_THANH);
+                yield List.of(TrangThaiLichSuHoaDon.DA_GIAO, TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG);
             }
             case YEU_CAU_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG);
             case XAC_NHAN_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.DA_HOAN);
@@ -201,7 +199,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                 if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH && !"Đã thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
                     yield false;
                 }
-                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH;
+                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH || trangThaiMoiEnum == TrangThaiLichSuHoaDon.YEU_CAU_HOAN_HANG;
             }
             case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
             case XAC_NHAN_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
@@ -230,7 +228,6 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
         }
 
         if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY) {
-
             //Đổi trạng thái thành chưa thanh toán cho hóa đơn đã Hủy
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(5);
@@ -255,6 +252,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             //Đổi trạng thái thành chưa thanh toán cho hóa đơn đã Hủy
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(4);
+            hoaDon.setNgaySua(LocalDateTime.now());
             hoaDonRepository.save(hoaDon);
 
             for (HoaDonChiTietDTO ct : hdctList) {
@@ -273,6 +271,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(3);
+            hoaDon.setNgaySua(LocalDateTime.now());
             hoaDonRepository.save(hoaDon);
 
         }
@@ -282,20 +281,21 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(2);
+            hoaDon.setNgaySua(LocalDateTime.now());
 //            hoaDon.setThanhTien(BigDecimal.valueOf(0));
             hoaDonRepository.save(hoaDon);
 
         }
 
         if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY &&
-                !HoaDonUtils.choPhepHuyDonKhachHang(trangThaiMoiEnum)) {
+                HoaDonUtils.choPhepHuyDonKhachHang(trangThaiMoiEnum)) {
             return new KetQuaCapNhatTrangThai(false, "Đơn hàng không thể huỷ ở trạng thái hiện tại.");
         }
 
-        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN &&
-                !HoaDonUtils.choPhepHoanHangKhachHang(trangThaiMoiEnum)) {
-            return new KetQuaCapNhatTrangThai(false, "Đơn hàng chưa được giao nên không thể hoàn.");
-        }
+//        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN &&
+//                !HoaDonUtils.choPhepHoanHangKhachHang(trangThaiMoiEnum)) {
+//            return new KetQuaCapNhatTrangThai(false, "Đơn hàng chưa được giao nên không thể hoàn.");
+//        }
 
         capNhatTrangThai(maHoaDon, trangThaiMoi, ghiChu, nhanVien);
         return new KetQuaCapNhatTrangThai(true, "Cập nhật trạng thái thành công");
@@ -333,7 +333,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                 if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH && !"Đã thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
                     yield false;
                 }
-                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH;
+                yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH || trangThaiMoiEnum == TrangThaiLichSuHoaDon.YEU_CAU_HOAN_HANG;
             }
             case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
             case XAC_NHAN_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
@@ -366,6 +366,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             //Đổi trạng thái thành chưa thanh toán cho hóa đơn đã Hủy
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(5);
+            hoaDon.setNgaySua(LocalDateTime.now());
             hoaDonRepository.save(hoaDon);
 
             for (HoaDonChiTietDTO ct : hdctList) {
@@ -387,6 +388,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             //Đổi trạng thái thành chưa thanh toán cho hóa đơn đã Hủy
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(4);
+            hoaDon.setNgaySua(LocalDateTime.now());
             hoaDonRepository.save(hoaDon);
 
             for (HoaDonChiTietDTO ct : hdctList) {
@@ -405,6 +407,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(3);
+            hoaDon.setNgaySua(LocalDateTime.now());
             hoaDonRepository.save(hoaDon);
 
         }
@@ -414,6 +417,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(2);
+            hoaDon.setNgaySua(LocalDateTime.now());
 //            hoaDon.setThanhTien(BigDecimal.valueOf(0));
             hoaDonRepository.save(hoaDon);
 
@@ -421,6 +425,36 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 
         capNhatTrangThaiByKhachHang(maHoaDon, trangThaiMoi, ghiChu, khachHang);
         return new KetQuaCapNhatTrangThai(true, "Cập nhật trạng thái thành công");
+    }
+
+    @Override
+    public void updateStatusAfter7Days() {
+        List<LichSuHoaDon> listLshd = lichSuHoaDonRepository.findAll();
+
+        for (LichSuHoaDon lshd : listLshd) {
+            if (lshd.getTrangThai() == TrangThaiLichSuHoaDon.DA_GIAO.getValue()) {
+                long daysBetween = ChronoUnit.DAYS.between(lshd.getNgayTao(), java.time.LocalDateTime.now());
+                if (daysBetween >= 7) {
+                    HoaDon hoaDon = lshd.getHoaDon();
+
+                    // Kiểm tra đã có trạng thái HOAN_THANH chưa
+                    boolean daHoanThanh = lichSuHoaDonRepository
+                            .existsByHoaDonAndTrangThai(hoaDon, TrangThaiLichSuHoaDon.HOAN_THANH.getValue());
+                    if (daHoanThanh) {
+                        continue; // Bỏ qua nếu đã hoàn thành rồi
+                    }
+
+                    // Tạo bản ghi mới trong LichSuHoaDon
+                    LichSuHoaDon moi = new LichSuHoaDon();
+                    moi.setHoaDon(hoaDon);
+                    moi.setTrangThai(TrangThaiLichSuHoaDon.HOAN_THANH.getValue());
+                    moi.setNgayTao(java.time.LocalDateTime.now());
+                    moi.setNguoiTao(0);
+                    moi.setGhiChu("Tự động cập nhật trạng thái");
+                    lichSuHoaDonRepository.save(moi);
+                }
+            }
+        }
     }
 
 }

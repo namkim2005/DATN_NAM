@@ -99,7 +99,8 @@ public class SecurityConfig {
                                 "/static/**", "/favicon.ico",
                                 "/san-pham/**",
                                 "/client-static/**", // Cho phép truy cập công khai thư mục client-static
-                                "/bootstrap-5.3.7-dist/**"
+                                "/bootstrap-5.3.7-dist/**",
+                                "/uploads/**" // Added this line
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

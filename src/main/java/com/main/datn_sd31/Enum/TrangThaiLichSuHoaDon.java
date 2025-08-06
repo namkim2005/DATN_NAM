@@ -7,7 +7,7 @@ public enum TrangThaiLichSuHoaDon {
     XAC_NHAN(2, "Xác nhận"),
     CHO_GIAO_HANG(3, "Chờ giao hàng"),
     DA_GIAO(4, "Đã giao"),
-    HOAN_THANH(5, "Hoàn thành"), //Sau 3 ngày giao thành công sẽ chuyển sang hoàn thành
+    HOAN_THANH(5, "Hoàn thành"),
 
     YEU_CAU_HOAN_HANG(6, "Yêu cầu hoàn hàng"),
     XAC_NHAN_HOAN_HANG(7, "Xác nhận hoàn hàng"),

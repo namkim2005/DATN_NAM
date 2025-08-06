@@ -74,7 +74,7 @@ public class HoaDonServiceIpml implements HoaDonService {
         }
 
         dto.setPhuongThuc(hoaDon.getPhuongThuc());
-
+        dto.setLoaihoadon(hoaDon.getLoaihoadon());
         dto.setGiaGoc(hoaDon.getGiaGoc());
 
         if (hoaDon.getPhieuGiamGia() != null && hoaDon.getPhieuGiamGia().getMa() != null) {

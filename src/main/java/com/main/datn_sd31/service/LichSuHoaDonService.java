@@ -47,4 +47,6 @@ public interface LichSuHoaDonService {
             KhachHang khachHang
     );
 
+    void updateStatusAfter7Days();
+
 }

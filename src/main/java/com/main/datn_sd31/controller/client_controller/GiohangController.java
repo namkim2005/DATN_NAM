@@ -367,6 +367,7 @@ public class GiohangController {
         HoaDon hd = hoadonreposiroty.findById(hoaDon.getId()).orElse(null);
 
         hd.setTrangThai(trangThai);
+        hd.setLoaihoadon("Online");
         hoadonreposiroty.save(hd);
     }
 

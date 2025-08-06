@@ -91,17 +91,17 @@ public class PhieuGiamGia {
 
     @NotNull(message = "Mức giảm không được để trống")
     @DecimalMin(value = "0", inclusive = true, message = "Mức giảm phải lớn hơn hoặc bằng 0")
-    @Column(name = "muc_do", nullable = false, precision = 18, scale = 2)
+    @Column(name = "muc_do", nullable = false, precision = 18, scale = 0)
     private BigDecimal mucDo;
 
     @NotNull(message = "Giảm tối đa không được để trống")
-    @Column(name = "giam_toi_da", nullable = false, precision = 18, scale = 2)
+    @Column(name = "giam_toi_da", nullable = false, precision = 18, scale = 0)
     @Min(value = 0, message = "Giảm tối đa phải lớn hơn hoặc bằng 0")
     private BigDecimal giamToiDa;
 
     @NotNull(message = "Điều kiện không được để trống")
     @DecimalMin(value = "0", message = "Điều kiện không được nhỏ hơn 0")
-    @Column(name = "dieu_kien", nullable = false, precision = 18, scale = 2)
+    @Column(name = "dieu_kien", nullable = false, precision = 18, scale = 0)
     private BigDecimal dieuKien;
 
     @NotNull(message = "Điều kiện không được để trống")

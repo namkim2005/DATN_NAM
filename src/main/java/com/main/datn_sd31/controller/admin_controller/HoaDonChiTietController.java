@@ -93,7 +93,7 @@ public class HoaDonChiTietController {
         }
         hoaDonService.capNhatGhiChuHoaDon(maHoaDon, ghiChuHoaDon);
         redirectAttributes.addFlashAttribute("success", "Cập nhật ghi chú thành công.");
-        redirectAttributes.addAttribute("ma-hoa-don", maHoaDon);
+        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
         return "redirect:/admin/hoa-don/detail1";
     }
 
@@ -118,7 +118,7 @@ public class HoaDonChiTietController {
             ThongBaoUtils.addError(redirectAttributes, ketQua.message());
         }
 
-        redirectAttributes.addAttribute("ma-hoa-don", maHoaDon);
+        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
 
         return "redirect:/admin/hoa-don/detail1";
     }

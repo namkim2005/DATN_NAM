@@ -52,6 +52,8 @@ public class HoaDonDTO {
 
     private Integer trangThaiHoaDonInteger;
 
+    private String loaihoadon;
+
     private String ghiChu;
 
     public String getTrangThaiLichSuHoaDonMoTa() {

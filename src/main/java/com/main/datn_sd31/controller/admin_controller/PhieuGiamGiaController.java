@@ -2,6 +2,7 @@ package com.main.datn_sd31.controller.admin_controller;
 
 import com.main.datn_sd31.entity.PhieuGiamGia;
 import com.main.datn_sd31.service.PhieuGiamGiaService;
+import com.main.datn_sd31.util.ThongBaoUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -9,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,15 +56,21 @@ public class PhieuGiamGiaController {
     @PostMapping("/create")
     public String create(@Valid @ModelAttribute("phieuGiamGia") PhieuGiamGia phieuGiamGia,
                          BindingResult bindingResult,
+                         RedirectAttributes redirectAttributes,
                          Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("phieuGiamGia", new PhieuGiamGia());
+            model.addAttribute("error", "Thêm thất bại");
             return "admin/pages/phieu-giam-gia/create";
+        }
+
+        if (phieuGiamGia.getLoaiPhieuGiamGia() != 1) {
+            phieuGiamGia.setGiamToiDa(phieuGiamGia.getMucDo());
         }
 
         phieuGiamGia.setNgayTao(LocalDate.now());
         phieuGiamGia.setNgaySua(LocalDate.now());
         phieuGiamGiaService.save(phieuGiamGia);
+        ThongBaoUtils.addSuccess(redirectAttributes, "Thêm thành công");
         return "redirect:/admin/phieu-giam-gia";
     }
 
@@ -79,19 +87,22 @@ public class PhieuGiamGiaController {
 
     @PostMapping("/update")
     public String update(@Valid @ModelAttribute("phieuGiamGia") PhieuGiamGia pg,
+                         RedirectAttributes redirectAttributes,
                          BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("error", "Cập nhật thất bại");
             return "redirect:/admin/phieu-giam-gia";
         }
 
         pg.setNgaySua(LocalDate.now());
         phieuGiamGiaService.save(pg);
+        ThongBaoUtils.addSuccess(redirectAttributes, "Cập nhật thành công");
         return "redirect:/admin/phieu-giam-gia";
     }
 
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") Integer id) {
-        phieuGiamGiaService.delete(id);
-        return "redirect:/admin/phieu-giam-gia";
-    }
+//    @GetMapping("/delete/{id}")
+//    public String delete(@PathVariable("id") Integer id) {
+//        phieuGiamGiaService.delete(id);
+//        return "redirect:/admin/phieu-giam-gia";
+//    }
 }

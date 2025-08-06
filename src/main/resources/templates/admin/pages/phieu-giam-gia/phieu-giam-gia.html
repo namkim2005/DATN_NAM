@@ -165,7 +165,7 @@
                             th:text="${item.loaiPhieuGiamGia == 1 ? item.mucDo.stripTrailingZeros().toPlainString() + '%' : item.mucDo.stripTrailingZeros().toPlainString() + ' đ'}"
                     ></td>
                     <td
-                            th:text="${item.loaiPhieuGiamGia == 1 ? 0 : item.giamToiDa.stripTrailingZeros().toPlainString() + ' đ'}"
+                            th:text="${item.giamToiDa.stripTrailingZeros().toPlainString() + ' đ'}"
                     ></td>
                     <td
                             th:text="${item.soLuongTon != null ? item.soLuongTon : 0}"
@@ -185,7 +185,7 @@
                                 th:if="${item.ngayKetThuc < T(java.time.LocalDate).now() and item.soLuongTon > 0}"
                                 class="badge bg-danger"
                         >Kết thúc</span
-                        >
+                        >7
                         <span
                                 th:if="${item.ngayBatDau <= T(java.time.LocalDate).now() and item.ngayKetThuc >= T(java.time.LocalDate).now() and item.soLuongTon > 0}"
                                 class="badge bg-success"
@@ -199,13 +199,13 @@
                         >
                             Sửa
                         </a>
-                        <a
-                                th:href="@{'/admin/phieu-giam-gia/delete/' + ${item.id}}"
-                                onclick="return confirm('Bạn có chắc muốn xóa phiếu này không?')"
-                                class="btn btn-danger btn-sm"
-                        >
-                            Xóa
-                        </a>
+<!--                        <a-->
+<!--                                th:href="@{'/admin/phieu-giam-gia/delete/' + ${item.id}}"-->
+<!--                                onclick="return confirm('Bạn có chắc muốn xóa phiếu này không?')"-->
+<!--                                class="btn btn-danger btn-sm"-->
+<!--                        >-->
+<!--                            Xóa-->
+<!--                        </a>-->
                     </td>
                 </tr>
                 </tbody>

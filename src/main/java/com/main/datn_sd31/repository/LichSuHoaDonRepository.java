@@ -25,6 +25,8 @@ public interface LichSuHoaDonRepository extends JpaRepository<LichSuHoaDon, Inte
     ORDER BY ls.ngayTao DESC
     """)
     List<LichSuHoaDon> findByMaHoaDonDesc(@Param("ma") String ma);
+
+    boolean existsByHoaDonAndTrangThai(HoaDon hoaDon, int value);
 }
 
 

@@ -402,6 +402,7 @@ public class BanHangController {
         hd.setNgaySua(LocalDateTime.now());
         hd.setNguoiSua(1);
         hd.setNguoiTao(1);
+        hd.setLoaihoadon("Trực tiếp");
         session.setAttribute("hoaDonTam", hd);
         session.setAttribute("gioTam", gio);
         session.setAttribute("cartKeyTam", cartKey);
@@ -464,11 +465,12 @@ public class BanHangController {
         lichSu.setNgaySua(LocalDateTime.now());
         lichSu.setNguoiTao(nv.getId());
         lichSu.setNguoiSua(nv.getId());
-        if (diachi!=null && sdt!=null) {
-            lichSu.setTrangThai(3); // 3
+        if (diachi != null && sdt != null) {
+            lichSu.setTrangThai(3);
         } else {
-            lichSu.setTrangThai(8); // 8
+            lichSu.setTrangThai(5);
         }
+
         lichSu.setGhiChu("Tạo hóa đơn và thanh toán" + (phuongThuc.equals("chuyen_khoan") ? " bằng chuyển khoản" : " bằng tiền mặt"));
         lichSuHoaDonRepository.save(lichSu);
 

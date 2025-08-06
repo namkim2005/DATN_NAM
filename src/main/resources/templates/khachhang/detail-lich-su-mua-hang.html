@@ -306,7 +306,7 @@
         <div class="row mt-4 g-2">
             <div
                     class="col-auto">
-                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                         data-bs-target="#modalCapNhatTrangThai"
                         th:classappend="${@hoa_don_utils.choPhepHuyDonKhachHang(hoaDon.trangThaiLichSuHoaDon) ? '' : 'disabled-custom'}"
                         th:disabled="${!@hoa_don_utils.choPhepHuyDonKhachHang(hoaDon.trangThaiLichSuHoaDon)}"
@@ -314,7 +314,7 @@
                 >
                     Hủy đơn
                 </button>
-                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
                         data-bs-target="#modalCapNhatTrangThai"
                         th:classappend="${@hoa_don_utils.choPhepHoanHangKhachHang(hoaDon.trangThaiLichSuHoaDon) ? '' : 'disabled-custom'}"
                         th:disabled="${!@hoa_don_utils.choPhepHoanHangKhachHang(hoaDon.trangThaiLichSuHoaDon)}"
