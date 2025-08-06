@@ -30,12 +30,16 @@ public class NhanVien {
 
     @Size(max = 50)
     @NotNull
+    @NotBlank(message = "Mã nhân viên không được để trống")
+    @Pattern(regexp = "^NV[0-9]{1,5}$", message = "Mã phải có dạng NV + tối đa 5 chữ số")
     @Nationalized
     @Column(name = "ma", nullable = false, length = 50)
     private String ma;
 
     @Size(max = 100)
     @NotNull
+    @NotBlank(message = "Tên không được để trống")
+    @Pattern(regexp = "^[a-zA-ZÀ-ỹ\\s]+$", message = "Tên chỉ được chứa chữ cái và khoảng trắng")
     @Nationalized
     @Column(name = "ten", nullable = false, length = 100)
     private String ten;
@@ -47,8 +51,9 @@ public class NhanVien {
 
     @Size(max = 20)
     @NotNull
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^\\d{10}$", message = "Số điện thoại phải đủ 10 chữ số")
     @Nationalized
-    @Pattern(regexp = "^\\d{9,12}$", message = "Số điện thoại phải từ 9 đến 12 chữ số")
     @Column(name = "so_dien_thoai", nullable = false, length = 20)
     private String soDienThoai;
 
@@ -57,17 +62,15 @@ public class NhanVien {
     private LocalDate ngayThamGia;
 
     @Size(max = 20)
-    @NotNull
     @Nationalized
-    @Pattern(regexp = "^\\d{12}$", message = "CMND phải gồm 12 chữ số")
-    @Column(name = "chung_minh_thu", nullable = false, length = 20)
+    @Pattern(regexp = "^\\d{12}$|^$", message = "CMND phải gồm 12 chữ số hoặc để trống")
+    @Column(name = "chung_minh_thu", nullable = true, length = 20)
     private String chungMinhThu;
 
     @NotNull
     @Column(name = "gioi_tinh", nullable = false)
     private Boolean gioiTinh = false;
 
-    @NotNull
     @Nationalized
     @Lob
     @Column(name = "anh", nullable = true)
@@ -80,7 +83,8 @@ public class NhanVien {
     @Pattern(
             regexp = "^[A-Za-z0-9._%+-]+@gmail\\.com$",
             message = "Email phải kết thúc bằng @gmail.com"
-    )    @Column(name = "email", nullable = false, length = 100)
+    )
+    @Column(name = "email", nullable = false, length = 100)
     private String email;
 
     @Size(max = 100)

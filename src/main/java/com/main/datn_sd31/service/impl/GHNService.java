@@ -52,14 +52,10 @@ public class GHNService {
                         }
                     }
                     return provinces;
-                } else {
-                    System.out.println("Trường 'data' không phải danh sách.");
-                }
-            } else {
-                System.out.println("GHN API không trả về thành công hoặc thiếu 'data', code: " + body.get("code"));
-            }
-        } catch (Exception e) {
-            System.out.println("GHN API gọi lỗi: " + e.getMessage());
+                            }
+        }
+    } catch (Exception e) {
+        // GHN API call failed
             e.printStackTrace();
         }
         return List.of();
@@ -94,17 +90,11 @@ public class GHNService {
                     List<?> list = (List<?>) data;
                     if (!list.isEmpty() && list.get(0) instanceof Map) {
                         return (List<Map<String, Object>>) list;
-                    } else {
-                        System.out.println("Data nhận được không đúng định dạng List<Map<String,Object>> hoặc rỗng");
-                    }
-                } else {
-                    System.out.println("Trường 'data' không phải List<?>");
-                }
-            } else {
-                System.out.println("GHN API getDistricts không thành công hoặc thiếu 'data', code = " + (body != null ? body.get("code") : "null"));
+                                    }
             }
-        } catch (Exception e) {
-            System.out.println("Lỗi gọi GHN API getDistricts: " + e.getMessage());
+        }
+    } catch (Exception e) {
+        // GHN API getDistricts call failed
             e.printStackTrace();
         }
         return List.of();
@@ -138,17 +128,11 @@ public class GHNService {
                     List<?> list = (List<?>) data;
                     if (!list.isEmpty() && list.get(0) instanceof Map) {
                         return (List<Map<String, Object>>) list;
-                    } else {
-                        System.out.println("Data nhận được không đúng định dạng List<Map<String,Object>> hoặc rỗng");
-                    }
-                } else {
-                    System.out.println("Trường 'data' không phải List<?>");
-                }
-            } else {
-                System.out.println("GHN API getWards không thành công hoặc thiếu 'data', code = " + (body != null ? body.get("code") : "null"));
+                                    }
             }
-        } catch (Exception e) {
-            System.out.println("Lỗi gọi GHN API getWards: " + e.getMessage());
+        }
+    } catch (Exception e) {
+        // GHN API getWards call failed
             e.printStackTrace();
         }
         return List.of();
@@ -176,11 +160,9 @@ public class GHNService {
             if (body != null && Integer.valueOf(200).equals(body.get("code"))) {
                 List<Map<String, Object>> data = (List<Map<String, Object>>) body.get("data");
                 return data;
-            } else {
-                System.out.println("GHN API getAvailableServices thất bại hoặc thiếu dữ liệu: " + body);
-            }
-        } catch (Exception e) {
-            System.out.println("Lỗi gọi GHN API getAvailableServices: " + e.getMessage());
+                    }
+    } catch (Exception e) {
+        // GHN API getAvailableServices call failed
         }
 
         return Collections.emptyList();
@@ -212,11 +194,9 @@ public class GHNService {
             if (body != null && Integer.valueOf(200).equals(body.get("code"))) {
                 Map<String, Object> data = (Map<String, Object>) body.get("data");
                 return (Integer) data.get("total");
-            } else {
-                System.out.println("GHN API getShippingFee thất bại hoặc thiếu dữ liệu: " + body);
-            }
-        } catch (Exception e) {
-            System.out.println("Lỗi gọi GHN API getShippingFee: " + e.getMessage());
+                    }
+    } catch (Exception e) {
+        // GHN API getShippingFee call failed
         }
         return 0;
     }

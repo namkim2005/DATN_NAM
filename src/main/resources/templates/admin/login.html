@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- External CSS -->
     <link rel="stylesheet" th:href="@{/css/admin-login.css}">
+    <link rel="stylesheet" th:href="@{/css/login-error.css}">
 </head>
 <body>
 <!-- Animated background particles -->
@@ -41,15 +42,11 @@
             Đăng nhập
         </button>
     </form>
-
-
-    <div th:if="${param.error}">
-        <p style="color: red;">❌ Sai email hoặc mật khẩu!</p>
-    </div>
-    <div th:if="${param.logout}">
-        <p style="color: green;">✅ Đã đăng xuất thành công.</p>
+    <div th:if="${param.error}" class="login-error-message">
+        <span class="error-text" th:text="${param.error}"></span>
     </div>
 </div>
+
 
 <script th:src="@{/js/admin-login.js}"></script>
 </body>

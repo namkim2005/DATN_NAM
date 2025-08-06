@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 @ControllerAdvice
 public class CurrentUserControllerAdvice {
-
+    
     @Autowired
     private NhanVienRepository nhanVienRepository;
-
+    
     @ModelAttribute("currentUser")
     public NhanVien getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null &&
-                authentication.isAuthenticated() &&
-                !authentication.getPrincipal().equals("anonymousUser")) {
+        if (authentication != null && 
+            authentication.isAuthenticated() && 
+            !authentication.getPrincipal().equals("anonymousUser")) {
             return nhanVienRepository.findByEmail(authentication.getName())
-                    .orElse(null);
+                .orElse(null);
         }
         return null;
     }

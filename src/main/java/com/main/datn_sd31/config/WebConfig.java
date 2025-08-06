@@ -4,28 +4,30 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.nio.file.Paths;
-
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Đường dẫn tuyệt đối đến thư mục "uploads" bên ngoài target/
-        String uploadPath = "file:" + System.getProperty("user.dir") + "/uploads/";
-
+        // Cấu hình cho uploads
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:E:/Bài tập tin/DATN_SD31/uploads/");
+                .addResourceLocations("classpath:/static/uploads/")
+                .setCachePeriod(3600);
 
-        // Đảm bảo static resources được serve đúng cách
+        // Cấu hình cho images
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("classpath:/static/images/");
+                .addResourceLocations("classpath:/static/images/")
+                .setCachePeriod(3600);
 
+        // Cấu hình cho static resources khác
         registry.addResourceHandler("/css/**")
                 .addResourceLocations("classpath:/static/css/");
 
         registry.addResourceHandler("/js/**")
                 .addResourceLocations("classpath:/static/js/");
 
+        // Thêm cấu hình cho static resources tổng quát
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
     }
 }

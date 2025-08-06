@@ -15,6 +15,7 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
     KhachHang find(@Param("id") Integer id);
 
     Optional<KhachHang> findByEmail(String email);
+    Optional<KhachHang> findBySoDienThoai(String soDienThoai);
     List<KhachHang> findByMa(String ma);
     List<KhachHang> findBySoDienThoaiContaining(String sdt);
 

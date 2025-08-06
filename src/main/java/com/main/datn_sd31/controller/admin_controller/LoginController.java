@@ -11,5 +11,4 @@ public class LoginController {
         return "admin/login";
     }
 
-
 }

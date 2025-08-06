@@ -130,7 +130,7 @@ public class SanPhamController {
         SanPham sanPham = sanPhamService.createSanPham(form); // hoặc gọi service
 
         // 2. Tạo thư mục lưu ảnh nếu chưa có
-        String uploadDir = "E:/DATN/DATN_SD31/uploads/";
+        String uploadDir = "src/main/resources/static/uploads/";
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);

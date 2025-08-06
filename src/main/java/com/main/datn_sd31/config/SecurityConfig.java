@@ -9,7 +9,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,37 +27,35 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    /* ===== 1. Bảo vệ khu vực ADMIN ===== */
     @Bean
-    @Order(1)           // Ưu tiên cao nhất
+    @Order(1)
     public SecurityFilterChain adminSecurity(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/admin/**")      // Chỉ áp dụng filter‑chain này cho /admin/**
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
-                )
-                .formLogin(form -> form
-                        .loginPage("/admin/dang-nhap")
-                        .loginProcessingUrl("/admin/dang-nhap") // phải khớp với form
-                        .defaultSuccessUrl("/admin", true)
-                        .failureHandler(customAuthenticationFailureHandler)
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/admin/logout")
-                        .logoutSuccessUrl("/admin/dang-nhap?logout=true")
-                        .permitAll()
-
-                );
+            .securityMatcher("/admin/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/admin/dang-nhap", "/admin/logout").permitAll()
+                .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
+            )
+            .formLogin(form -> form
+                .loginPage("/admin/dang-nhap")
+                .loginProcessingUrl("/admin/dang-nhap")
+                .defaultSuccessUrl("/admin/thong-ke", true)
+                .failureHandler(customAuthenticationFailureHandler)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/admin/logout")
+                .logoutSuccessUrl("/admin/dang-nhap?logout=true")
+                .permitAll()
+            );
         return http.build();
     }
 
-    /* ===== 2. Bảo vệ khu vực KHÁCH HÀNG ===== */
     @Order(2)
     @Bean
     public SecurityFilterChain customerSecurity(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/khach-hang/**", "/gio-hang/**", "/khach-hang/dang-nhap")
+                .securityMatcher("/khach-hang/**", "/gio-hang/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/khach-hang/dang-nhap",
@@ -86,14 +83,15 @@ public class SecurityConfig {
 
         return http.build();
     }
-    /* ===== 3. Cấu hình chung cho phần công khai (static, trang chủ, v.v.) ===== */
+
     @Bean
-    @Order(3)           // Thấp nhất
+    @Order(3)
     public SecurityFilterChain publicSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/uploads/**",
+                                "/", "/login",
+                                "/uploads/**",
                                 "/css/**", "/js/**", "/images/**",
                                 "/vendors/**", "/webjars/**",
                                 "/static/**", "/favicon.ico",
@@ -114,19 +112,18 @@ public class SecurityConfig {
         return http.build();
     }
 
-//    /* ===== Bean chung ===== */
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        return new CustomUserDetailsService();      // Phải trả về ROLE_ADMIN hoặc ROLE_CUSTOMER tương ứng
-//    }
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setHideUserNotFoundExceptions(false);
+        return authProvider;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
-
-        return new ProviderManager(authProvider);
+        return new ProviderManager(authenticationProvider());
     }
 
     @Bean

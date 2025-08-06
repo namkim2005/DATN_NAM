@@ -4,8 +4,6 @@ import com.main.datn_sd31.entity.NhanVien;
 import com.main.datn_sd31.entity.KhachHang;
 import com.main.datn_sd31.repository.NhanVienRepository;
 import com.main.datn_sd31.repository.KhachHangRepository;
-import lombok.RequiredArgsConstructor;
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -23,11 +21,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        // 1. Thử tìm nhân viên
+        // Tìm nhân viên
         NhanVien nv = nhanVienRepository.findByEmail(email).orElse(null);
         if (nv != null) {
             String role = "ROLE_NHANVIEN";
-            // Nếu có trường chức vụ hoặc role, phân biệt rõ hơn
             if (nv.getChucVu() != null) {
                 if (nv.getChucVu().equalsIgnoreCase("Quản lý") || nv.getChucVu().equalsIgnoreCase("ADMIN")) {
                     role = "ROLE_ADMIN";
@@ -35,24 +32,15 @@ public class CustomUserDetailsService implements UserDetailsService {
                     role = "ROLE_NHANVIEN";
                 }
             }
-            return buildUser(
-                    nv.getEmail(),
-                    nv.getMatKhau(),
-                    role
-            );
+            return buildUser(nv.getEmail(), nv.getMatKhau(), role);
         }
 
-        // 2. Thử tìm khách hàng
+        // Tìm khách hàng
         KhachHang kh = khachHangRepository.findByEmail(email).orElse(null);
         if (kh != null) {
-            return buildUser(
-                    kh.getEmail(),
-                    kh.getMatKhau(),
-                    "ROLE_KHACHHANG"
-            );
+            return buildUser(kh.getEmail(), kh.getMatKhau(), "ROLE_KHACHHANG");
         }
 
-        // 3. Không tìm thấy
         throw new UsernameNotFoundException("Không tìm thấy tài khoản");
     }
 
