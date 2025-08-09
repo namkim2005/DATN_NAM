@@ -1,8 +1,8 @@
 package com.main.datn_sd31.controller.admin_controller;
 
-import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
 import com.main.datn_sd31.entity.*;
 import com.main.datn_sd31.repository.*;
+import com.main.datn_sd31.service.PhieuGiamGiaService;
 import com.main.datn_sd31.service.impl.GHNService;
 import com.main.datn_sd31.util.GetNhanVien;
 import com.main.datn_sd31.util.ThongBaoUtils;
@@ -10,24 +10,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/ban-hang")
@@ -47,6 +39,7 @@ public class BanHangController {
     private final LichSuHoaDonRepository lichSuHoaDonRepository;
     private final Mausacrepository mausacrepository;
     private final Sizerepository sizerepository;
+    private final PhieuGiamGiaService phieuGiamGiaService;
 
 
     private List<HoaDonChiTiet> getCart(String cartKey, HttpSession session) {
@@ -95,7 +88,7 @@ public class BanHangController {
         model.addAttribute("giamGia", giamGia);
         model.addAttribute("tongTienSauGiam", tongSauGiam);
         model.addAttribute("phiVanChuyen", phiShip);
-        model.addAttribute("dsPhieuGiamGia", phieugiamgiarepository.findAll());
+        model.addAttribute("dsPhieuGiamGia", phieuGiamGiaService.findAllStatusTrue());
         model.addAttribute("maGiamGia", session.getAttribute("maGiamGia"));
         model.addAttribute("giamGia", session.getAttribute("giamGia"));
         return "admin/pages/banhang/banhang";
@@ -193,10 +186,6 @@ public class BanHangController {
 
         return ketQua;
     }
-
-
-
-
 
     @PostMapping("/cap-nhat-so-luong")
     public String capNhatSoLuong(@RequestParam("idChiTietSp") Integer id,
@@ -392,7 +381,13 @@ public class BanHangController {
         }
         hd.setNhanVien(nv);
         hd.setPhuongThuc(phuongThuc.equals("chuyen_khoan") ? "Chuyển khoản" : "Tiền mặt");
-        hd.setDiaChi(diaChiTinh+'-'+diaChiHuyen+'-'+diaChiXa);
+        String diachi;
+        if (diaChiTinh == null || diaChiHuyen == null || diaChiXa == null) {
+            diachi=diaChiTinh+'-'+diaChiHuyen+'-'+diaChiXa;
+        } else {
+            diachi=null;
+        }
+        hd.setDiaChi(diachi);
         hd.setSoDienThoai(sdt);
         hd.setGiaGoc(tongTien);
         hd.setGiaGiamGia(giagiam);
@@ -407,12 +402,12 @@ public class BanHangController {
         session.setAttribute("gioTam", gio);
         session.setAttribute("cartKeyTam", cartKey);
 
-        String diachi=diaChiTinh+'-'+diaChiHuyen+'-'+diaChiXa;
-        return hoanTatThanhToan(cartKey, gio, sdt, giagiam, tongTien, phiShip, "Tiền mặt", true,diachi,redirect, session);
+        return hoanTatThanhToan(cartKey, gio, sdt, giagiam, tongTien, phiShip, phuongThuc,diachi,redirect, session);
     }
+
     private String hoanTatThanhToan(String cartKey, List<HoaDonChiTiet> gio,
                                     String sdt, BigDecimal giagiam, BigDecimal tongTien,
-                                    BigDecimal phiShip, String phuongThuc, boolean trangThai,String diachi,
+                                    BigDecimal phiShip, String phuongThuc,String diachi,
                                     RedirectAttributes redirectAttributes,
                                     HttpSession session) {
 
@@ -426,18 +421,19 @@ public class BanHangController {
         if (nv == null) nv = nhanVienRepository.findById(1).orElse(null); // fallback nếu cần
         hd.setNhanVien(nv);
 
-
         hd.setTrangThai(3);
+
         hd.setDiaChi(diachi);
         hd.setPhuongThuc(phuongThuc);
         hd.setSoDienThoai(sdt);
         hd.setGiaGoc(tongTien);
         hd.setGiaGiamGia(giagiam);
         hd.setPhiVanChuyen(phiShip);
+        hd.setLoaihoadon("Trực tiếp");
         hd.setThanhTien(tongTien.subtract(giagiam).add(phiShip));
         hd.setNgaySua(LocalDateTime.now());
-        hd.setNguoiSua(1);
-        hd.setNguoiTao(1);
+        hd.setNgayThanhToan(LocalDateTime.now());
+        hd.setNguoiTao(getNhanVien.getCurrentNhanVien().getId());
         // 👉 Lưu mã giảm giá nếu có
         String maGiamGia = (String) session.getAttribute("maGiamGia");
         if (maGiamGia != null) {
@@ -458,21 +454,41 @@ public class BanHangController {
             chiTietSanPhamRepository.save(sp);
         }
 
-        // ✅ Lưu lịch sử hóa đơn// Lấy từ session
-        LichSuHoaDon lichSu = new LichSuHoaDon();
-        lichSu.setHoaDon(hd);
-        lichSu.setNgayTao(LocalDateTime.now());
-        lichSu.setNgaySua(LocalDateTime.now());
-        lichSu.setNguoiTao(nv.getId());
-        lichSu.setNguoiSua(nv.getId());
-        if (diachi != null && sdt != null) {
-            lichSu.setTrangThai(3);
-        } else {
-            lichSu.setTrangThai(5);
-        }
+        // ✅ Lưu lịch sử hóa đơn
+        // Lấy từ session
+        LichSuHoaDon lichSu1 = new LichSuHoaDon();
+        LichSuHoaDon lichSu2 = new LichSuHoaDon();
+        LichSuHoaDon lichSu3 = new LichSuHoaDon();
+        lichSu1.setHoaDon(hd);
+        lichSu1.setNgayTao(LocalDateTime.now());
+        lichSu1.setNgaySua(LocalDateTime.now());
+        lichSu1.setNguoiTao(nv.getId());
+//        lichSu1.setNguoiSua(nv.getId());
+        lichSu1.setGhiChu("Tạo hóa đơn: Chờ xác nhận");
+        lichSu1.setTrangThai(1);
 
-        lichSu.setGhiChu("Tạo hóa đơn và thanh toán" + (phuongThuc.equals("chuyen_khoan") ? " bằng chuyển khoản" : " bằng tiền mặt"));
-        lichSuHoaDonRepository.save(lichSu);
+        lichSu2.setHoaDon(hd);
+        lichSu2.setNgayTao(LocalDateTime.now());
+        lichSu2.setNgaySua(LocalDateTime.now());
+        lichSu2.setNguoiTao(nv.getId());
+//        lichSu2.setNguoiSua(nv.getId());
+        lichSu2.setGhiChu("Thay đổi trạng thái: Xác nhận");
+        lichSu2.setTrangThai(2);
+
+        lichSuHoaDonRepository.save(lichSu1);
+        lichSuHoaDonRepository.save(lichSu2);
+
+        if (diachi == null) {
+            lichSu3.setHoaDon(hd);
+            lichSu3.setNgayTao(LocalDateTime.now());
+            lichSu3.setNgaySua(LocalDateTime.now());
+            lichSu3.setNguoiTao(nv.getId());
+//            lichSu3.setNguoiSua(nv.getId());
+            lichSu3.setGhiChu("Thanh toán" + (phuongThuc.equals("chuyen_khoan") ? " bằng chuyển khoản" : " bằng tiền mặt"));
+            lichSu3.setTrangThai(5);
+
+            lichSuHoaDonRepository.save(lichSu3);
+        }
 
         // ✅ Dọn session
         Map<String, List<HoaDonChiTiet>> carts = (Map<String, List<HoaDonChiTiet>>) session.getAttribute("tatCaGio");

@@ -102,20 +102,20 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
         return switch (hienTai) {
             case CHO_XAC_NHAN -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN, TrangThaiLichSuHoaDon.HUY);
             case XAC_NHAN -> {
-                if ("Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
+                if (hoaDonDTO.getDiaChi().isEmpty()) {
                     yield List.of(TrangThaiLichSuHoaDon.CHO_GIAO_HANG);
                 }
                 yield List.of(TrangThaiLichSuHoaDon.CHO_GIAO_HANG, TrangThaiLichSuHoaDon.HOAN_THANH, TrangThaiLichSuHoaDon.HUY);
             }
             case CHO_GIAO_HANG -> {
-                if ("Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
-                    yield List.of();
-                }
+//                if ("Chưa thanh toán".equals(hoaDonDTO.getTrangThaiHoaDonString())) {
+//                    yield List.of();
+//                }
                 yield List.of(TrangThaiLichSuHoaDon.DA_GIAO, TrangThaiLichSuHoaDon.GIAO_KHONG_THANH_CONG);
             }
             case YEU_CAU_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG);
             case XAC_NHAN_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.DA_HOAN);
-            default -> List.of(); // HOAN_THANH, DA_HOAN, HUY không được chuyển tiếp
+            default -> List.of(); // HOAN_THANH, DA_HOAN, HUY, GIAO_KHONG_THANH_CONG không được chuyển tiếp
         };
     }
 
@@ -203,7 +203,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             }
             case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
             case XAC_NHAN_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
-            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG -> false;
+            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG,DON_CHUYEN_HOAN -> false;
         };
 
         if (!hopLe) {
@@ -228,9 +228,11 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
         }
 
         if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY) {
-            //Đổi trạng thái thành chưa thanh toán cho hóa đơn đã Hủy
+
+            //Đổi trạng thái cho hóa đơn đã Hủy
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(5);
+            hoaDon.setNgaySua(LocalDateTime.now());
             hoaDonRepository.save(hoaDon);
 
             for (HoaDonChiTietDTO ct : hdctList) {
@@ -272,6 +274,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
             hoaDon.setTrangThai(3);
             hoaDon.setNgaySua(LocalDateTime.now());
+            hoaDon.setNgayThanhToan(LocalDateTime.now());
             hoaDonRepository.save(hoaDon);
 
         }
@@ -337,7 +340,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             }
             case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
             case XAC_NHAN_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
-            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG -> false;
+            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG,DON_CHUYEN_HOAN -> false;
         };
 
         if (!hopLe) {
@@ -428,13 +431,13 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
     }
 
     @Override
-    public void updateStatusAfter7Days() {
+    public void updateStatusAfter3Days() {
         List<LichSuHoaDon> listLshd = lichSuHoaDonRepository.findAll();
 
         for (LichSuHoaDon lshd : listLshd) {
             if (lshd.getTrangThai() == TrangThaiLichSuHoaDon.DA_GIAO.getValue()) {
                 long daysBetween = ChronoUnit.DAYS.between(lshd.getNgayTao(), java.time.LocalDateTime.now());
-                if (daysBetween >= 7) {
+                if (daysBetween >= 3) {
                     HoaDon hoaDon = lshd.getHoaDon();
 
                     // Kiểm tra đã có trạng thái HOAN_THANH chưa

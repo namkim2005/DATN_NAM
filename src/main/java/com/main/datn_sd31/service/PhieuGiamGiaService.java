@@ -17,4 +17,8 @@ public interface PhieuGiamGiaService {
     void delete(Integer id);
 
     BigDecimal tinhTienGiam(String maPhieu, BigDecimal tongTien);
+
+    List<PhieuGiamGia> findAllStatusTrue();
+
+
 }

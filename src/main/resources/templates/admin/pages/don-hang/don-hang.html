@@ -187,6 +187,7 @@
           <th>Trạng Thái</th>
           <th>Thành Tiền</th>
           <th>Thanh toán</th>
+          <th>Loại hóa đơn</th>
           <th>Ngày tạo</th>
           <th>Cập nhật lần cuối</th>
           <th>Thao Tác</th>
@@ -200,6 +201,7 @@
           <td th:text="${hoaDon.trangThaiLichSuHoaDonMoTa}"></td>
           <td th:text="${@utils.formatCurrency(hoaDon.thanhTien) + ' đ'}"></td>
           <td th:text="${hoaDon.trangThaiHoaDonString}"></td>
+          <td th:text="${hoaDon.loaihoadon}"></td>
           <td th:text="${hoaDon.ngayTao}"></td>
           <td th:text="${hoaDon.capNhatLanCuoi}"></td>
           <td>
@@ -225,7 +227,7 @@
             </button>
             <!-- Detail-->
             <button class="action-btn accept">
-              <a th:href="@{/admin/hoa-don/detail1(maHoaDon=${hoaDon.ma})}">
+              <a th:href="@{/admin/don-hang/detail(maHoaDon=${hoaDon.ma})}">
                 <i class="fa-solid fa-circle-info"></i>
               </a>
             </button>
@@ -255,10 +257,28 @@
                                                                 and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
                                                                 and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
                   <label class="form-label">Chọn trạng thái mới:</label>
-                  <select name="trangThaiMoi" class="form-select">
+                  <select name="trangThaiMoi" class="form-select"
+                          th:id="'trangThaiMoi_' + ${hoaDon.ma}">
                     <option th:each="tt : ${trangThaiHopLeMap[hoaDon.ma]}"
                             th:value="${tt.value}"
                             th:text="${tt.moTa}">
+                    </option>
+                  </select>
+                </div>
+
+                <div class="mb-3" id="lyDoGiaoKhongThanhCongGroup"
+                     th:id="'lyDoGiaoKhongThanhCongGroup_' + ${hoaDon.ma}"
+                     style="display:none;">
+                  <label for="lyDoGiaoKhongThanhCong" class="form-label">Chọn lý do giao không thành công <span style="color: red;">*</span></label>
+                  <select name="lyDoGiaoKhongThanhCong"
+                          id="lyDoGiaoKhongThanhCong"
+                          class="form-select"
+                          required>
+                    <option value="" disabled selected>-- Chọn lý do --</option>
+                    <option th:each="lyDo : ${lyDoGiaoKhongThanhCongList}"
+                            th:value="${lyDo.name()}"
+                            th:text="${lyDo.moTa}"
+                            >
                     </option>
                   </select>
                 </div>
@@ -320,22 +340,45 @@
       </div>
     </div>
   </div>
+
+  <!--Li do Giao Khong Thanh Cong-->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('[id^="trangThaiMoi_"]').forEach(function (select) {
+        const maHoaDon = select.id.split('_')[1];
+        const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup_' + maHoaDon);
+        console.log(select.value)
+        function checkTrangThai() {
+          console.log(select.value)
+          if (select.value === '10') { // nhớ so sánh string
+            lyDoGroup.style.display = 'block';
+          } else {
+            lyDoGroup.style.display = 'none';
+            document.getElementById('lyDoGiaoKhongThanhCong').value = '';
+          }
+        }
+
+        select.addEventListener('change', checkTrangThai);
+        checkTrangThai();
+      });
+    });
+  </script>
+
+  <!--Change size Pagination-->
+  <script>
+    function changePageSize(size) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('size', size);
+      url.searchParams.set('page', 0); // reset về page 0 khi đổi size
+      window.location.href = url.toString();
+    }
+  </script>
+
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
-
-
-<!--Change size Pagination-->
-<script>
-  function changePageSize(size) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('size', size);
-    url.searchParams.set('page', 0); // reset về page 0 khi đổi size
-    window.location.href = url.toString();
-  }
-</script>
 
 </body>
 </html>

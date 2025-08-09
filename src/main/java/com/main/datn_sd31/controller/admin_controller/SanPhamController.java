@@ -211,7 +211,7 @@ public class SanPhamController {
         return "admin/pages/sanpham/sua-san-pham"; // HTML path
     }
 
-    @PostMapping("/admin/san-pham/sua")
+    @PostMapping("/sua")
     public String suaSanPham(@ModelAttribute("sanpham") SanPham sanPham,
                              RedirectAttributes redirectAttributes) {
 

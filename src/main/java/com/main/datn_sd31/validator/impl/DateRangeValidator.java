@@ -1,5 +1,6 @@
-package com.main.datn_sd31.validator;
+package com.main.datn_sd31.validator.impl;
 
+import com.main.datn_sd31.validator.ValidDateRange;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import com.main.datn_sd31.entity.PhieuGiamGia;

@@ -96,15 +96,15 @@ public class HoaDonController {
         return "admin/pages/hoa-don/hoa-don";
     }
 
-    @GetMapping("/detail")
-    public String getHoaDonDetail(
-            @RequestParam("ma") String ma,
-            Model model
-    ) {
-        model.addAttribute("hoaDonDetail", hoaDonService.getHoaDonByMa(ma));
-        model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
-        return "/admin/pages/hoa-don/hoa-don-detail-modal";
-    }
+//    @GetMapping("/detail")
+//    public String getHoaDonDetail(
+//            @RequestParam("ma") String ma,
+//            Model model
+//    ) {
+//        model.addAttribute("hoaDonDetail", hoaDonService.getHoaDonByMa(ma));
+//        model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
+//        return "/admin/pages/hoa-don/hoa-don-detail-modal";
+//    }
 
     @PostMapping("/cap-nhat-trang-thai")
     public String capNhatTrangThai(

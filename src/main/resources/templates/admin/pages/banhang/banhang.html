@@ -84,7 +84,7 @@
                         <td class="p-3" th:text="${stat.index + 1}">1</td>
                         <td class="p-3" th:text="${sp.ma}">SP001</td>
                         <td class="p-3">
-                            <img th:src="@{${sp.hinhAnhs[0]?.url}}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
+                            <img th:src="@{'/uploads/' + ${sp.hinhAnhs[0].url}}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
                         </td>
                         <td class="p-3" th:text="${sp.ten}">SP001</td>
                     </tr>

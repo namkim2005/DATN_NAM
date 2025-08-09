@@ -1,13 +1,11 @@
 package com.main.datn_sd31.entity;
 
 import com.main.datn_sd31.validator.ValidDateRange;
+import com.main.datn_sd31.validator.ValidMucDoGiamGia;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.*;
 
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
@@ -28,6 +26,7 @@ import java.util.Set;
 @Setter
 @Entity
 @ValidDateRange(message = "Ngày bắt đầu không được lớn hơn ngày kết thúc")
+@ValidMucDoGiamGia(message = "Mức giảm không hợp lệ với Loại phiếu giảm giá")
 @Table(name = "phieu_giam_gia")
 public class PhieuGiamGia {
     @Id
@@ -90,22 +89,26 @@ public class PhieuGiamGia {
     }
 
     @NotNull(message = "Mức giảm không được để trống")
-    @DecimalMin(value = "0", inclusive = true, message = "Mức giảm phải lớn hơn hoặc bằng 0")
+//    @DecimalMin(value = "0", inclusive = true, message = "Mức giảm phải lớn hơn hoặc bằng 0")
+//    @DecimalMax(value = "100", message = "Mức giảm tối đa là 100%")
     @Column(name = "muc_do", nullable = false, precision = 18, scale = 0)
     private BigDecimal mucDo;
 
     @NotNull(message = "Giảm tối đa không được để trống")
+    @DecimalMin(value = "0", inclusive = true, message = "Giảm tối đa phải lớn hơn hoặc bằng 0")
+    @DecimalMax(value = "500000", message = "Giảm tối đa không được vượt quá 500.000đ")
     @Column(name = "giam_toi_da", nullable = false, precision = 18, scale = 0)
-    @Min(value = 0, message = "Giảm tối đa phải lớn hơn hoặc bằng 0")
     private BigDecimal giamToiDa;
 
     @NotNull(message = "Điều kiện không được để trống")
     @DecimalMin(value = "0", message = "Điều kiện không được nhỏ hơn 0")
+    @DecimalMax(value = "5000000", message = "Điều kiện không được vượt quá 5.000.000đ")
     @Column(name = "dieu_kien", nullable = false, precision = 18, scale = 0)
     private BigDecimal dieuKien;
 
-    @NotNull(message = "Điều kiện không được để trống")
-    @DecimalMin(value = "0", message = "Điều kiện không được nhỏ hơn 0")
+    @NotNull(message = "Số lượng tồn không được để trống")
+    @Min(value = 0, message = "Số lượng tồn không được nhỏ hơn 0")
+    @Max(value = 100000, message = "Số lượng mã không được vượt quá 100.000")
     @Column(name = "so_luong_ton", nullable = false)
     private Integer soLuongTon;
 

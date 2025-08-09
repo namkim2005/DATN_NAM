@@ -186,7 +186,7 @@
                                                  onerror="this.onerror=null; this.src='/images/default-avatar.png';"
                                                  th:attr="data-original-src=@{'/uploads/' + ${nv.anh}}"/>
                                             <img th:if="${nv.anh == null or nv.anh.isEmpty()}" 
-                                                 src="/images/default-avatar.png" 
+                                                 th:src="@{/images/faces-clipart/pic-4.png}"
                                                  class="h-12 w-12 rounded-full object-cover border-2 border-gray-200" 
                                                  alt="Ảnh mặc định"/>
                                         </div>

@@ -30,6 +30,13 @@
             transform: scale(1.2) rotate(10deg);
         }
 
+        /* Ẩn nút tăng giảm trên Chrome, Edge, Safari */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         /* Submenu Icon Animation */
         .sidebar .sub-menu .nav-item .nav-link .menu-icon {
             transition: all 0.3s ease;
@@ -158,7 +165,7 @@
                         </span>
                         <img class="img-xs rounded-circle"
                              th:if="${@get_nhan_vien.getCurrentNhanVien() != null && @get_nhan_vien.getCurrentNhanVien().anh != null && !@get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
-                             th:src="@{${@get_nhan_vien.getCurrentNhanVien().anh.startsWith('/') ? '' : '/'} + ${@get_nhan_vien.getCurrentNhanVien().anh}}"
+                             th:src="@{'/uploads/' + ${@get_nhan_vien.getCurrentNhanVien().anh}}"
                              alt="Ảnh đại diện">
                         <img class="img-xs rounded-circle"
                              th:if="${@get_nhan_vien.getCurrentNhanVien() == null || @get_nhan_vien.getCurrentNhanVien().anh == null || @get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
@@ -191,7 +198,7 @@
                         <div class="user-wrapper">
                             <div class="profile-image">
                                 <img th:if="${@get_nhan_vien.getCurrentNhanVien() != null && @get_nhan_vien.getCurrentNhanVien().anh != null && !@get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
-                                     th:src="@{${@get_nhan_vien.getCurrentNhanVien().anh.startsWith('/') ? '' : '/'} + ${@get_nhan_vien.getCurrentNhanVien().anh}}"
+                                     th:src="@{'/uploads/' + ${@get_nhan_vien.getCurrentNhanVien().anh}}"
                                      alt="profile image">
                                 <img th:if="${@get_nhan_vien.getCurrentNhanVien() == null || @get_nhan_vien.getCurrentNhanVien().anh == null || @get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
                                      th:src="@{/images/faces-clipart/pic-1.png}"
@@ -209,9 +216,9 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-success btn-block">New Project
-                            <i class="mdi mdi-plus"></i>
-                        </button>
+<!--                        <button class="btn btn-success btn-block">New Project-->
+<!--                            <i class="mdi mdi-plus"></i>-->
+<!--                        </button>-->
                     </div>
                 </li>
                 <li class="nav-item">
@@ -239,8 +246,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-                        <i class="menu-icon fas fa-box"></i>
+<!--                    <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">-->
+<!--                        <i class="menu-icon fas fa-box"></i>-->
                     <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
                        aria-controls="ui-basic">
                         <i class="menu-icon mdi mdi-content-copy"></i>

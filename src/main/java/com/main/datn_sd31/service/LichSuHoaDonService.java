@@ -8,7 +8,6 @@ import com.main.datn_sd31.entity.KhachHang;
 import com.main.datn_sd31.entity.LichSuHoaDon;
 import com.main.datn_sd31.entity.NhanVien;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ public interface LichSuHoaDonService {
     void capNhatTrangThai(String maHoaDon, Integer trangThaiMoi, String ghiChu, NhanVien nhanVien);
 
 
-    public KetQuaCapNhatTrangThai xuLyCapNhatTrangThai(
+    KetQuaCapNhatTrangThai xuLyCapNhatTrangThai(
             String maHoaDon,
             Integer trangThaiMoi,
 //            Boolean quayLui,
@@ -39,7 +38,7 @@ public interface LichSuHoaDonService {
 
     void capNhatTrangThaiByKhachHang(String maHoaDon, Integer trangThaiMoi, String ghiChu, KhachHang khachHang);
 
-    public KetQuaCapNhatTrangThai xuLyCapNhatTrangThaiKhachHang(
+    KetQuaCapNhatTrangThai xuLyCapNhatTrangThaiKhachHang(
             String maHoaDon,
             Integer trangThaiMoi,
 //            Boolean quayLui,
@@ -47,6 +46,6 @@ public interface LichSuHoaDonService {
             KhachHang khachHang
     );
 
-    void updateStatusAfter7Days();
+    void updateStatusAfter3Days();
 
 }

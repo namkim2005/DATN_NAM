@@ -1,6 +1,7 @@
 package com.main.datn_sd31.controller.admin_controller;
 
 import com.main.datn_sd31.entity.PhieuGiamGia;
+import com.main.datn_sd31.service.HoaDonService;
 import com.main.datn_sd31.service.PhieuGiamGiaService;
 import com.main.datn_sd31.util.ThongBaoUtils;
 import jakarta.validation.Valid;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin/phieu-giam-gia")
 @RequiredArgsConstructor
 public class PhieuGiamGiaController {
+
+    private final HoaDonService hoaDonService;
 
     private final PhieuGiamGiaService phieuGiamGiaService;
 
@@ -75,9 +78,14 @@ public class PhieuGiamGiaController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") Integer id, Model model) {
+    public String edit(
+            @PathVariable("id") Integer id,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
         PhieuGiamGia entity = phieuGiamGiaService.findById(id);
         if (entity == null) {
+            ThongBaoUtils.addError(redirectAttributes, "Không tìm thấy phiếu giảm giá này");
             return "redirect:/admin/phieu-giam-gia";
         }
 
@@ -86,12 +94,16 @@ public class PhieuGiamGiaController {
     }
 
     @PostMapping("/update")
-    public String update(@Valid @ModelAttribute("phieuGiamGia") PhieuGiamGia pg,
-                         RedirectAttributes redirectAttributes,
-                         BindingResult result, Model model) {
+    public String update(
+            @Valid @ModelAttribute("phieuGiamGia") PhieuGiamGia pg,
+             BindingResult result,
+             Model model,
+             RedirectAttributes redirectAttributes
+    ) {
         if (result.hasErrors()) {
             model.addAttribute("error", "Cập nhật thất bại");
-            return "redirect:/admin/phieu-giam-gia";
+            model.addAttribute("phieuGiamGia", pg);
+            return "admin/pages/phieu-giam-gia/edit";
         }
 
         pg.setNgaySua(LocalDate.now());
@@ -100,9 +112,25 @@ public class PhieuGiamGiaController {
         return "redirect:/admin/phieu-giam-gia";
     }
 
-//    @GetMapping("/delete/{id}")
-//    public String delete(@PathVariable("id") Integer id) {
-//        phieuGiamGiaService.delete(id);
-//        return "redirect:/admin/phieu-giam-gia";
-//    }
+    @GetMapping("/delete/{id}")
+    public String delete(
+            @PathVariable("id") Integer id,
+            RedirectAttributes redirectAttributes
+    ) {
+        PhieuGiamGia entity = phieuGiamGiaService.findById(id);
+
+        if (entity == null) {
+            ThongBaoUtils.addError(redirectAttributes, "Không tìm thấy phiếu giảm giá này");
+            return "redirect:/admin/phieu-giam-gia";
+        }
+
+        if (hoaDonService.existsByPhieuGiamGia(entity)) {
+            ThongBaoUtils.addError(redirectAttributes, "Không thể xóa Mã giảm giá này");
+            return "redirect:/admin/phieu-giam-gia";
+        }
+
+        phieuGiamGiaService.delete(id);
+        ThongBaoUtils.addSuccess(redirectAttributes, "Xóa thành công");
+        return "redirect:/admin/phieu-giam-gia";
+    }
 }

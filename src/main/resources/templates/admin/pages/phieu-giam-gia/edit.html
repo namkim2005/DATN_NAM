@@ -152,13 +152,13 @@
 
             <div class="mb-3">
                 <label>Tên</label>
-                <input type="text" class="form-control" th:field="*{ten}" />
+                <input type="text" class="form-control" th:field="*{ten}" maxlength="100" />
                 <div class="text-danger" th:errors="*{ten}"></div>
             </div>
 
             <div class="mb-3">
                 <label>Mã</label>
-                <input type="text" class="form-control" th:field="*{ma}" />
+                <input type="text" class="form-control" th:field="*{ma}" maxlength="50"/>
                 <div class="text-danger" th:errors="*{ma}"></div>
             </div>
 

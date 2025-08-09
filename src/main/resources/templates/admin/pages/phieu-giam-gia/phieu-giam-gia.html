@@ -37,10 +37,10 @@
 
         .table-section .table th,
         .table-section .table td {
-            white-space: normal;       /* Cho phép xuống dòng */
+            white-space: normal; /* Cho phép xuống dòng */
             overflow-wrap: break-word; /* Tự động xuống dòng nếu từ quá dài */
-            word-break: break-word;    /* Ngắt từ nếu quá dài */
-            max-width: 200px;          /* (Tùy chọn) Giới hạn độ rộng mỗi ô để buộc xuống dòng */
+            word-break: break-word; /* Ngắt từ nếu quá dài */
+            max-width: 200px; /* (Tùy chọn) Giới hạn độ rộng mỗi ô để buộc xuống dòng */
             vertical-align: middle;
             padding: 8px;
         }
@@ -63,6 +63,12 @@
 
         .action-btn.cancel {
             color: red;
+        }
+
+        .disabled-custom {
+            pointer-events: none;      /* không cho click */
+            opacity: 0.5;              /* mờ đi */
+            cursor: not-allowed;       /* con trỏ chuột kiểu không được phép */
         }
     </style>
 </head>
@@ -141,11 +147,11 @@
                 <thead>
                 <tr>
                     <th>STT</th>
-                    <th>Tên</th>
-                    <th>Mã</th>
+                    <th>Thông tin chung</th>
                     <th>Loại phiếu</th>
                     <th>Mức giảm</th>
                     <th>Giảm tối đa</th>
+                    <th>Điều kiện</th>
                     <th>Số lượng</th>
                     <th>Ngày bắt đầu</th>
                     <th>Ngày kết thúc</th>
@@ -156,8 +162,10 @@
                 <tbody>
                 <tr th:each="item, iterStat : ${listData}">
                     <td th:text="${iterStat.index + 1}"></td>
-                    <td th:text="${item.ten}"></td>
-                    <td th:text="${item.ma}"></td>
+                    <td>
+                        <div class="text-sm text-gray-500" th:text="${item.ma}"></div>
+                        <div class="text-sm text-gray-900" th:text="${item.ten}"></div>
+                    </td>
                     <td
                             th:text="${item.loaiPhieuGiamGia == 1 ? 'Giảm %' : 'Giảm tiền'}"
                     ></td>
@@ -166,6 +174,9 @@
                     ></td>
                     <td
                             th:text="${item.giamToiDa.stripTrailingZeros().toPlainString() + ' đ'}"
+                    ></td>
+                    <td
+                            th:text="${'>= ' + item.dieuKien.stripTrailingZeros().toPlainString() + ' đ'}"
                     ></td>
                     <td
                             th:text="${item.soLuongTon != null ? item.soLuongTon : 0}"
@@ -185,7 +196,7 @@
                                 th:if="${item.ngayKetThuc < T(java.time.LocalDate).now() and item.soLuongTon > 0}"
                                 class="badge bg-danger"
                         >Kết thúc</span
-                        >7
+                        >
                         <span
                                 th:if="${item.ngayBatDau <= T(java.time.LocalDate).now() and item.ngayKetThuc >= T(java.time.LocalDate).now() and item.soLuongTon > 0}"
                                 class="badge bg-success"
@@ -199,13 +210,14 @@
                         >
                             Sửa
                         </a>
-<!--                        <a-->
-<!--                                th:href="@{'/admin/phieu-giam-gia/delete/' + ${item.id}}"-->
-<!--                                onclick="return confirm('Bạn có chắc muốn xóa phiếu này không?')"-->
-<!--                                class="btn btn-danger btn-sm"-->
-<!--                        >-->
-<!--                            Xóa-->
-<!--                        </a>-->
+                        <a th:href="@{'/admin/phieu-giam-gia/delete/' + ${item.id}}"
+                           th:classappend="${@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? ' disabled-custom' : ''}"
+                           th:attr="title=${@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? 'Không thể xóa' : null}"
+                           onclick="return !@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? confirm('Bạn có chắc muốn xóa phiếu này không?') : false"
+                           class="btn btn-danger btn-sm">
+                            Xóa
+                        </a>
+
                     </td>
                 </tr>
                 </tbody>

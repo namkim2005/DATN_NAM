@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/admin/hoa-don/detail1")
+@RequestMapping("/admin/hoa-don/detail")
 @RequiredArgsConstructor
 public class HoaDonChiTietController {
 
@@ -89,12 +89,12 @@ public class HoaDonChiTietController {
             RedirectAttributes redirectAttributes
     ) {
         if (ghiChuHoaDon == null) {
-            return "redirect:/admin/hoa-don/detail1";
+            return "redirect:/admin/hoa-don/detail";
         }
         hoaDonService.capNhatGhiChuHoaDon(maHoaDon, ghiChuHoaDon);
         redirectAttributes.addFlashAttribute("success", "Cập nhật ghi chú thành công.");
         redirectAttributes.addAttribute("maHoaDon", maHoaDon);
-        return "redirect:/admin/hoa-don/detail1";
+        return "redirect:/admin/hoa-don/detail";
     }
 
     @PostMapping("/cap-nhat-trang-thai")
@@ -120,7 +120,7 @@ public class HoaDonChiTietController {
 
         redirectAttributes.addAttribute("maHoaDon", maHoaDon);
 
-        return "redirect:/admin/hoa-don/detail1";
+        return "redirect:/admin/hoa-don/detail";
     }
 
     @GetMapping("/{maHoaDon}/pdf")

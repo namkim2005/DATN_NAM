@@ -139,10 +139,10 @@
                             <div class="text-center">
                                 <div>
                                     <img id="profilePreview" 
-                                         th:src="${nhanvien.anh != null and !nhanvien.anh.isEmpty()} ? @{'/uploads/' + ${nhanvien.anh}} : '/images/default-avatar.png'" 
+                                         th:src="${nhanvien.anh != null || !nhanvien.anh.isEmpty()} ? '/uploads/' + ${nhanvien.anh} : '/images/faces-clipart/pic-4.png'"
                                          alt="Profile Picture" 
                                          class="rounded-full w-32 h-32 mx-auto border-4 border-indigo-800 mb-4 transition-transform duration-300 hover:scale-105 ring ring-gray-300"
-                                         onerror="this.src='/images/default-avatar.png'">
+                                         onerror="this.src='/images/faces-clipart/pic-4.png'">
                                     <input type="file" name="anhFile" id="upload_profile" hidden accept="image/*" th:disabled="${readonly}">
                                     <input type="hidden" th:field="*{anh}" />
 

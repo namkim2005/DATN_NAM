@@ -6,6 +6,7 @@ import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
 import com.main.datn_sd31.entity.HoaDon;
 import com.main.datn_sd31.entity.KhachHang;
 import com.main.datn_sd31.entity.LichSuHoaDon;
+import com.main.datn_sd31.entity.PhieuGiamGia;
 import com.main.datn_sd31.repository.HoaDonRepository;
 import com.main.datn_sd31.repository.LichSuHoaDonRepository;
 import com.main.datn_sd31.service.HoaDonService;
@@ -297,6 +298,11 @@ public class HoaDonServiceIpml implements HoaDonService {
         result.setLast(toIndex == total);
 
         return result;
+    }
+
+    @Override
+    public boolean existsByPhieuGiamGia(PhieuGiamGia phieuGiamGia) {
+        return hoaDonRepository.existsByPhieuGiamGia(phieuGiamGia);
     }
 
 

@@ -105,22 +105,22 @@ public class DonHangKhachHangController {
         return "khachhang/lich-su-mua-hang";
     }
 
-    @GetMapping("/detail")
-    public String getHoaDonDetail(
-            @PathVariable("id") Integer id,
-            @RequestParam("ma") String ma,
-            Model model
-    ) {
-        Integer currentId = getKhachHang.getCurrentKhachHang().getId();
-        if (!id.equals(currentId)) {
-            return "admin/error/404";  // hoặc redirect
-        }
-        model.addAttribute("idKhachHang", currentId);
-
-        model.addAttribute("hoaDonDetail", hoaDonService.getHoaDonByMa(ma));
-        model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
-        return "/admin/pages/hoa-don/hoa-don-detail-modal";
-    }
+//    @GetMapping("/detail")
+//    public String getHoaDonDetail(
+//            @PathVariable("id") Integer id,
+//            @RequestParam("ma") String ma,
+//            Model model
+//    ) {
+//        Integer currentId = getKhachHang.getCurrentKhachHang().getId();
+//        if (!id.equals(currentId)) {
+//            return "admin/error/404";  // hoặc redirect
+//        }
+//        model.addAttribute("idKhachHang", currentId);
+//
+//        model.addAttribute("hoaDonDetail", hoaDonService.getHoaDonByMa(ma));
+//        model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
+//        return "/admin/pages/hoa-don/hoa-don-detail-modal";
+//    }
 
 //    @PostMapping("/cap-nhat-trang-thai")
 //    public String capNhatTrangThai(

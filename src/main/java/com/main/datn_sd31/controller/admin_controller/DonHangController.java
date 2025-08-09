@@ -1,5 +1,6 @@
 package com.main.datn_sd31.controller.admin_controller;
 
+import com.main.datn_sd31.Enum.LyDoGiaoKhongThanhCong;
 import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
 import com.main.datn_sd31.dto.Pagination;
 import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
@@ -61,13 +62,14 @@ public class DonHangController {
         model.addAttribute("pageInfo", hoaDonList);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
+        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonService.getAllHoaDon()));
 
         Map<String, List<TrangThaiLichSuHoaDon>> trangThaiHopLeMap = new HashMap<>();
         for (HoaDonDTO hd : hoaDonList.getContent()) {
             trangThaiHopLeMap.put(hd.getMa(), lichSuHoaDonService.getTrangThaiTiepTheoHopLe(hd.getTrangThaiLichSuHoaDon(), hd));
         }
         model.addAttribute("trangThaiHopLeMap", trangThaiHopLeMap);
+        model.addAttribute("lyDoGiaoKhongThanhCongList", LyDoGiaoKhongThanhCong.values());
 
         return "admin/pages/don-hang/don-hang";
     }
@@ -93,15 +95,15 @@ public class DonHangController {
         return "admin/pages/don-hang/don-hang";
     }
 
-    @GetMapping("/detail")
-    public String getHoaDonDetail(
-            @RequestParam("ma") String ma,
-            Model model
-    ) {
-        model.addAttribute("hoaDonDetail", hoaDonService.getHoaDonByMa(ma));
-        model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
-        return "/admin/pages/hoa-don/hoa-don-detail-modal";
-    }
+//    @GetMapping("/detail")
+//    public String getHoaDonDetail(
+//            @RequestParam("ma") String ma,
+//            Model model
+//    ) {
+//        model.addAttribute("hoaDonDetail", hoaDonService.getHoaDonByMa(ma));
+//        model.addAttribute("hdctList", hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(ma));
+//        return "/admin/pages/hoa-don/hoa-don-detail-modal";
+//    }
 
     @PostMapping("/cap-nhat-trang-thai")
     public String capNhatTrangThai(

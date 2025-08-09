@@ -330,7 +330,7 @@
 <!--                        onclick=${!@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? '' : ' return false'}">-->
 <!--                    <i class="bi bi-file-earmark-pdf"></i> In hóa đơn-->
 <!--                </a>-->
-                <a th:href="@{'/admin/hoa-don/detail1/' + ${hoaDon.ma} + '/pdf'}"
+                <a th:href="@{'/admin/hoa-don/detail/' + ${hoaDon.ma} + '/pdf'}"
                    class="btn btn-outline-danger"
                    th:classappend="${@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? '' : 'disabled-custom'}"
                    th:attr="title=${!@hoa_don_utils.choPhepInHoaDon(hoaDon.trangThaiLichSuHoaDon, hoaDon.trangThaiHoaDonInteger) ? 'Không thể in ở trạng thái hiện tại' : null}"
@@ -377,7 +377,7 @@
     <!-- Modal Cập nhật trạng thái -->
     <div class="modal fade" id="modalCapNhatTrangThai" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form th:action="@{/admin/hoa-don/detail1/cap-nhat-trang-thai}" method="post">
+            <form th:action="@{/admin/hoa-don/detail/cap-nhat-trang-thai}" method="post">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalLabel">Cập nhật trạng thái đơn hàng</h5>
@@ -446,7 +446,7 @@
                   th:text="${!hoaDon.ghiChu.isEmpty() ? hoaDon.ghiChu.toString() : 'Không có ghi chú'}">
             </span>
 
-            <form th:action="@{/admin/hoa-don/detail1/cap-nhat-ghi-chu}" method="post"
+            <form th:action="@{/admin/hoa-don/detail/cap-nhat-ghi-chu}" method="post"
                   th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">
                 <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}" />
 
@@ -605,7 +605,7 @@
             const id = input.getAttribute("data-id");
             const soLuong = parseInt(input.value);
 
-            fetch('/admin/hoa-don/detail1/api/cap-nhat-so-luong', {
+            fetch('/admin/hoa-don/detail/api/cap-nhat-so-luong', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

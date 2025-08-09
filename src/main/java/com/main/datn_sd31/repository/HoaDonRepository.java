@@ -2,6 +2,7 @@ package com.main.datn_sd31.repository;
 
 import com.main.datn_sd31.entity.GioHangChiTiet;
 import com.main.datn_sd31.entity.HoaDon;
+import com.main.datn_sd31.entity.PhieuGiamGia;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -109,8 +110,8 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
     @Query("""
     SELECT hd FROM HoaDon hd
-    WHERE (hd.ngayThanhToan >= :startOfDay
-      AND hd.ngayThanhToan < :startOfNextDay)
+    WHERE (hd.ngaySua >= :startOfDay
+      AND hd.ngaySua < :startOfNextDay)
       AND hd.trangThai = :trangThai
     """)
     List<HoaDon> findHoaDonByNgayAndTrangThai(
@@ -123,4 +124,6 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     @Modifying
     @Query("UPDATE HoaDon h SET h.trangThai = :trangThai WHERE h.ma = :maHoaDon")
     void capNhatTrangThaiHoaDon(@Param("trangThai") int trangThai, @Param("maHoaDon") String maHoaDon);
+
+    boolean existsByPhieuGiamGia(PhieuGiamGia phieuGiamGia);
 }

@@ -151,13 +151,13 @@
 
             <div class="mb-3">
                 <label>Tên</label>
-                <input type="text" class="form-control" th:field="*{ten}" />
+                <input type="text" class="form-control" th:field="*{ten}" maxlength="100" />
                 <div class="text-danger" th:errors="*{ten}"></div>
             </div>
 
             <div class="mb-3">
                 <label>Mã</label>
-                <input type="text" class="form-control" th:field="*{ma}" />
+                <input type="text" class="form-control" th:field="*{ma}" maxlength="50"/>
                 <div class="text-danger" th:errors="*{ma}"></div>
             </div>
 
@@ -176,6 +176,30 @@
             </div>
 
             <div class="mb-3">
+                <label>Mức giảm</label>
+                <input type="number" id="mucDo" class="form-control" th:field="*{mucDo}" oninput="limitNumberLength(this, 18)" />
+                <div class="text-danger" th:errors="*{mucDo}"></div>
+            </div>
+
+            <div class="mb-3" id="divGiamToiDa">
+                <label>Giảm tối đa</label>
+                <input type="number" id="giamToiDa" class="form-control" th:field="*{giamToiDa}" oninput="limitNumberLength(this, 18)"/>
+                <div class="text-danger" th:errors="*{giamToiDa}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label>Điều kiện</label>
+                <input type="number" class="form-control" th:field="*{dieuKien}" oninput="limitNumberLength(this, 18)"/>
+                <div class="text-danger" th:errors="*{dieuKien}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label>Số lượng</label>
+                <input type="number" class="form-control" th:field="*{soLuongTon}" oninput="limitNumberLength(this, 10)"/>
+                <div class="text-danger" th:errors="*{soLuongTon}"></div>
+            </div>
+
+            <div class="mb-3">
                 <label>Ngày bắt đầu</label>
                 <input type="date" class="form-control" th:field="*{ngayBatDau}" />
                 <div class="text-danger" th:errors="*{ngayBatDau}"></div>
@@ -185,30 +209,6 @@
                 <label>Ngày kết thúc</label>
                 <input type="date" class="form-control" th:field="*{ngayKetThuc}" />
                 <div class="text-danger" th:errors="*{ngayKetThuc}"></div>
-            </div>
-
-            <div class="mb-3">
-                <label>Mức giảm</label>
-                <input type="number" id="mucDo" class="form-control" th:field="*{mucDo}" />
-                <div class="text-danger" th:errors="*{mucDo}"></div>
-            </div>
-
-            <div class="mb-3" id="divGiamToiDa">
-                <label>Giảm tối đa</label>
-                <input type="number" id="giamToiDa" class="form-control" th:field="*{giamToiDa}" />
-                <div class="text-danger" th:errors="*{giamToiDa}"></div>
-            </div>
-
-            <div class="mb-3">
-                <label>Điều kiện</label>
-                <input type="number" class="form-control" th:field="*{dieuKien}" />
-                <div class="text-danger" th:errors="*{dieuKien}"></div>
-            </div>
-
-            <div class="mb-3">
-                <label>Số lượng</label>
-                <input type="number" class="form-control" th:field="*{soLuongTon}" />
-                <div class="text-danger" th:errors="*{soLuongTon}"></div>
             </div>
 
             <div class="d-flex gap-2">
@@ -302,6 +302,15 @@
     /*]]>*/
 </script>
 <!--  Thong bao-->
+
+<!--Kiểm soát giá trị input number-->
+<script>
+    function limitNumberLength(el, maxLength) {
+        if (el.value.length > maxLength) {
+            el.value = el.value.slice(0, maxLength);
+        }
+    }
+</script>
 
 </body>
 </html>

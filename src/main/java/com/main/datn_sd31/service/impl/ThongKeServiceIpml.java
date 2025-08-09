@@ -30,9 +30,10 @@ public class ThongKeServiceIpml implements ThongKeService {
 
     private BigDecimal tongTien(List<HoaDon> list) {
         return list.stream()
-                .map(HoaDon::getThanhTien)
+                .map(hd -> hd.getThanhTien().subtract(hd.getPhiVanChuyen()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
 
     private Integer tongDonHang(List<HoaDon> list) {
         return list.size();

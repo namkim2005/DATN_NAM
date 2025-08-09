@@ -87,4 +87,10 @@ public class PhieuGiamGiaServiceImpl implements PhieuGiamGiaService {
 
         return BigDecimal.ZERO;
     }
+
+    @Override
+    public List<PhieuGiamGia> findAllStatusTrue() {
+        List<PhieuGiamGia> entities = repository.findAllStatusTrue();
+        return entities.isEmpty() ? List.of() : entities;
+    }
 }

@@ -232,7 +232,7 @@
              class="product-card relative bg-white rounded-lg shadow hover:shadow-lg p-4 flex flex-col">
 
           <div class="relative">
-            <img th:src="${sp.hinhAnhs[0]?.url}" alt="Ảnh sản phẩm"
+            <img th:src="${'/uploads/' + sp.hinhAnhs[0]?.url}" alt="Ảnh sản phẩm"
                  class="w-full h-56 object-cover rounded-md mb-4"/>
             <div th:if="${phanTramGiamMap[sp.id] != null and phanTramGiamMap[sp.id] > 0}"
                  class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
