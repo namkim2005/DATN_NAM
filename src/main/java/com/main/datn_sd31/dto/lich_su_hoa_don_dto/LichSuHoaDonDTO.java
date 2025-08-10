@@ -23,4 +23,7 @@ public class LichSuHoaDonDTO {
     private Integer nguoiTao;
 
     private String tenNguoiTao;
+
+    private Integer lyDoGiaoKhongThanhCong;
+
 }

@@ -27,7 +27,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
       AND NOT EXISTS (
           SELECT 1 FROM LichSuHoaDon lshd
           WHERE lshd.hoaDon = hd
-            AND lshd.trangThai IN (5, 8, 9, 10)
+            AND lshd.trangThai IN (5, 8, 9)
       )
     ORDER BY hd.ngayTao DESC
     """)
@@ -44,7 +44,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
       AND NOT EXISTS (
           SELECT 1 FROM LichSuHoaDon lshd
           WHERE lshd.hoaDon = hd
-            AND lshd.trangThai IN (5, 8, 9, 10)
+            AND lshd.trangThai IN (5, 8, 9)
       )
       AND hd.khachHang.id = :idKhachHang
     ORDER BY hd.ngayTao DESC
@@ -63,7 +63,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
       AND EXISTS (
           SELECT 1 FROM LichSuHoaDon lshd
           WHERE lshd.hoaDon = hd
-            AND lshd.trangThai IN (5, 8, 9, 10)
+            AND lshd.trangThai IN (5, 8, 9)
       )
     ORDER BY hd.ngayTao DESC
     """)

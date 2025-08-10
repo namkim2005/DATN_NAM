@@ -401,13 +401,19 @@
                             </select>
                         </div>
 
-                        <div class="mb-3" id="lyDoGiaoKhongThanhCongGroup" style="display:none;">
-                            <label for="lyDoGiaoKhongThanhCong" class="form-label">Chọn lý do giao không thành công</label>
-                            <select name="lyDoGiaoKhongThanhCong" id="lyDoGiaoKhongThanhCong" class="form-select">
-                                <option value="">-- Chọn lý do --</option>
+                        <div class="mb-3" id="lyDoGiaoKhongThanhCongGroup"
+                             th:id="'lyDoGiaoKhongThanhCongGroup_' + ${hoaDon.ma}"
+                             style="display:none;">
+                            <label for="lyDoGiaoKhongThanhCong" class="form-label">Chọn lý do giao không thành công <span style="color: red;">*</span></label>
+                            <select name="lyDoGiaoKhongThanhCong"
+                                    id="lyDoGiaoKhongThanhCong"
+                                    class="form-select"
+                                    required>
+                                <option value="" disabled selected>-- Chọn lý do --</option>
                                 <option th:each="lyDo : ${lyDoGiaoKhongThanhCongList}"
-                                        th:value="${lyDo.name()}"
-                                        th:text="${lyDo.moTa}">
+                                        th:value="${lyDo.getValue()}"
+                                        th:text="${lyDo.moTa}"
+                                >
                                 </option>
                             </select>
                         </div>
@@ -645,23 +651,27 @@
     <!--Li do Giao Khong Thanh Cong-->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const selectTrangThai = document.getElementById('trangThaiMoi');
-            const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup');
+            document.querySelectorAll('[id^="trangThaiMoi_"]').forEach(function (select) {
+                const maHoaDon = select.id.split('_')[1];
+                const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup_' + maHoaDon);
+                const lyDoSelect = lyDoGroup.querySelector('select'); // lấy select bên trong group
 
-            function checkTrangThai() {
-                if (selectTrangThai.value === 'GIAO_KHONG_THANH_CONG') {
-                    lyDoGroup.style.display = 'block';
-                } else {
-                    lyDoGroup.style.display = 'none';
-                    // Nếu ẩn thì reset giá trị chọn
-                    document.getElementById('lyDoGiaoKhongThanhCong').value = '';
+                function checkTrangThai() {
+                    if (select.value === '10') { // Giao không thành công
+                        lyDoGroup.style.display = 'block';
+                        lyDoSelect.setAttribute('required', 'required');
+                        lyDoSelect.disabled = false;
+                    } else {
+                        lyDoGroup.style.display = 'none';
+                        lyDoSelect.removeAttribute('required');
+                        lyDoSelect.disabled = true; // để tránh submit
+                        lyDoSelect.value = '';
+                    }
                 }
-            }
 
-            selectTrangThai.addEventListener('change', checkTrangThai);
-
-            // Gọi lần đầu khi load trang để hiện đúng trạng thái ban đầu
-            checkTrangThai();
+                select.addEventListener('change', checkTrangThai);
+                checkTrangThai();
+            });
         });
     </script>
 

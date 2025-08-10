@@ -56,6 +56,8 @@ public class HoaDonDTO {
 
     private String ghiChu;
 
+    private Integer lyDoGiaoKhongThanhCongEnum;
+
     public String getTrangThaiLichSuHoaDonMoTa() {
         return trangThaiLichSuHoaDon != null ? trangThaiLichSuHoaDon.getMoTa() : "Không rõ";
     }

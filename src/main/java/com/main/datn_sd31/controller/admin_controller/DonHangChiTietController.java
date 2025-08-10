@@ -103,13 +103,14 @@ public class DonHangChiTietController {
     public String capNhatTrangThai(
             @RequestParam("maHoaDon") String maHoaDon,
             @RequestParam(value = "trangThaiMoi", required = false) Integer trangThaiMoi,
-            @RequestParam(value = "quayLui", required = false) Boolean quayLui,
+            @RequestParam(value = "lyDoGiaoKhongThanhCong", required = false) Integer lyDoGiaoKhongThanhCong,
             @RequestParam(value = "ghiChu", required = false) String ghiChu,
             RedirectAttributes redirectAttributes
     ) {
         var ketQua = lichSuHoaDonService.xuLyCapNhatTrangThai(
                 maHoaDon,
                 trangThaiMoi,
+                lyDoGiaoKhongThanhCong,
                 ghiChu,
                 getCurrentNhanVien()
         );

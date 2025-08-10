@@ -166,7 +166,7 @@
           <a th:href="@{/admin/don-hang}">Tất cả</a>
         </button>
         <button th:each="status : ${T(com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon).values()}"
-                th:if="${status.value != 5 and status.value != 8 and status.value != 9 and status.value != 10}"
+                th:if="${status.value != 5 and status.value != 8 and status.value != 9}"
                 class="btn btn-outline-primary position-relative">
           <a th:href="@{/admin/don-hang(trang-thai=${status.name()})}" th:text="${status.moTa}"></a>
           <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -254,34 +254,49 @@
                 <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}"/>
 
                 <div class="mb-3" th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'HOAN_THANH'
-                                                                and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
-                                                                and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
+                                          and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
+                                          and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
                   <label class="form-label">Chọn trạng thái mới:</label>
                   <select name="trangThaiMoi" class="form-select"
                           th:id="'trangThaiMoi_' + ${hoaDon.ma}">
                     <option th:each="tt : ${trangThaiHopLeMap[hoaDon.ma]}"
                             th:value="${tt.value}"
-                            th:text="${tt.moTa}">
+                            th:text="${tt.getValue() == 11 ? tt.moTa + ' (Shop chịu phí ship)' :
+                                      (tt.getValue() == 7 ? tt.moTa + ' (Khách chịu phí ship)' :
+                                      tt.moTa)}"
+                            th:selected="${hoaDon.lyDoGiaoKhongThanhCongEnum != null ?
+                                      (#lists.contains({2,4,7}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
+                                        (tt.getValue() == 11) :
+                                        (#lists.contains({1,5,6}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
+                                          (tt.getValue() == 9) :
+                                          (tt.getValue() == 7))
+                                      )
+                                    : (tt.getValue() == 7)}">
                     </option>
                   </select>
                 </div>
 
-                <div class="mb-3" id="lyDoGiaoKhongThanhCongGroup"
+                <div class="mb-3"
                      th:id="'lyDoGiaoKhongThanhCongGroup_' + ${hoaDon.ma}"
-                     style="display:none;">
-                  <label for="lyDoGiaoKhongThanhCong" class="form-label">Chọn lý do giao không thành công <span style="color: red;">*</span></label>
+                     th:attr="data-current=${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"
+                     th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)} ? '' : 'display:none;'">
+                  <label th:for="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}" class="form-label">
+                    Chọn lý do giao không thành công <span th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon) ? 'display: none;' : 'color: red;'}">*</span>
+                  </label>
                   <select name="lyDoGiaoKhongThanhCong"
-                          id="lyDoGiaoKhongThanhCong"
+                          th:id="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}"
                           class="form-select"
-                          required>
-                    <option value="" disabled selected>-- Chọn lý do --</option>
+                          th:disabled="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"
+                          >
+                    <option value="" disabled>-- Chọn lý do --</option>
                     <option th:each="lyDo : ${lyDoGiaoKhongThanhCongList}"
-                            th:value="${lyDo.name()}"
+                            th:value="${lyDo.getValue()}"
                             th:text="${lyDo.moTa}"
-                            >
+                            th:selected="${lyDo.getValue() == hoaDon.lyDoGiaoKhongThanhCongEnum}">
                     </option>
                   </select>
                 </div>
+
 
                 <div class="mb-3">
                   <label class="form-label">Ghi chú</label>
@@ -289,13 +304,6 @@
                             placeholder="Nhập ghi chú..."></textarea>
                 </div>
 
-                <!--                                <div class="form-check">-->
-                <!--                                    <input class="form-check-input" type="checkbox" name="quayLui" value="true"-->
-                <!--                                           th:id="'quayLui_' + ${hoaDon.ma}">-->
-                <!--                                    <label class="form-check-label" th:for="'quayLui_' + ${hoaDon.ma}">-->
-                <!--                                        Quay lại trạng thái trước đó-->
-                <!--                                    </label>-->
-                <!--                                </div>-->
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng
@@ -341,20 +349,31 @@
     </div>
   </div>
 
-  <!--Li do Giao Khong Thanh Cong-->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('[id^="trangThaiMoi_"]').forEach(function (select) {
         const maHoaDon = select.id.split('_')[1];
         const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup_' + maHoaDon);
-        console.log(select.value)
+        const lyDoSelect = document.getElementById('lyDoGiaoKhongThanhCong_' + maHoaDon);
+        const isCurrentGiaoKhongThanhCong = lyDoGroup.dataset.current === 'true';
+
         function checkTrangThai() {
-          console.log(select.value)
-          if (select.value === '10') { // nhớ so sánh string
+          if (select.value === '10') {
+            // Khi chọn trạng thái mới là "Giao không thành công"
             lyDoGroup.style.display = 'block';
+            lyDoSelect.disabled = false;
+            lyDoSelect.setAttribute('required', 'required');
+          } else if (isCurrentGiaoKhongThanhCong) {
+            // Khi trạng thái hiện tại đã là "Giao không thành công"
+            lyDoGroup.style.display = 'block';
+            lyDoSelect.disabled = true;
+            lyDoSelect.removeAttribute('required');
           } else {
+            // Các trường hợp còn lại
             lyDoGroup.style.display = 'none';
-            document.getElementById('lyDoGiaoKhongThanhCong').value = '';
+            lyDoSelect.disabled = true;
+            lyDoSelect.removeAttribute('required');
+            lyDoSelect.value = '';
           }
         }
 

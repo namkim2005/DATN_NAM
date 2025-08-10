@@ -93,6 +93,12 @@ public class HoaDonController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
 
+        Map<String, List<TrangThaiLichSuHoaDon>> trangThaiHopLeMap = new HashMap<>();
+        for (HoaDonDTO hd : hoaDonList.getContent()) {
+            trangThaiHopLeMap.put(hd.getMa(), lichSuHoaDonService.getTrangThaiTiepTheoHopLe(hd.getTrangThaiLichSuHoaDon(), hd));
+        }
+        model.addAttribute("trangThaiHopLeMap", trangThaiHopLeMap);
+
         return "admin/pages/hoa-don/hoa-don";
     }
 
@@ -110,14 +116,14 @@ public class HoaDonController {
     public String capNhatTrangThai(
             @RequestParam("maHoaDon") String maHoaDon,
             @RequestParam(value = "trangThaiMoi", required = false) Integer trangThaiMoi,
-//            @RequestParam(value = "quayLui", required = false) Boolean quayLui,
+            @RequestParam(value = "lyDoGiaoKhongThanhCong", required = false) Integer lyDoGiaoKhongThanhCong,
             @RequestParam(value = "ghiChu", required = false) String ghiChu,
             RedirectAttributes redirectAttributes
     ) {
         var ketQua = lichSuHoaDonService.xuLyCapNhatTrangThai(
                 maHoaDon,
                 trangThaiMoi,
-//                quayLui,
+                lyDoGiaoKhongThanhCong,
                 ghiChu,
                 getNhanVien.getCurrentNhanVien()
         );

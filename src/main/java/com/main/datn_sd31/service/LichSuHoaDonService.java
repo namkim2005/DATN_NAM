@@ -25,13 +25,13 @@ public interface LichSuHoaDonService {
 
     List<LichSuHoaDonDTO> getLichSuHoaDonDTODescByMaHoaDon(String maHoaDon);
 
-    void capNhatTrangThai(String maHoaDon, Integer trangThaiMoi, String ghiChu, NhanVien nhanVien);
+    void capNhatTrangThai(String maHoaDon, Integer trangThaiMoi, String ghiChu, NhanVien nhanVien, Integer lyDoGiaoKhongThanhCong);
 
 
     KetQuaCapNhatTrangThai xuLyCapNhatTrangThai(
             String maHoaDon,
             Integer trangThaiMoi,
-//            Boolean quayLui,
+            Integer lyDoGiaoKhongThanhCong,
             String ghiChu,
             NhanVien nhanVien
     );
