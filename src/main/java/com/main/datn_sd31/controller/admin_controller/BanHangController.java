@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/ban-hang")
@@ -51,10 +52,31 @@ public class BanHangController {
         return carts.computeIfAbsent(cartKey, k -> new ArrayList<>());
     }
 
+    private String findEmptyCartKey(Set<String> existingKeys) {
+        for (int i = 1; i <= 5; i++) {
+            String key = "gio-" + i;
+            if (!existingKeys.contains(key)) {
+                return key;
+            }
+        }
+        return null; // Không còn giỏ trống
+    }
+
     @GetMapping
     public String hienThiSanPham(@RequestParam(value = "idSanPham", required = false) Integer idSanPham,
                                  @RequestParam(value = "cartKey", defaultValue = "gio-1") String cartKey,
                                  Model model, HttpSession session) {
+
+        Map<String, List<HoaDonChiTiet>> carts =
+                (Map<String, List<HoaDonChiTiet>>) session.getAttribute("tatCaGio");
+        if (carts == null) {
+            carts = new HashMap<>();
+            session.setAttribute("tatCaGio", carts);
+        }
+
+        // Tìm cartKey trống
+        String nextCartKey = findEmptyCartKey(carts.keySet());
+        model.addAttribute("nextCartKey", nextCartKey);
 
         // Danh sách sản phẩm
         List<SanPham> dsSanPham = sanphamrepository.findAll();
@@ -77,6 +99,14 @@ public class BanHangController {
         // Tính tổng sau giảm
         BigDecimal tongSauGiam = tongTien.subtract(giamGia).add(phiShip);
 
+        LocalDate today = LocalDate.now();
+        List<PhieuGiamGia> dsPhieuGiamGia = phieugiamgiarepository.findAll().stream()
+                .filter(phieu -> Boolean.TRUE.equals(phieu.getTrangThai())) // trạng thái bật
+                .filter(phieu -> phieu.getSoLuongTon() != null && phieu.getSoLuongTon() > 0) // còn số lượng
+                .filter(phieu -> (phieu.getNgayBatDau() == null || !today.isBefore(phieu.getNgayBatDau()))) // đã bắt đầu
+                .filter(phieu -> (phieu.getNgayKetThuc() == null || !today.isAfter(phieu.getNgayKetThuc()))) // chưa hết hạn
+                .collect(Collectors.toList());
+
         // Đẩy dữ liệu ra model
         model.addAttribute("dsSanPham", dsSanPham);
         model.addAttribute("dsChiTietSanPham", dsChiTiet);
@@ -88,7 +118,7 @@ public class BanHangController {
         model.addAttribute("giamGia", giamGia);
         model.addAttribute("tongTienSauGiam", tongSauGiam);
         model.addAttribute("phiVanChuyen", phiShip);
-        model.addAttribute("dsPhieuGiamGia", phieuGiamGiaService.findAllStatusTrue());
+        model.addAttribute("dsPhieuGiamGia", dsPhieuGiamGia);
         model.addAttribute("maGiamGia", session.getAttribute("maGiamGia"));
         model.addAttribute("giamGia", session.getAttribute("giamGia"));
         return "admin/pages/banhang/banhang";
@@ -98,31 +128,74 @@ public class BanHangController {
     @PostMapping("/ap-dung-ma")
     public String apDungMa(@RequestParam("maGiamGia") String ma,
                            @RequestParam("cartKey") String cartKey,
-                           HttpSession session) {
+                           HttpSession session,
+                           RedirectAttributes redirectAttributes) {
         List<HoaDonChiTiet> gio = getCart(cartKey, session);
+
+        if (gio == null || gio.isEmpty()) {
+            ThongBaoUtils.addError(redirectAttributes, "Giỏ hàng trống, không thể áp mã.");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
+        }
+
         BigDecimal tongTien = gio.stream()
                 .map(i -> i.getChiTietSanPham().getGiaBan().multiply(BigDecimal.valueOf(i.getSoLuong())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         PhieuGiamGia phieu = phieugiamgiarepository.findByMa(ma.trim());
-        BigDecimal tienGiam = BigDecimal.ZERO;
+//        BigDecimal tienGiam = BigDecimal.ZERO;
 
-        if (phieu != null && Boolean.TRUE.equals(phieu.getTrangThai())) {
-            LocalDate today = LocalDate.now();
-            if (phieu.getLoaiPhieuGiamGia() == 2) {
-                tienGiam = phieu.getMucDo(); // giảm cố định
-            } else if (phieu.getLoaiPhieuGiamGia() == 1) {
-                tienGiam = tongTien.multiply(phieu.getMucDo()).divide(BigDecimal.valueOf(100));
-                // Dùng giá trị giamToiDa từ DB nếu có
-                if (phieu.getGiamToiDa() != null && phieu.getGiamToiDa().compareTo(BigDecimal.ZERO) > 0) {
-                    tienGiam = tienGiam.min(phieu.getGiamToiDa());
-                }
-            }
-
+        if (phieu == null) {
+            ThongBaoUtils.addError(redirectAttributes, "Mã giảm giá không tồn tại.");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
 
+        LocalDate today = LocalDate.now();
+
+        // Kiểm tra điều kiện áp dụng
+        if (!Boolean.TRUE.equals(phieu.getTrangThai())) {
+            ThongBaoUtils.addError(redirectAttributes, "Mã giảm giá không khả dụng.");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
+        }
+        if (phieu.getNgayBatDau() != null && today.isBefore(phieu.getNgayBatDau())) {
+            ThongBaoUtils.addError(redirectAttributes, "Mã giảm giá chưa bắt đầu.");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
+        }
+        if (phieu.getNgayKetThuc() != null && today.isAfter(phieu.getNgayKetThuc())) {
+            ThongBaoUtils.addError(redirectAttributes, "Mã giảm giá đã hết hạn.");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
+        }
+        if (phieu.getSoLuongTon() != null && phieu.getSoLuongTon() <= 0) {
+            ThongBaoUtils.addError(redirectAttributes, "Mã giảm giá đã hết lượt sử dụng.");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
+        }
+        if (phieu.getDieuKien() != null && tongTien.compareTo(phieu.getDieuKien()) < 0) {
+            ThongBaoUtils.addError(redirectAttributes, "Đơn hàng chưa đạt giá trị tối thiểu để áp mã.");
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
+        }
+
+        // Tính mức giảm
+        BigDecimal tienGiam = BigDecimal.ZERO;
+        if (phieu.getLoaiPhieuGiamGia() == 2) { // giảm cố định
+            tienGiam = phieu.getMucDo();
+        } else if (phieu.getLoaiPhieuGiamGia() == 1) { // giảm %
+            tienGiam = tongTien.multiply(phieu.getMucDo()).divide(BigDecimal.valueOf(100));
+            if (phieu.getGiamToiDa() != null && phieu.getGiamToiDa().compareTo(BigDecimal.ZERO) > 0) {
+                tienGiam = tienGiam.min(phieu.getGiamToiDa());
+            }
+        }
+
+        // Lưu vào session
         session.setAttribute("giamGia", tienGiam);
         session.setAttribute("maGiamGia", ma.trim());
+
+
+        // Trừ số lượng mã giảm giá
+        if (phieu.getSoLuongTon() != null) {
+            phieu.setSoLuongTon(phieu.getSoLuongTon() - 1);
+            phieugiamgiarepository.save(phieu);
+        }
+
+        ThongBaoUtils.addSuccess(redirectAttributes, "Áp dụng mã giảm giá thành công!");
         return "redirect:/admin/ban-hang?cartKey=" + cartKey;
     }
 
@@ -159,7 +232,7 @@ public class BanHangController {
     @GetMapping("/tim-kiem-san-pham")
     @ResponseBody
     public List<Map<String, Object>> timKiemSanPham(@RequestParam("keyword") String keyword) {
-        List<ChiTietSanPham> danhSach = chiTietSanPhamRepository.findBySanPham_TenContainingIgnoreCase(keyword);
+        List<ChiTietSanPham> danhSach = chiTietSanPhamRepository.searchByKeywordSplit( keyword);
 
         List<Map<String, Object>> ketQua = new ArrayList<>();
 
@@ -180,6 +253,7 @@ public class BanHangController {
             map.put("mauSac", ctsp.getMauSac().getTen());
             map.put("kichThuoc", ctsp.getSize().getTen());
             map.put("soLuong", ctsp.getSoLuong());
+            map.put("giaBan", ctsp.getGiaBan());
 
             ketQua.add(map);
         }
@@ -356,7 +430,7 @@ public class BanHangController {
 
         List<HoaDonChiTiet> gio = getCart(cartKey, session);
         if (gio == null || gio.isEmpty()) {
-            redirect.addFlashAttribute("error", "Giỏ hàng trống!");
+            ThongBaoUtils.addError(redirect, "Giỏ hàng trống!");
             return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
 
@@ -376,7 +450,7 @@ public class BanHangController {
         hd.setKhachHang(khachHangRepository.findById(1).orElse(null));
         NhanVien nv = getNhanVien.getCurrentNhanVien();
         if (nv == null) {
-            redirect.addFlashAttribute("error", "Không tìm thấy nhân viên đang đăng nhập.");
+            ThongBaoUtils.addError(redirect, "Không tìm thấy nhân viên đang đăng nhập.");
             return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
         hd.setNhanVien(nv);
@@ -488,6 +562,19 @@ public class BanHangController {
             lichSu3.setTrangThai(5);
 
             lichSuHoaDonRepository.save(lichSu3);
+        }
+
+        if (maGiamGia != null) {
+            PhieuGiamGia phieu = phieugiamgiarepository.findByMa(maGiamGia);
+            if (phieu != null) {
+                hd.setPhieuGiamGia(phieu);
+
+                // ✅ Trừ số lượng phiếu
+                if (phieu.getSoLuongTon() != null && phieu.getSoLuongTon() > 0) {
+                    phieu.setSoLuongTon(phieu.getSoLuongTon() - 1);
+                    phieugiamgiarepository.save(phieu);
+                }
+            }
         }
 
         // ✅ Dọn session
