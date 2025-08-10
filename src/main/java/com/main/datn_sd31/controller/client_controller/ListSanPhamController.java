@@ -1,6 +1,7 @@
 package com.main.datn_sd31.controller.client_controller;
 
 import com.main.datn_sd31.entity.*;
+import com.main.datn_sd31.entity.DotGiamGia;
 import com.main.datn_sd31.repository.*;
 import com.main.datn_sd31.service.impl.DanhGiaService;
 import com.main.datn_sd31.service.impl.Sanphamservice;
@@ -31,7 +32,7 @@ public class ListSanPhamController {
     private final Kieudangrepository kieuDangRepo;
     private final Sizerepository sizerepository;
     private final Mausacrepository mausacrepository;
-    private final Xuatxurepository xuatxurepository;
+
     private final Chitietsanphamrepository chitietsanphamRepo;
     private final Hinhanhrepository hinhanhrepository;
     private final Loaithurepository loaithurepository;
@@ -45,11 +46,13 @@ public class ListSanPhamController {
     public String hienThiDanhSachSanPham(
             @RequestParam(value="q", required=false) String q,
             @RequestParam(value="danhMucId", required=false) Integer danhMucId,
-            @RequestParam(value="priceRange", required=false) String priceRange,
-            @RequestParam(value="loaiThuId", required=false) Integer loaiThuId,
-            @RequestParam(value="chatLieuId", required=false) Integer chatLieuId,
-            @RequestParam(value="kieuDangId", required=false) Integer kieuDangId,
-            @RequestParam(value="xuatXuId", required=false) Integer xuatXuId,
+                    @RequestParam(value="priceRange", required=false) Integer priceRange,
+        @RequestParam(value="loaiThuId", required=false) Integer loaiThuId,
+        @RequestParam(value="sizeId", required=false) Integer sizeId,
+        @RequestParam(value="mauSacId", required=false) Integer mauSacId,
+        @RequestParam(value="kieuDangId", required=false) Integer kieuDangId,
+        @RequestParam(value="thuongHieuId", required=false) Integer thuongHieuId,
+        @RequestParam(value="xuatXuId", required=false) Integer xuatXuId,
 
             Model model
     ) {
@@ -57,104 +60,77 @@ public class ListSanPhamController {
             Integer currentId = getKhachHang.getCurrentKhachHang().getId();
             model.addAttribute("idKhachHang", currentId);
         }
-        // gọi đúng method mới
-        List<SanPham> danhSachSanPham = sanPhamService.search(q, danhMucId, loaiThuId, chatLieuId, kieuDangId, xuatXuId, priceRange);
+        // Sử dụng method search mới
+        List<SanPham> danhSachSanPham = sanPhamService.searchAdvanced(
+            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange
+        );
         model.addAttribute("danhSachSanPham", danhSachSanPham);
 
         // panel filter data
         model.addAttribute("danhMucs", danhMucRepo.findAll());
         model.addAttribute("loaiThus", loaithurepository.findAll());      // <-- thêm dòng này
-        model.addAttribute("chatLieus", chatLieuRepo.findAll());      // <-- thêm dòng này
+        model.addAttribute("sizes", sizerepository.findAll());
+        model.addAttribute("mauSacs", mausacrepository.findAll());
+        model.addAttribute("thuongHieus", thuongHieuRepo.findAll());
         model.addAttribute("kieuDangs", kieuDangRepo.findAll());      // <-- thêm dòng này
         model.addAttribute("xuatXus", xuatXuRepo.findAll());      // <-- thêm dòng này
 
-        model.addAttribute("priceOptions", List.of(
-                Map.of("value","0-100000","label","Dưới 100k"),
-                Map.of("value","100000-300000","label","100k – 300k"),
-                Map.of("value","300000-500000","label","300k – 500k"),
-                Map.of("value","500000","label","Trên 500k")
-        ));
+
+
+        // Tính toán giá cho mỗi sản phẩm
+        List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
+        
+        // Map giá gốc và giá bán cho mỗi sản phẩm
+        Map<Integer, BigDecimal> giaGocMap = chiTiets.stream()
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.maxBy(Comparator.comparing(ChiTietSanPham::getGiaGoc)),
+                    opt -> opt.map(ChiTietSanPham::getGiaGoc).orElse(BigDecimal.ZERO)
+                )
+            ));
+
+        Map<Integer, BigDecimal> giaBanMap = chiTiets.stream()
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.minBy(Comparator.comparing(ChiTietSanPham::getGiaBan)),
+                    opt -> opt.map(ChiTietSanPham::getGiaBan).orElse(BigDecimal.ZERO)
+                )
+            ));
+
+        // Set thuộc tính dotGiamGia cho mỗi sản phẩm
+        Map<Integer, DotGiamGia> dotGiamGiaMap = chiTiets.stream()
+            .filter(ct -> ct.getDotGiamGia() != null)
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.maxBy(Comparator.comparing(
+                        ct -> ct.getDotGiamGia().getGiaTriDotGiamGia())),
+                    opt -> opt.map(ChiTietSanPham::getDotGiamGia).orElse(null)
+                )
+            ));
+
+        // Set dotGiamGia cho mỗi sản phẩm
+        danhSachSanPham.forEach(sanPham -> {
+            sanPham.setDotGiamGia(dotGiamGiaMap.get(sanPham.getId()));
+        });
+
+        model.addAttribute("giaGocMap", giaGocMap);
+        model.addAttribute("giaBanMap", giaBanMap);
+
+        // Thêm các tham số filter vào model để giữ trạng thái
+        model.addAttribute("q", q);
         model.addAttribute("danhMucId", danhMucId);
         model.addAttribute("priceRange", priceRange);
-        model.addAttribute("q", q);
         model.addAttribute("loaiThuId", loaiThuId);
-        model.addAttribute("chatLieuId", chatLieuId);
+        model.addAttribute("sizeId", sizeId);
+        model.addAttribute("mauSacId", mauSacId);
         model.addAttribute("kieuDangId", kieuDangId);
+        model.addAttribute("thuongHieuId", thuongHieuId);
         model.addAttribute("xuatXuId", xuatXuId);
 
-        // 2. Lấy toàn bộ chi tiết để build các map giá / khuyến mãi…
-        List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
-
-        // 2a. Giá gốc cao nhất mỗi sản phẩm
-        Map<Integer, BigDecimal> giaGocMaxMap = chiTiets.stream()
-                .collect(Collectors.groupingBy(
-                        ct -> ct.getSanPham().getId(),
-                        Collectors.collectingAndThen(
-                                Collectors.maxBy(Comparator.comparing(ChiTietSanPham::getGiaGoc)),
-                                opt -> opt.map(ChiTietSanPham::getGiaGoc).orElse(BigDecimal.ZERO)
-                        )
-                ));
-
-        // 2b. Giá bán thấp nhất (khuyến mãi) mỗi sản phẩm
-        Map<Integer, BigDecimal> giaBanMinMap = chiTiets.stream()
-                .collect(Collectors.groupingBy(
-                        ct -> ct.getSanPham().getId(),
-                        Collectors.collectingAndThen(
-                                Collectors.minBy(Comparator.comparing(ChiTietSanPham::getGiaBan)),
-                                opt -> opt.map(ChiTietSanPham::getGiaBan).orElse(BigDecimal.ZERO)
-                        )
-                ));
-
-        // 2c. Phần trăm giảm cao nhất mỗi sản phẩm (nếu có)
-        Map<Integer, Integer> phanTramGiamMap = chiTiets.stream()
-                .filter(ct -> ct.getDotGiamGia() != null)
-                .collect(Collectors.groupingBy(
-                        ct -> ct.getSanPham().getId(),
-                        Collectors.collectingAndThen(
-                                Collectors.maxBy(Comparator.comparing(
-                                        ct -> ct.getDotGiamGia().getGiaTriDotGiamGia()
-                                )),
-                                opt -> opt.map(ct -> ct.getDotGiamGia().getGiaTriDotGiamGia().intValue())
-                                        .orElse(0)
-                        )
-                ));
-
-        // 2d. Giá gốc thấp nhất mỗi sản phẩm
-        Map<Integer, BigDecimal> giaGocMinMap = chiTiets.stream()
-                .collect(Collectors.groupingBy(
-                        ct -> ct.getSanPham().getId(),
-                        Collectors.collectingAndThen(
-                                Collectors.minBy(Comparator.comparing(ChiTietSanPham::getGiaGoc)),
-                                opt -> opt.map(ChiTietSanPham::getGiaGoc).orElse(BigDecimal.ZERO)
-                        )
-                ));
-
-        // 2e. Giá bán cao nhất mỗi sản phẩm
-        Map<Integer, BigDecimal> giaBanMaxMap = chiTiets.stream()
-                .collect(Collectors.groupingBy(
-                        ct -> ct.getSanPham().getId(),
-                        Collectors.collectingAndThen(
-                                Collectors.maxBy(Comparator.comparing(ChiTietSanPham::getGiaBan)),
-                                opt -> opt.map(ChiTietSanPham::getGiaBan).orElse(BigDecimal.ZERO)
-                        )
-                ));
-
-        // 3. Đẩy lên model
-        model.addAttribute("danhSachSanPham", danhSachSanPham);
-        model.addAttribute("q", q);
-
-        model.addAttribute("giaGocMaxMap", giaGocMaxMap);
-        model.addAttribute("giaBanMinMap", giaBanMinMap);
-        model.addAttribute("phanTramGiamMap", phanTramGiamMap);
-        model.addAttribute("giaGocMinMap", giaGocMinMap);
-        model.addAttribute("giaBanMaxMap", giaBanMaxMap);
-        // Nếu còn map nào khác, cứ thêm tương tự:
-        // model.addAttribute("giaKhuyenMaiMap", ...);
-        if (getKhachHang.getCurrentKhachHang() != null) {
-            model.addAttribute("khachHangLogin", getKhachHang.getCurrentKhachHang());
-        }
-
-        return "khachhang/LISTSANPHAM";
+        return "client/pages/product";
     }
 
 
@@ -284,6 +260,27 @@ public class ListSanPhamController {
 
         // Gọi service tìm theo tên chứa q
         List<SanPham> list = sanPhamRepository.search(q.trim());
+        
+        // Tính toán giá và dotGiamGia cho mỗi sản phẩm
+        List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
+        
+        // Set thuộc tính dotGiamGia cho mỗi sản phẩm
+        Map<Integer, DotGiamGia> dotGiamGiaMap = chiTiets.stream()
+            .filter(ct -> ct.getDotGiamGia() != null)
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.maxBy(Comparator.comparing(
+                        ct -> ct.getDotGiamGia().getGiaTriDotGiamGia())),
+                    opt -> opt.map(ChiTietSanPham::getDotGiamGia).orElse(null)
+                )
+            ));
+
+        // Set dotGiamGia cho mỗi sản phẩm
+        list.forEach(sanPham -> {
+            sanPham.setDotGiamGia(dotGiamGiaMap.get(sanPham.getId()));
+        });
+        
         model.addAttribute("danhSachSanPham", list);
 
         // Để form binding (nếu template có dùng th:object)
@@ -294,5 +291,72 @@ public class ListSanPhamController {
         model.addAttribute("isSearch", true);
 
         return "khachhang/LISTSANPHAM";
+    }
+
+
+
+    @GetMapping("/danh-sach/filter")
+    public String filterProducts(
+            @RequestParam(value="q", required=false) String q,
+            @RequestParam(value="danhMucId", required=false) Integer danhMucId,
+            @RequestParam(value="priceRange", required=false) Integer priceRange,
+            @RequestParam(value="loaiThuId", required=false) Integer loaiThuId,
+            @RequestParam(value="sizeId", required=false) Integer sizeId,
+            @RequestParam(value="mauSacId", required=false) Integer mauSacId,
+            @RequestParam(value="kieuDangId", required=false) Integer kieuDangId,
+            @RequestParam(value="thuongHieuId", required=false) Integer thuongHieuId,
+            @RequestParam(value="xuatXuId", required=false) Integer xuatXuId,
+            Model model
+    ) {
+        // Sử dụng method search mới
+        List<SanPham> danhSachSanPham = sanPhamService.searchAdvanced(
+            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange
+        );
+
+        model.addAttribute("danhSachSanPham", danhSachSanPham);
+
+        // Tính toán giá cho mỗi sản phẩm
+        List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
+        
+        // Map giá gốc và giá bán cho mỗi sản phẩm
+        Map<Integer, BigDecimal> giaGocMap = chiTiets.stream()
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.maxBy(Comparator.comparing(ChiTietSanPham::getGiaGoc)),
+                    opt -> opt.map(ChiTietSanPham::getGiaGoc).orElse(BigDecimal.ZERO)
+                )
+            ));
+
+        Map<Integer, BigDecimal> giaBanMap = chiTiets.stream()
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.minBy(Comparator.comparing(ChiTietSanPham::getGiaBan)),
+                    opt -> opt.map(ChiTietSanPham::getGiaBan).orElse(BigDecimal.ZERO)
+                )
+            ));
+
+        // Set thuộc tính dotGiamGia cho mỗi sản phẩm
+        Map<Integer, DotGiamGia> dotGiamGiaMap = chiTiets.stream()
+            .filter(ct -> ct.getDotGiamGia() != null)
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.maxBy(Comparator.comparing(
+                        ct -> ct.getDotGiamGia().getGiaTriDotGiamGia())),
+                    opt -> opt.map(ChiTietSanPham::getDotGiamGia).orElse(null)
+                )
+            ));
+
+        // Set dotGiamGia cho mỗi sản phẩm
+        danhSachSanPham.forEach(sanPham -> {
+            sanPham.setDotGiamGia(dotGiamGiaMap.get(sanPham.getId()));
+        });
+
+        model.addAttribute("giaGocMap", giaGocMap);
+        model.addAttribute("giaBanMap", giaBanMap);
+
+        return "client/pages/product :: #productGrid";
     }
 }

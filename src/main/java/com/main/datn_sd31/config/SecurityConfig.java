@@ -90,12 +90,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/login",
+                                "/", "/home", "/login",  // Thêm /home vào permitAll
                                 "/uploads/**",
                                 "/css/**", "/js/**", "/images/**",
                                 "/vendors/**", "/webjars/**",
                                 "/static/**", "/favicon.ico",
                                 "/san-pham/**",
+                                "/san-pham/danh-sach/**",
                                 "/client-static/**", // Cho phép truy cập công khai thư mục client-static
                                 "/bootstrap-5.3.7-dist/**",
                                 "/uploads/**" // Added this line

@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @Service
 public class Sanphamservice {
@@ -96,5 +98,57 @@ public class Sanphamservice {
         hinhanhrepository.findBydeleteid(id);
         chitietsanphamrepository.findBydeleteid(id);
         sanPhamRepo.deleteById(id);
+    }
+
+    public List<SanPham> searchAdvanced(
+            String q,
+            Integer danhMucId,
+            Integer loaiThuId,
+            Integer sizeId,
+            Integer mauSacId,
+            Integer kieuDangId,
+            Integer thuongHieuId,
+            Integer xuatXuId,
+            Integer priceRange
+    ) {
+        // normalize keyword
+        String keyword = (q == null ? "" : q.trim());
+
+        // parse priceRange
+        BigDecimal min = null, max = null;
+        if (priceRange != null) {
+            min = BigDecimal.ZERO;
+            max = new BigDecimal(priceRange);
+        }
+
+        // if no filter at all, trả về all
+        if (keyword.isEmpty() && danhMucId == null && loaiThuId == null && 
+            sizeId == null && mauSacId == null && kieuDangId == null && 
+            thuongHieuId == null && xuatXuId == null && min == null) {
+            return sanPhamRepo.findAll();
+        }
+
+        // Sử dụng method filter cơ bản trước
+        List<SanPham> basicFiltered = sanPhamRepo.filter(
+            keyword, danhMucId, loaiThuId, null, kieuDangId, xuatXuId, min, max
+        );
+
+        // Lọc thêm theo thương hiệu nếu có
+        if (thuongHieuId != null) {
+            basicFiltered = basicFiltered.stream()
+                .filter(sp -> sp.getThuongHieu() != null && sp.getThuongHieu().getId().equals(thuongHieuId))
+                .collect(Collectors.toList());
+        }
+
+        // Lọc theo size và màu sắc nếu có
+        if (sizeId != null || mauSacId != null) {
+            basicFiltered = basicFiltered.stream()
+                .filter(sp -> sp.getChiTietSanPhams().stream()
+                    .anyMatch(ct -> (sizeId == null || ct.getSize().getId().equals(sizeId)) &&
+                                   (mauSacId == null || ct.getMauSac().getId().equals(mauSacId))))
+                .collect(Collectors.toList());
+        }
+
+        return basicFiltered;
     }
 }

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{client/layout}">
+
+<head>
+    <title>Danh sách sản phẩm - Waggy Pet Shop</title>
+    <meta name="description" content="Khám phá bộ sưu tập phụ kiện thú cưng đa dạng với nhiều lựa chọn về loại thú, kích cỡ, màu sắc và thương hiệu">
+    <link rel="stylesheet" th:href="@{/client-static/product-page.css}">
+    <script th:src="@{/client-static/product-page.js}" defer></script>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Product Container -->
+        <div class="product-container">
+            <div class="container">
+                <!-- Page Header -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a th:href="@{/}" class="text-decoration-none">Trang chủ</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Sản phẩm</li>
+                            </ol>
+                        </nav>
+                        <h1 class="display-6 fw-bold text-center mb-3" style="color: var(--accent-color);">
+                            <iconify-icon icon="mdi:paw" class="me-2"></iconify-icon>
+                            Bộ sưu tập phụ kiện thú cưng
+                        </h1>
+                        <p class="text-center text-muted mb-0">
+                            Khám phá đa dạng sản phẩm chất lượng cao cho thú cưng của bạn
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Filter Sidebar -->
+                    <div class="col-lg-3">
+                        <div class="filter-sidebar">
+                            <h4 class="mb-4 text-center" style="color: var(--accent-color);">
+                                <iconify-icon icon="mdi:filter-variant" class="me-2"></iconify-icon>
+                                Bộ lọc
+                            </h4>
+
+                            <!-- Loại thú -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:paw"></iconify-icon>
+                                    Loại thú
+                                </div>
+                                <div class="custom-select" data-filter="loaiThu">
+                                    <div class="select-trigger" onclick="toggleSelect(this)">
+                                        <span class="selected-text">Chọn loại thú</span>
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="">Tất cả</div>
+                                        <div th:each="loaiThu : ${loaiThus}" 
+                                             class="select-option" 
+                                             th:data-value="${loaiThu.id}"
+                                             th:text="${loaiThu.ten}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Danh mục -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:tag"></iconify-icon>
+                                    Danh mục
+                                </div>
+                                <div class="custom-select" data-filter="danhMuc">
+                                    <div class="select-trigger" onclick="toggleSelect(this)">
+                                        <span class="selected-text">Chọn danh mục</span>
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="">Tất cả</div>
+                                        <div th:each="danhMuc : ${danhMucs}" 
+                                             class="select-option" 
+                                             th:data-value="${danhMuc.id}"
+                                             th:text="${danhMuc.ten}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kích cỡ -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:ruler"></iconify-icon>
+                                    Kích cỡ
+                                </div>
+                                <div class="custom-select" data-filter="size">
+                                    <div class="select-trigger" onclick="toggleSelect(this)">
+                                        <span class="selected-text">Chọn kích cỡ</span>
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="">Tất cả</div>
+                                        <div th:each="size : ${sizes}" 
+                                             class="select-option" 
+                                             th:data-value="${size.id}"
+                                             th:text="${size.ten}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Màu sắc -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:palette"></iconify-icon>
+                                    Màu sắc
+                                </div>
+                                <div class="custom-select" data-filter="mauSac">
+                                    <div class="select-trigger" onclick="toggleSelect(this)">
+                                        <span class="selected-text">Chọn màu sắc</span>
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="">Tất cả</div>
+                                        <div th:each="mauSac : ${mauSacs}" 
+                                             class="select-option" 
+                                             th:data-value="${mauSac.id}"
+                                             th:text="${mauSac.ten}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kiểu dáng -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:shape"></iconify-icon>
+                                    Kiểu dáng
+                                </div>
+                                <div class="custom-select" data-filter="kieuDang">
+                                    <div class="select-trigger" onclick="toggleSelect(this)">
+                                        <span class="selected-text">Chọn kiểu dáng</span>
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="">Tất cả</div>
+                                        <div th:each="kieuDang : ${kieuDangs}" 
+                                             class="select-option" 
+                                             th:data-value="${kieuDang.id}"
+                                             th:text="${kieuDang.ten}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thương hiệu -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:brand"></iconify-icon>
+                                    Thương hiệu
+                                </div>
+                                <div class="custom-select" data-filter="thuongHieu">
+                                    <div class="select-trigger" onclick="toggleSelect(this)">
+                                        <span class="selected-text">Chọn thương hiệu</span>
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="">Tất cả</div>
+                                        <div th:each="thuongHieu : ${thuongHieus}" 
+                                             class="select-option" 
+                                             th:data-value="${thuongHieu.id}"
+                                             th:text="${thuongHieu.ten}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Xuất xứ -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:map-marker"></iconify-icon>
+                                    Xuất xứ
+                                </div>
+                                <div class="custom-select" data-filter="xuatXu">
+                                    <div class="select-trigger" onclick="toggleSelect(this)">
+                                        <span class="selected-text">Chọn xuất xứ</span>
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </div>
+                                    <div class="select-options">
+                                        <div class="select-option" data-value="">Tất cả</div>
+                                        <div th:each="xuatXu : ${xuatXus}" 
+                                             class="select-option" 
+                                             th:data-value="${xuatXu.id}"
+                                             th:text="${xuatXu.ten}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Khoảng giá -->
+                            <div class="filter-section">
+                                <div class="filter-title">
+                                    <iconify-icon icon="mdi:currency-usd"></iconify-icon>
+                                    Khoảng giá
+                                </div>
+                                <div class="price-range-container">
+                                    <input type="range" 
+                                           class="price-range-slider" 
+                                           id="priceRange" 
+                                           min="0" 
+                                           max="10000000" 
+                                           step="100000" 
+                                           value="10000000"
+                                           oninput="updatePriceDisplay(this.value)">
+                                    <div class="price-display">
+                                        <span>0đ</span>
+                                        <span id="maxPrice">10.000.000đ</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Clear Filters Button -->
+                            <button class="btn btn-outline-primary w-100 mt-3" onclick="clearAllFilters()">
+                                <iconify-icon icon="mdi:refresh" class="me-2"></iconify-icon>
+                                Xóa tất cả bộ lọc
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product Content -->
+                    <div class="col-lg-9">
+                        <!-- Active Filters Display -->
+                        <div class="active-filters" id="activeFilters" style="display: none;">
+                            <h5 class="mb-3" style="color: var(--accent-color);">
+                                <iconify-icon icon="mdi:filter-check" class="me-2"></iconify-icon>
+                                Bộ lọc đang áp dụng:
+                            </h5>
+                            <div class="filter-tags" id="filterTags">
+                                <!-- Filter tags will be dynamically added here -->
+                            </div>
+                        </div>
+
+                        <!-- Loading Spinner -->
+                        <div class="loading-spinner" id="loadingSpinner">
+                            <div class="spinner"></div>
+                        </div>
+
+                        <!-- Product Grid -->
+                        <div class="product-grid" id="productGrid" th:fragment="productGrid">
+                            <div th:each="sanPham : ${danhSachSanPham}" class="product-card">
+                                <div class="product-image">
+                                    <img th:src="${sanPham.hinhAnhs != null and !sanPham.hinhAnhs.empty} ? ${sanPham.hinhAnhs[0].url} : '/images/default-product.jpg'" 
+                                         th:alt="${sanPham.ten}">
+                                    <div class="product-badge" th:if="${sanPham.dotGiamGia != null}">
+                                        -<span th:text="${sanPham.dotGiamGia.giaTriDotGiamGia}"></span>%
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <div class="product-category" th:text="${sanPham.danhMuc.ten}"></div>
+                                    <h3 class="product-title" th:text="${sanPham.ten}"></h3>
+                                    <div class="product-price">
+                                        <span class="current-price" th:text="${#numbers.formatDecimal(giaBanMap.get(sanPham.id), 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+                                        <span class="original-price" th:if="${giaGocMap.get(sanPham.id) != null and giaGocMap.get(sanPham.id) > giaBanMap.get(sanPham.id)}" 
+                                              th:text="${#numbers.formatDecimal(giaGocMap.get(sanPham.id), 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+                                    </div>
+                                    <div class="product-actions">
+                                        <button class="btn-add-cart" th:onclick="'addToCart(' + ${sanPham.id} + ')'">
+                                            <iconify-icon icon="mdi:cart-plus"></iconify-icon>
+                                            Thêm vào giỏ
+                                        </button>
+                                        <button class="btn-wishlist" th:onclick="'addToWishlist(' + ${sanPham.id} + ')'">
+                                            <iconify-icon icon="mdi:heart-outline"></iconify-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Products Message -->
+                        <div class="text-center py-5" id="noProducts" style="display: none;">
+                            <iconify-icon icon="mdi:package-variant-closed" style="font-size: 4rem; color: #6c757d;"></iconify-icon>
+                            <h4 class="mt-3 text-muted">Không tìm thấy sản phẩm</h4>
+                            <p class="text-muted">Hãy thử điều chỉnh bộ lọc của bạn</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html> 
