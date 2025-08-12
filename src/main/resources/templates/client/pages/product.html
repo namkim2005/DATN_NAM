@@ -4,274 +4,366 @@
       layout:decorate="~{client/layout}">
 
 <head>
-    <title>Danh sách sản phẩm - Waggy Pet Shop</title>
+    <title>Sản phẩm</title>
     <meta name="description" content="Khám phá bộ sưu tập phụ kiện thú cưng đa dạng với nhiều lựa chọn về loại thú, kích cỡ, màu sắc và thương hiệu">
-    <link rel="stylesheet" th:href="@{/client-static/product-page.css}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            prefix: 'tw-',
+            important: true,
+            theme: {
+                extend: {
+                    width: {
+                        '6': '1.5rem',
+                        '6.5': '1.625rem', 
+                        '8': '2rem',
+                        '10': '2.5rem',
+                        '15': '3.75rem', // 60px
+                    },
+                    minWidth: {
+                        '15': '3.75rem',
+                    },
+                    maxWidth: {
+                        '16': '4rem',
+                        '20': '5rem',
+                    },
+                    height: {
+                        '6': '1.5rem',
+                        '6.5': '1.625rem', // 26px
+                        '8': '2rem',
+                        '10': '2.5rem',
+                    },
+                    colors: {
+                        'primary': '#3b82f6',
+                        'primary-500': '#3b82f6',
+                        'light': '#ffffff',
+                        'neutral': {
+                            '200': '#e5e5e5',
+                            '300': '#d4d4d4',
+                            '400': '#a3a3a3',
+                            '500': '#737373',
+                            '900': '#171717',
+                        }
+                    },
+                    leading: {
+                        '3': '0.75rem',
+                        '4': '1rem',
+                        '4.5': '1.125rem',
+                    }
+                }
+            }
+        }
+    </script>
     <script th:src="@{/client-static/product-page.js}" defer></script>
+    <style>
+        /* Accordion animations */
+        .accordion-content {
+            transition: max-height 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-icon.rotated {
+            transform: rotate(-180deg);
+        }
+        
+        /* Better accordion styling */
+        .accordion-trigger:hover .accordion-icon {
+            color: #3b82f6;
+        }
+        
+        .accordion-content {
+            will-change: max-height;
+        }
+    </style>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <!-- Product Container -->
-        <div class="product-container">
-            <div class="container">
-                <!-- Page Header -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a th:href="@{/}" class="text-decoration-none">Trang chủ</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">Sản phẩm</li>
-                            </ol>
-                        </nav>
-                        <h1 class="display-6 fw-bold text-center mb-3" style="color: var(--accent-color);">
-                            <iconify-icon icon="mdi:paw" class="me-2"></iconify-icon>
-                            Bộ sưu tập phụ kiện thú cưng
-                        </h1>
-                        <p class="text-center text-muted mb-0">
-                            Khám phá đa dạng sản phẩm chất lượng cao cho thú cưng của bạn
-                        </p>
-                    </div>
-                </div>
-
-                <div class="row">
+        <div class="tw-min-h-screen tw-bg-gray-50">
+            <div class="tw-container tw-mx-auto tw-px-4 tw-py-6">
+                <div class="tw-flex tw-gap-6">
                     <!-- Filter Sidebar -->
-                    <div class="col-lg-3">
-                        <div class="filter-sidebar">
-                            <h4 class="mb-4 text-center" style="color: var(--accent-color);">
-                                <iconify-icon icon="mdi:filter-variant" class="me-2"></iconify-icon>
-                                Bộ lọc
-                            </h4>
+                    <div class="tw-w-80 tw-flex-shrink-0">
+                        <div class="tw-sticky tw-top-28 tw-overflow-y-auto lg:tw-max-h-[calc(100vh-100px)] lg:tw-w-[294px] lg:tw-pr-5">
+                            <!-- Header -->
+                            <div class="tw-flex tw-items-center tw-justify-between">
+                                <h2 class="tw-text-base tw-font-medium tw-leading-6 tw-text-neutral-900">Bộ lọc</h2>
+                                <p class="tw-text-base tw-leading-4 tw-text-neutral-500" id="filterResultCount">8 kết quả</p>
+                            </div>
+                            <div class="tw-relative tw-h-[1px] tw-w-full tw-bg-neutral-900/20 tw-my-3 tw-mb-0"></div>
+
+                            <div class="tw-relative tw-flex tw-flex-col tw-gap-6 tw-overflow-y-auto tw-overflow-x-hidden tw-pb-36 tw-pr-2 max-lg:tw-max-h-[calc(100vh-50px)]">
+                                <div class="tw-flex tw-w-full tw-flex-col tw-gap-4 lg:tw-gap-2">
+
+                                <!-- Kích cỡ -->
+                                <div class="tw-border-b tw-border-b-neutral-200 tw-pb-4 lg:tw-border-0 lg:tw-p-0 lg:tw-pb-0">
+                                    <h3 class="tw-flex">
+                                        <button type="button" class="tw-group tw-flex tw-flex-1 tw-items-center tw-justify-between tw-transition-all tw-hover:underline tw-py-1.5 tw-text-sm tw-font-medium tw-leading-4 tw-text-neutral-400 lg:tw-py-3" 
+                                                onclick="toggleAccordion('size-accordion')">
+                                            Kích cỡ
+                                            <svg class="tw-h-4 tw-w-4 tw-shrink-0 accordion-icon" id="size-accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                            </svg>
+                                        </button>
+                                    </h3>
+                                    <div id="size-accordion" class="accordion-content tw-text-sm">
+                                        <div class="tw-py-1.5 lg:tw-pt-3">
+                                            <ul class="tw-flex tw-flex-wrap tw-gap-2">
+                                                <li>
+                                                    <button class="tw-flex tw-w-14 tw-cursor-pointer tw-items-center tw-justify-center tw-rounded-md tw-border tw-bg-light tw-px-3 tw-py-2 tw-text-sm tw-uppercase tw-leading-4 tw-transition-colors tw-ease-linear tw-border-neutral-300 tw-text-neutral-500 lg:tw-hover:border-primary lg:tw-hover:bg-primary lg:tw-hover:text-light" 
+                                                            data-size-id="">Tất cả</button>
+                                                </li>
+                                                <li th:each="size : ${sizes}">
+                                                    <button class="tw-flex tw-w-14 tw-cursor-pointer tw-items-center tw-justify-center tw-rounded-md tw-border tw-bg-light tw-px-3 tw-py-2 tw-text-sm tw-uppercase tw-leading-4 tw-transition-colors tw-ease-linear tw-border-neutral-300 tw-text-neutral-500 lg:tw-hover:border-primary lg:tw-hover:bg-primary lg:tw-hover:text-light" 
+                                                            th:data-size-id="${size.id}" th:text="${size.ten}"></button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Màu sắc -->
+                                <div class="tw-border-b tw-border-b-neutral-200 tw-pb-4 lg:tw-border-0 lg:tw-p-0 lg:tw-pb-0">
+                                    <h3 class="tw-flex">
+                                        <button type="button" class="tw-group tw-flex tw-flex-1 tw-items-center tw-justify-between tw-transition-all tw-hover:underline tw-py-1.5 tw-text-sm tw-font-medium tw-leading-4 tw-text-neutral-400 lg:tw-py-3" 
+                                                onclick="toggleAccordion('color-accordion')">
+                                            Màu sắc
+                                            <svg class="tw-h-4 tw-w-4 tw-shrink-0 accordion-icon" id="color-accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                            </svg>
+                                        </button>
+                                    </h3>
+                                    <div id="color-accordion" class="accordion-content tw-text-sm">
+                                        <div class="tw-py-1.5 lg:tw-pt-3">
+                                            <ul class="tw-grid tw-grid-cols-3 tw-gap-3 tw-items-start">
+                                                <li class="tw-flex tw-justify-center">
+                                                    <button class="tw-group tw-flex tw-w-full tw-max-w-16 tw-flex-col tw-items-center tw-justify-start tw-p-1" data-color-id="">
+                                                        <span class="tw-block tw-h-8 tw-w-8 tw-rounded-full tw-border-2 tw-border-gray-300 group-hover:tw-border-primary-500 tw-transition-all tw-duration-200 tw-shadow-sm" 
+                                                              style="background:linear-gradient(226.4deg, rgba(255, 26, 1, 1) 28.9%, rgba(254, 155, 1, 1) 33%, rgba(255, 241, 0, 1) 48.6%, rgba(34, 218, 1, 1) 65.3%, rgba(0, 141, 254, 1) 80.6%, rgba(113, 63, 254, 1) 100.1%); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></span>
+                                                        <p class="tw-mt-1 tw-text-xs tw-leading-3 tw-text-neutral-500 group-hover:tw-text-primary-500 tw-text-center">Phối màu</p>
+                                                    </button>
+                                                </li>
+                                                <li th:each="mauSac : ${mauSacs}" class="tw-flex tw-justify-center">
+                                                    <button class="tw-group tw-flex tw-w-full tw-max-w-16 tw-flex-col tw-items-center tw-justify-start tw-p-1" 
+                                                            th:data-color-id="${mauSac.id}"
+                                                            th:data-color-name="${mauSac.ten}">
+                                                        <span class="tw-block tw-h-8 tw-w-8 tw-rounded-full tw-border-2 group-hover:tw-border-primary-500 tw-transition-all tw-duration-200 tw-shadow-sm tw-cursor-pointer" 
+                                                              th:style="'background: ' + ${mauSac.maMau} + '; border-color: ' + (${mauSac.maMau == '#FFFFFF' or mauSac.maMau == '#FFF8DC' or mauSac.maMau == '#F5F5DC'} ? '#D1D5DB' : ${mauSac.maMau}) + '; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'"></span>
+                                                        <p class="tw-mt-1 tw-text-xs tw-leading-3 tw-text-neutral-500 group-hover:tw-text-primary-500 tw-text-center tw-font-medium" th:text="${mauSac.ten}"></p>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
 
                             <!-- Loại thú -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:paw"></iconify-icon>
-                                    Loại thú
-                                </div>
-                                <div class="custom-select" data-filter="loaiThu">
-                                    <div class="select-trigger" onclick="toggleSelect(this)">
-                                        <span class="selected-text">Chọn loại thú</span>
-                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                                    </div>
-                                    <div class="select-options">
-                                        <div class="select-option" data-value="">Tất cả</div>
-                                        <div th:each="loaiThu : ${loaiThus}" 
-                                             class="select-option" 
-                                             th:data-value="${loaiThu.id}"
-                                             th:text="${loaiThu.ten}">
+                            <div class="tw-border-b tw-border-b-neutral-200 tw-pb-4 lg:tw-border-0 lg:tw-p-0 lg:tw-pb-0">
+                                <h3 class="tw-flex">
+                                    <button type="button" class="tw-group tw-flex tw-flex-1 tw-items-center tw-justify-between tw-transition-all tw-hover:underline tw-py-1.5 tw-text-sm tw-font-medium tw-leading-4 tw-text-neutral-400 lg:tw-py-3" 
+                                            onclick="toggleAccordion('loaithu-accordion')">
+                                        Loại thú
+                                        <svg class="tw-h-4 tw-w-4 tw-shrink-0 accordion-icon" id="loaithu-accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                        </svg>
+                                    </button>
+                                </h3>
+                                <div id="loaithu-accordion" class="accordion-content tw-text-sm">
+                                    <div class="tw-py-1.5 lg:tw-pt-3">
+                                        <div class="tw-grid tw-gap-2">
+                                            <div class="tw-flex tw-items-center tw-space-x-2">
+                                                <button type="button" role="radio" class="tw-aspect-square tw-rounded-full tw-border tw-border-neutral-500 tw-text-primary tw-h-5 tw-w-5" data-loai-thu-id="">
+                                                </button>
+                                                <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer">Tất cả</label>
+                                            </div>
+                                            <div th:each="loaiThu : ${loaiThus}" class="tw-flex tw-items-center tw-space-x-2">
+                                                <button type="button" role="radio" class="tw-aspect-square tw-rounded-full tw-border tw-border-neutral-500 tw-text-primary tw-h-5 tw-w-5" th:data-loai-thu-id="${loaiThu.id}">
+                                                </button>
+                                                <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer" th:text="${loaiThu.ten}"></label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Danh mục -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:tag"></iconify-icon>
-                                    Danh mục
-                                </div>
-                                <div class="custom-select" data-filter="danhMuc">
-                                    <div class="select-trigger" onclick="toggleSelect(this)">
-                                        <span class="selected-text">Chọn danh mục</span>
-                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                                    </div>
-                                    <div class="select-options">
-                                        <div class="select-option" data-value="">Tất cả</div>
-                                        <div th:each="danhMuc : ${danhMucs}" 
-                                             class="select-option" 
-                                             th:data-value="${danhMuc.id}"
-                                             th:text="${danhMuc.ten}">
+                                <!-- Danh mục -->
+                                <div class="tw-border-b tw-border-b-neutral-200 tw-pb-4 lg:tw-border-0 lg:tw-p-0 lg:tw-pb-0">
+                                    <h3 class="tw-flex">
+                                        <button type="button" class="tw-group tw-flex tw-flex-1 tw-items-center tw-justify-between tw-transition-all tw-hover:underline tw-py-1.5 tw-text-sm tw-font-medium tw-leading-4 tw-text-neutral-400 lg:tw-py-3" 
+                                                onclick="toggleAccordion('danhmuc-accordion')">
+                                            Danh mục
+                                            <svg class="tw-h-4 tw-w-4 tw-shrink-0 accordion-icon" id="danhmuc-accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                            </svg>
+                                        </button>
+                                    </h3>
+                                    <div id="danhmuc-accordion" class="accordion-content tw-text-sm">
+                                        <div class="tw-py-1.5 lg:tw-pt-3">
+                                            <div class="tw-grid tw-gap-2">
+                                                <div class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" data-danh-muc-id="">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer">Tất cả</label>
+                                                </div>
+                                                <div th:each="danhMuc : ${danhMucs}" class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" th:data-danh-muc-id="${danhMuc.id}">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer" th:text="${danhMuc.ten}"></label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Kích cỡ -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:ruler"></iconify-icon>
-                                    Kích cỡ
-                                </div>
-                                <div class="custom-select" data-filter="size">
-                                    <div class="select-trigger" onclick="toggleSelect(this)">
-                                        <span class="selected-text">Chọn kích cỡ</span>
-                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                                    </div>
-                                    <div class="select-options">
-                                        <div class="select-option" data-value="">Tất cả</div>
-                                        <div th:each="size : ${sizes}" 
-                                             class="select-option" 
-                                             th:data-value="${size.id}"
-                                             th:text="${size.ten}">
+                                <!-- Thương hiệu -->
+                                <div class="tw-border-b tw-border-b-neutral-200 tw-pb-4 lg:tw-border-0 lg:tw-p-0 lg:tw-pb-0">
+                                    <h3 class="tw-flex">
+                                        <button type="button" class="tw-group tw-flex tw-flex-1 tw-items-center tw-justify-between tw-transition-all tw-hover:underline tw-py-1.5 tw-text-sm tw-font-medium tw-leading-4 tw-text-neutral-400 lg:tw-py-3" 
+                                                onclick="toggleAccordion('thuonghieu-accordion')">
+                                            Thương hiệu
+                                            <svg class="tw-h-4 tw-w-4 tw-shrink-0 accordion-icon" id="thuonghieu-accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                            </svg>
+                                        </button>
+                                    </h3>
+                                    <div id="thuonghieu-accordion" class="accordion-content tw-text-sm">
+                                        <div class="tw-py-1.5 lg:tw-pt-3">
+                                            <div class="tw-grid tw-gap-2">
+                                                <div class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" data-thuong-hieu-id="">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer">Tất cả</label>
+                                                </div>
+                                                <div th:each="thuongHieu : ${thuongHieus}" class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" th:data-thuong-hieu-id="${thuongHieu.id}">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer" th:text="${thuongHieu.ten}"></label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Màu sắc -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:palette"></iconify-icon>
-                                    Màu sắc
-                                </div>
-                                <div class="custom-select" data-filter="mauSac">
-                                    <div class="select-trigger" onclick="toggleSelect(this)">
-                                        <span class="selected-text">Chọn màu sắc</span>
-                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                                    </div>
-                                    <div class="select-options">
-                                        <div class="select-option" data-value="">Tất cả</div>
-                                        <div th:each="mauSac : ${mauSacs}" 
-                                             class="select-option" 
-                                             th:data-value="${mauSac.id}"
-                                             th:text="${mauSac.ten}">
+                                <!-- Giá -->
+                                <div class="tw-border-b tw-border-b-neutral-200 tw-pb-4 lg:tw-border-0 lg:tw-p-0 lg:tw-pb-0">
+                                    <h3 class="tw-flex">
+                                        <button type="button" class="tw-group tw-flex tw-flex-1 tw-items-center tw-justify-between tw-transition-all tw-hover:underline tw-py-1.5 tw-text-sm tw-font-medium tw-leading-4 tw-text-neutral-400 lg:tw-py-3" 
+                                                onclick="toggleAccordion('price-accordion')">
+                                            Giá
+                                            <svg class="tw-h-4 tw-w-4 tw-shrink-0 accordion-icon" id="price-accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                            </svg>
+                                        </button>
+                                    </h3>
+                                    <div id="price-accordion" class="accordion-content tw-text-sm">
+                                        <div class="tw-py-1.5 lg:tw-pt-3">
+                                            <div class="tw-grid tw-gap-2">
+                                                <div class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" data-price-range="0-200000">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer">0 - 200.000đ</label>
+                                                </div>
+                                                <div class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" data-price-range="200000-300000">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer">200.000đ - 300.000đ</label>
+                                                </div>
+                                                <div class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" data-price-range="300000-500000">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer">300.000đ - 500.000đ</label>
+                                                </div>
+                                                <div class="tw-flex tw-items-center tw-space-x-2">
+                                                    <button type="button" role="checkbox" class="tw-flex tw-shrink-0 tw-items-center tw-justify-center tw-rounded tw-border tw-border-neutral-500 tw-h-5 tw-w-5" data-price-range="500000+">
+                                                    </button>
+                                                    <label class="tw-text-neutral-500 tw-text-base tw-cursor-pointer">>500.000đ</label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Kiểu dáng -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:shape"></iconify-icon>
-                                    Kiểu dáng
-                                </div>
-                                <div class="custom-select" data-filter="kieuDang">
-                                    <div class="select-trigger" onclick="toggleSelect(this)">
-                                        <span class="selected-text">Chọn kiểu dáng</span>
-                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                                    </div>
-                                    <div class="select-options">
-                                        <div class="select-option" data-value="">Tất cả</div>
-                                        <div th:each="kieuDang : ${kieuDangs}" 
-                                             class="select-option" 
-                                             th:data-value="${kieuDang.id}"
-                                             th:text="${kieuDang.ten}">
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-
-                            <!-- Thương hiệu -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:brand"></iconify-icon>
-                                    Thương hiệu
-                                </div>
-                                <div class="custom-select" data-filter="thuongHieu">
-                                    <div class="select-trigger" onclick="toggleSelect(this)">
-                                        <span class="selected-text">Chọn thương hiệu</span>
-                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                                    </div>
-                                    <div class="select-options">
-                                        <div class="select-option" data-value="">Tất cả</div>
-                                        <div th:each="thuongHieu : ${thuongHieus}" 
-                                             class="select-option" 
-                                             th:data-value="${thuongHieu.id}"
-                                             th:text="${thuongHieu.ten}">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Xuất xứ -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:map-marker"></iconify-icon>
-                                    Xuất xứ
-                                </div>
-                                <div class="custom-select" data-filter="xuatXu">
-                                    <div class="select-trigger" onclick="toggleSelect(this)">
-                                        <span class="selected-text">Chọn xuất xứ</span>
-                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                                    </div>
-                                    <div class="select-options">
-                                        <div class="select-option" data-value="">Tất cả</div>
-                                        <div th:each="xuatXu : ${xuatXus}" 
-                                             class="select-option" 
-                                             th:data-value="${xuatXu.id}"
-                                             th:text="${xuatXu.ten}">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Khoảng giá -->
-                            <div class="filter-section">
-                                <div class="filter-title">
-                                    <iconify-icon icon="mdi:currency-usd"></iconify-icon>
-                                    Khoảng giá
-                                </div>
-                                <div class="price-range-container">
-                                    <input type="range" 
-                                           class="price-range-slider" 
-                                           id="priceRange" 
-                                           min="0" 
-                                           max="10000000" 
-                                           step="100000" 
-                                           value="10000000"
-                                           oninput="updatePriceDisplay(this.value)">
-                                    <div class="price-display">
-                                        <span>0đ</span>
-                                        <span id="maxPrice">10.000.000đ</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Clear Filters Button -->
-                            <button class="btn btn-outline-primary w-100 mt-3" onclick="clearAllFilters()">
-                                <iconify-icon icon="mdi:refresh" class="me-2"></iconify-icon>
-                                Xóa tất cả bộ lọc
-                            </button>
                         </div>
                     </div>
 
                     <!-- Product Content -->
-                    <div class="col-lg-9">
+                    <div class="tw-flex-1">
                         <!-- Active Filters Display -->
-                        <div class="active-filters" id="activeFilters" style="display: none;">
-                            <h5 class="mb-3" style="color: var(--accent-color);">
-                                <iconify-icon icon="mdi:filter-check" class="me-2"></iconify-icon>
+                        <div id="activeFilters" class="tw-mb-6 tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-p-6 tw-hidden">
+                            <h5 class="tw-text-lg tw-font-semibold tw-text-gray-900 tw-mb-4 tw-flex tw-items-center">
+                                <svg class="tw-w-5 tw-h-5 tw-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
                                 Bộ lọc đang áp dụng:
                             </h5>
-                            <div class="filter-tags" id="filterTags">
+                            <div id="filterTags" class="tw-flex tw-flex-wrap tw-gap-2">
                                 <!-- Filter tags will be dynamically added here -->
                             </div>
                         </div>
 
+                        <!-- Sort Options -->
+                        <div class="tw-mb-6 tw-flex tw-items-center tw-justify-between tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-p-4">
+                            <span class="tw-text-gray-600">Sắp xếp theo</span>
+                            <select class="tw-border tw-border-gray-300 tw-rounded-lg tw-px-4 tw-py-2 tw-text-sm tw-focus:ring-2 tw-focus:ring-blue-500 tw-focus:border-blue-500">
+                                <option>Bán chạy</option>
+                                <option>Giá tăng dần</option>
+                                <option>Giá giảm dần</option>
+                                <option>Mới nhất</option>
+                            </select>
+                        </div>
+
                         <!-- Loading Spinner -->
-                        <div class="loading-spinner" id="loadingSpinner">
-                            <div class="spinner"></div>
+                        <div id="loadingSpinner" class="tw-hidden tw-justify-center tw-items-center tw-py-12">
+                            <div class="tw-animate-spin tw-rounded-full tw-h-12 tw-w-12 tw-border-b-2 tw-border-blue-500"></div>
                         </div>
 
                         <!-- Product Grid -->
-                        <div class="product-grid" id="productGrid" th:fragment="productGrid">
-                            <div th:each="sanPham : ${danhSachSanPham}" class="product-card">
-                                <div class="product-image">
+                        <div id="productGrid" th:fragment="productGrid" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-cols-4 tw-gap-6">
+                            <div th:each="sanPham : ${danhSachSanPham}" class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-overflow-hidden tw-hover:shadow-lg tw-transition-shadow tw-duration-300">
+                                <div class="tw-relative tw-aspect-square tw-overflow-hidden">
                                     <img th:src="${sanPham.hinhAnhs != null and !sanPham.hinhAnhs.empty} ? ${sanPham.hinhAnhs[0].url} : '/images/default-product.jpg'" 
-                                         th:alt="${sanPham.ten}">
-                                    <div class="product-badge" th:if="${sanPham.dotGiamGia != null}">
+                                         th:alt="${sanPham.ten}"
+                                         class="tw-w-full tw-h-full tw-object-cover tw-hover:scale-105 tw-transition-transform tw-duration-300">
+                                    <div th:if="${sanPham.dotGiamGia != null}" 
+                                         class="tw-absolute tw-top-3 tw-left-3 tw-bg-red-500 tw-text-white tw-text-xs tw-font-bold tw-px-2 tw-py-1 tw-rounded-full">
+                                        TẶNG 01
+                                    </div>
+                                    <div th:if="${sanPham.dotGiamGia != null}" 
+                                         class="tw-absolute tw-top-3 tw-right-3 tw-bg-red-600 tw-text-white tw-text-xs tw-font-bold tw-px-2 tw-py-1 tw-rounded">
                                         -<span th:text="${sanPham.dotGiamGia.giaTriDotGiamGia}"></span>%
                                     </div>
                                 </div>
-                                <div class="product-content">
-                                    <div class="product-category" th:text="${sanPham.danhMuc.ten}"></div>
-                                    <h3 class="product-title" th:text="${sanPham.ten}"></h3>
-                                    <div class="product-price">
-                                        <span class="current-price" th:text="${#numbers.formatDecimal(giaBanMap.get(sanPham.id), 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
-                                        <span class="original-price" th:if="${giaGocMap.get(sanPham.id) != null and giaGocMap.get(sanPham.id) > giaBanMap.get(sanPham.id)}" 
+                                
+                                <div class="tw-p-4">
+                                    <div class="tw-text-xs tw-text-gray-500 tw-mb-1" th:text="${sanPham.danhMuc.ten}"></div>
+                                    <h3 class="tw-font-medium tw-text-gray-900 tw-mb-2 line-clamp-2" th:text="${sanPham.ten}"></h3>
+                                    
+                                    <div class="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+                                        <span class="tw-font-bold tw-text-lg tw-text-red-600" 
+                                              th:text="${#numbers.formatDecimal(giaBanMap.get(sanPham.id), 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+                                        <span th:if="${giaGocMap.get(sanPham.id) != null and giaGocMap.get(sanPham.id) > giaBanMap.get(sanPham.id)}" 
+                                              class="tw-text-sm tw-text-gray-500 tw-line-through" 
                                               th:text="${#numbers.formatDecimal(giaGocMap.get(sanPham.id), 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
                                     </div>
-                                    <div class="product-actions">
-                                        <button class="btn-add-cart" th:onclick="'addToCart(' + ${sanPham.id} + ')'">
-                                            <iconify-icon icon="mdi:cart-plus"></iconify-icon>
+                                    
+                                    <div class="tw-flex tw-gap-2">
+                                        <button th:onclick="'addToCart(' + ${sanPham.id} + ')'" 
+                                                class="tw-flex-1 tw-bg-blue-500 tw-hover:bg-blue-600 tw-text-white tw-text-sm tw-font-medium tw-py-2 tw-px-4 tw-rounded-lg tw-transition-colors tw-duration-200 tw-flex tw-items-center tw-justify-center">
+                                            <svg class="tw-w-4 tw-h-4 tw-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                                            </svg>
                                             Thêm vào giỏ
                                         </button>
-                                        <button class="btn-wishlist" th:onclick="'addToWishlist(' + ${sanPham.id} + ')'">
-                                            <iconify-icon icon="mdi:heart-outline"></iconify-icon>
+                                        <button th:onclick="'addToWishlist(' + ${sanPham.id} + ')'" 
+                                                class="tw-bg-gray-100 tw-hover:bg-gray-200 tw-text-gray-700 tw-p-2 tw-rounded-lg tw-transition-colors tw-duration-200">
+                                            <svg class="tw-w-5 tw-h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                            </svg>
                                         </button>
                                     </div>
                                 </div>
@@ -279,10 +371,12 @@
                         </div>
 
                         <!-- No Products Message -->
-                        <div class="text-center py-5" id="noProducts" style="display: none;">
-                            <iconify-icon icon="mdi:package-variant-closed" style="font-size: 4rem; color: #6c757d;"></iconify-icon>
-                            <h4 class="mt-3 text-muted">Không tìm thấy sản phẩm</h4>
-                            <p class="text-muted">Hãy thử điều chỉnh bộ lọc của bạn</p>
+                        <div id="noProducts" class="tw-text-center tw-py-16 tw-hidden">
+                            <svg class="tw-mx-auto tw-h-16 tw-w-16 tw-text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                            </svg>
+                            <h3 class="tw-mt-4 tw-text-lg tw-font-medium tw-text-gray-900">Không tìm thấy sản phẩm</h3>
+                            <p class="tw-mt-2 tw-text-gray-600">Hãy thử điều chỉnh bộ lọc của bạn</p>
                         </div>
                     </div>
                 </div>
@@ -290,5 +384,26 @@
         </div>
     </div>
 
+    <script>
+        // Accordion functionality
+        function toggleAccordion(accordionId) {
+            const accordion = document.getElementById(accordionId);
+            const icon = document.getElementById(accordionId + '-icon');
+            
+            if (accordion.classList.contains('hidden')) {
+                accordion.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                accordion.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Initialize some accordions as open
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleAccordion('size-accordion');
+            toggleAccordion('color-accordion');
+        });
+    </script>
 </body>
-</html> 
+</html>

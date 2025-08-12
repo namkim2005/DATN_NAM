@@ -120,6 +120,15 @@
         }
 
         /*CSS Thong bao*/
+
+        /* Force submenu display fix */
+        .sidebar .nav .nav-item .collapse.show {
+            display: block !important;
+        }
+
+        .sidebar .nav .nav-item.active > .nav-link {
+            color: #dead6f !important;
+        }
     </style>
 </head>
 
@@ -264,12 +273,6 @@
                                 <a class="nav-link" th:href="@{/admin/san-pham/hien_thi}">
                                     <i class="menu-icon fas fa-tshirt"></i>
                                     Sản phẩm
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="">
-                                    <i class="menu-icon fas fa-images"></i>
-                                    Hình ảnh
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -475,6 +478,38 @@
 </script>
 <!--  Thong bao-->
 
+<!-- Fix submenu display for product pages -->
+<script>
+$(document).ready(function() {
+    // Additional fix for submenu display
+    var currentPath = window.location.pathname;
+    console.log('Layout script - Current path:', currentPath);
+
+    // Force show product submenu if on product-related pages
+    if (currentPath.includes('/admin/san-pham') ||
+        currentPath.includes('/admin/thuong-hieu') ||
+        currentPath.includes('/admin/kieu-dang') ||
+        currentPath.includes('/admin/xuat-xu') ||
+        currentPath.includes('/admin/chat-lieu') ||
+        currentPath.includes('/admin/danh-muc') ||
+        currentPath.includes('/admin/loai-thu') ||
+        currentPath.includes('/admin/mau-sac') ||
+        currentPath.includes('/admin/size')) {
+
+        console.log('Product-related page detected, forcing submenu show');
+
+        setTimeout(function() {
+            $('#ui-basic').addClass('show');
+            $('#ui-basic').closest('.nav-item').addClass('active');
+
+            // Also activate the specific menu item
+            $('a[href="' + currentPath + '"]').addClass('active').closest('.nav-item').addClass('active');
+
+            console.log('Submenu forced to show');
+        }, 100);
+    }
+});
+</script>
 
 </body>
 </html>

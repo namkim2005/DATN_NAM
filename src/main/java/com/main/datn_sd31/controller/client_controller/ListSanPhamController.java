@@ -6,6 +6,7 @@ import com.main.datn_sd31.repository.*;
 import com.main.datn_sd31.service.impl.DanhGiaService;
 import com.main.datn_sd31.service.impl.Sanphamservice;
 import com.main.datn_sd31.util.GetKhachHang;
+import com.main.datn_sd31.util.ColorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -70,7 +71,12 @@ public class ListSanPhamController {
         model.addAttribute("danhMucs", danhMucRepo.findAll());
         model.addAttribute("loaiThus", loaithurepository.findAll());      // <-- thêm dòng này
         model.addAttribute("sizes", sizerepository.findAll());
-        model.addAttribute("mauSacs", mausacrepository.findAll());
+        
+        // Process colors with fallback
+        List<MauSac> mauSacs = mausacrepository.findAll();
+        List<MauSac> processedMauSacs = processColorsWithFallback(mauSacs);
+        model.addAttribute("mauSacs", processedMauSacs);
+        
         model.addAttribute("thuongHieus", thuongHieuRepo.findAll());
         model.addAttribute("kieuDangs", kieuDangRepo.findAll());      // <-- thêm dòng này
         model.addAttribute("xuatXus", xuatXuRepo.findAll());      // <-- thêm dòng này
@@ -357,6 +363,29 @@ public class ListSanPhamController {
         model.addAttribute("giaGocMap", giaGocMap);
         model.addAttribute("giaBanMap", giaBanMap);
 
-        return "client/pages/product :: #productGrid";
+        return "client/pages/product :: productGrid";
+    }
+
+    /**
+     * Generate color hex code from color name if ma_mau is null/empty
+     */
+    private String generateColorFromName(String colorName) {
+        return ColorUtil.getColorHex(colorName);
+    }
+
+    /**
+     * Process colors with fallback for missing hex codes
+     */
+    private List<MauSac> processColorsWithFallback(List<MauSac> mauSacs) {
+        return mauSacs.stream()
+                .peek(mauSac -> {
+                    if (mauSac.getMaMau() == null || mauSac.getMaMau().trim().isEmpty()) {
+                        // Auto-generate color based on name if not set
+                        String generatedColor = generateColorFromName(mauSac.getTen());
+                        mauSac.setMaMau(generatedColor);
+                        System.out.println("Generated color for '" + mauSac.getTen() + "': " + generatedColor);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -4,89 +4,409 @@
       layout:decorate="~{admin/layout}">
 <head>
     <title>Quản lý sản phẩm</title>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to avoid conflicts with Bootstrap
+        tailwind.config = {
+            corePlugins: {
+                preflight: false, // Disable Tailwind's CSS reset
+            },
+            prefix: 'tw-', // Add prefix to all Tailwind classes
+        }
+    </script>
+    <style>
+        /* Ensure Bootstrap sidebar styles are preserved */
+        .sidebar .nav .nav-item .collapse.show {
+            display: block !important;
+        }
+
+        .sidebar .nav .nav-item.active > .nav-link {
+            color: #dead6f !important;
+        }
+
+        .sidebar .nav.sub-menu .nav-item .nav-link.active {
+            color: #dead6f !important;
+        }
+    </style>
 </head>
 
 <body>
 <section layout:fragment="content">
-    <div>
-        <h1 class="mb-4">Quản lý sản phẩm</h1>
-        <a href="/admin/san-pham/them" class="btn btn-primary mb-3">Thêm sản phẩm</a>
-        <form th:action="@{/admin/san-pham/ap-dung-giam-gia-nhieu}" method="post">
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <select name="dotGiamGiaId" class="form-select" required>
-                        <option value="">-- Chọn đợt giảm giá --</option>
-                        <option th:each="dgg : ${dsDotGiamGia}" th:value="${dgg.id}" th:text="${dgg.ten}"></option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-success">Áp dụng giảm giá</button>
+    <div class="tw-p-6 tw-space-y-6">
+        <!-- Header Section -->
+        <div class="tw-flex tw-flex-col tw-space-y-4 lg:tw-flex-row lg:tw-justify-between lg:tw-items-start lg:tw-space-y-0">
+            <div class="tw-flex-1">
+                <h1 class="tw-text-2xl tw-font-bold tw-text-gray-900 tw-mb-2">Quản lý sản phẩm</h1>
+                <p class="tw-text-sm tw-text-gray-600">Danh sách tất cả sản phẩm trong hệ thống</p>
+            </div>
+
+            <!-- Search Section -->
+            <div class="tw-flex-shrink-0 tw-w-full lg:tw-w-80">
+                <div class="tw-relative">
+                    <div class="tw-absolute tw-inset-y-0 tw-left-0 tw-pl-3 tw-flex tw-items-center tw-pointer-events-none">
+                        <svg class="tw-h-5 tw-w-5 tw-text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="tw-block tw-w-full tw-pl-10 tw-pr-3 tw-py-3 tw-border tw-border-gray-300 tw-rounded-lg tw-leading-5 tw-bg-white tw-placeholder-gray-500 focus:tw-outline-none focus:tw-placeholder-gray-400 focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-text-sm tw-transition tw-duration-150 tw-ease-in-out"
+                        placeholder="Tìm kiếm sản phẩm..."
+                    />
                 </div>
             </div>
-        </form>
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mt-3 mx-3" role="alert">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <span th:text="${error}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <!-- Thông báo thành công -->
-        <div th:if="${success}" class="alert alert-success alert-dismissible fade show mt-3 mx-3" role="alert">
-            <i class="bi bi-check-circle-fill"></i>
-            <span th:text="${success}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <!-- Action Section -->
+        <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-p-6">
+            <div class="tw-flex tw-flex-col tw-space-y-4 lg:tw-flex-row lg:tw-justify-between lg:tw-items-center lg:tw-space-y-0">
+                <!-- Add Product Button -->
+                <div class="tw-flex tw-items-center tw-space-x-3">
+                    <a href="/admin/san-pham/them"
+                       class="tw-inline-flex tw-items-center tw-px-4 tw-py-2.5 tw-bg-blue-600 tw-border tw-border-transparent tw-rounded-lg tw-font-medium tw-text-sm tw-text-white hover:tw-bg-blue-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500 tw-transition tw-duration-150 tw-ease-in-out tw-shadow-sm">
+                        <svg class="tw-w-5 tw-h-5 tw-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Thêm sản phẩm
+                    </a>
+                </div>
+
+                <!-- Discount Application Form -->
+                <form th:action="@{/admin/san-pham/ap-dung-giam-gia-nhieu}" method="post" id="discountForm"
+                      class="tw-flex tw-flex-col tw-space-y-3 sm:tw-flex-row sm:tw-space-y-0 sm:tw-space-x-3 sm:tw-items-end">
+                    <div class="tw-flex tw-flex-col">
+                        <label for="dotGiamGiaId" class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Đợt giảm giá</label>
+                        <select name="dotGiamGiaId" id="dotGiamGiaId"
+                                class="tw-block tw-w-full tw-px-3 tw-py-2.5 tw-border tw-border-gray-300 tw-rounded-lg tw-bg-white tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-green-500 focus:tw-border-green-500 tw-transition tw-duration-150 tw-ease-in-out">
+                            <option value="">-- Chọn đợt giảm giá (hoặc để trống để gỡ giảm giá) --</option>
+                            <option th:each="dgg : ${dsDotGiamGia}" th:value="${dgg.id}" th:text="${dgg.ten}"></option>
+                        </select>
+                    </div>
+                    <div class="tw-flex tw-items-center tw-space-x-2">
+                        <span id="selectedCount" class="tw-text-sm tw-text-gray-600">Đã chọn: 0 sản phẩm</span>
+                        <button type="submit" id="applyDiscountBtn"
+                                class="tw-inline-flex tw-items-center tw-px-4 tw-py-2.5 tw-bg-green-600 tw-border tw-border-transparent tw-rounded-lg tw-font-medium tw-text-sm tw-text-white hover:tw-bg-green-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-green-500 tw-transition tw-duration-150 tw-ease-in-out tw-shadow-sm tw-opacity-50 tw-cursor-not-allowed"
+                                disabled>
+                            <svg class="tw-w-5 tw-h-5 tw-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                            Áp dụng giảm giá
+                        </button>
+                    </div>
+                    <!-- Hidden inputs for selected product IDs -->
+                    <div id="selectedProductIds"></div>
+                </form>
+            </div>
         </div>
-        <table id="productTable" class="table table-bordered table-striped">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Mã</th>
-                <th>Tên</th>
-                <th>Mô tả</th>
-                <th>Ngày tạo</th>
-                <th>Ngày sửa</th>
-                <th>Trạng thái</th>
-                <th>Chất liệu</th>
-                <th>Danh mục</th>
-                <th>Thương hiệu</th>
-                <th>Xuất xứ</th>
-                <th>Kiểu dáng</th>
-                <th>Loại thú</th>
-                <th>Thao tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="sp : ${list}">
-                <td th:text="${sp.id}"></td>
-                <td th:text="${sp.ma}"></td>
-                <td th:text="${sp.ten}"></td>
-                <td th:text="${sp.moTa}"></td>
-                <td th:text="${sp.ngayTao}"></td>
-                <td th:text="${sp.ngaySua}"></td>
-                <td th:text="${sp.trangThai ? 'Đang hoạt động' : 'Ngừng bán'}"></td>
-                <td th:text="${sp.chatLieu.ten}"></td>
-                <td th:text="${sp.danhMuc.ten}"></td>
-                <td th:text="${sp.thuongHieu.ten}"></td>
-                <td th:text="${sp.xuatXu.ten}"></td>
-                <td th:text="${sp.kieuDang.ten}"></td>
-                <td th:text="${sp.loaiThu.ten}"></td>
-                <td>
-                    <a th:href="@{'/admin/san-pham/sua/' + ${sp.id}}" class="btn btn-sm btn-warning">Sửa</a>
-                    <a th:href="@{'/admin/san-pham/xem/' + ${sp.id}}" class="btn btn-sm btn-info">Xem</a>
-                    <a th:href="@{'/admin/san-pham/xoa/' + ${sp.id}}" class="btn btn-sm btn-danger"
-                       onclick="return confirm('Bạn có chắc muốn xoá sản phẩm này?')">Xoá</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+
+        <!-- Alert Messages -->
+        <div th:if="${error}" class="tw-bg-red-50 tw-border-l-4 tw-border-red-400 tw-p-4 tw-rounded-lg tw-shadow-sm" role="alert">
+            <div class="tw-flex tw-items-center">
+                <div class="tw-flex-shrink-0">
+                    <svg class="tw-h-5 tw-w-5 tw-text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="tw-ml-3">
+                    <p class="tw-text-sm tw-font-medium tw-text-red-800" th:text="${error}"></p>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="tw-bg-green-50 tw-border-l-4 tw-border-green-400 tw-p-4 tw-rounded-lg tw-shadow-sm" role="alert">
+            <div class="tw-flex tw-items-center">
+                <div class="tw-flex-shrink-0">
+                    <svg class="tw-h-5 tw-w-5 tw-text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="tw-ml-3">
+                    <p class="tw-text-sm tw-font-medium tw-text-green-800" th:text="${success}"></p>
+                </div>
+            </div>
+        </div>
+        <!-- Product Table -->
+        <div class="tw-bg-white tw-shadow-sm tw-rounded-lg tw-border tw-border-gray-200 tw-overflow-hidden">
+            <div class="tw-overflow-x-auto">
+                <table class="tw-min-w-full tw-divide-y tw-divide-gray-200" id="productTable">
+                    <thead class="tw-bg-gray-50">
+                        <tr>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-20">
+                                Ảnh
+                            </th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-48">
+                                Thông tin sản phẩm
+                            </th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-40">
+                                Phân loại
+                            </th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-40">
+                                Chi tiết
+                            </th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-24">
+                                Ngày tạo
+                            </th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-32">
+                                Thao tác
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="tw-bg-white tw-divide-y tw-divide-gray-200">
+                        <tr th:each="sp : ${list}"
+                            th:data-product-id="${sp.id}"
+                            class="hover:tw-bg-gray-50 tw-transition-colors tw-duration-150 tw-cursor-pointer product-row"
+                            onclick="toggleProductSelection(this)">
+                            <!-- Hình ảnh -->
+                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap">
+                                <div class="tw-flex-shrink-0 tw-h-16 tw-w-16">
+                                    <img th:if="${sp.hinhAnhs != null and !sp.hinhAnhs.empty}"
+                                         th:src="${sp.hinhAnhs.iterator().next().url}"
+                                         th:alt="${sp.ten}"
+                                         class="tw-h-16 tw-w-16 tw-rounded-lg tw-object-cover tw-shadow-sm tw-border tw-border-gray-200" />
+                                    <div th:unless="${sp.hinhAnhs != null and !sp.hinhAnhs.empty}"
+                                         class="tw-h-16 tw-w-16 tw-bg-gray-100 tw-rounded-lg tw-flex tw-items-center tw-justify-center tw-border tw-border-gray-200">
+                                        <svg class="tw-w-8 tw-h-8 tw-text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Thông tin sản phẩm -->
+                            <td class="tw-px-6 tw-py-4">
+                                <div class="tw-space-y-1">
+                                    <div class="tw-text-sm tw-font-medium tw-text-gray-900" th:text="${sp.ma}"></div>
+                                    <div class="tw-text-sm tw-font-semibold tw-text-gray-800" th:text="${sp.ten}"></div>
+                                    <div th:if="${sp.moTa != null and !sp.moTa.isEmpty()}"
+                                         class="tw-text-xs tw-text-gray-500 tw-line-clamp-2 tw-max-w-xs"
+                                         th:text="${sp.moTa}"
+                                         th:title="${sp.moTa}"></div>
+                                </div>
+                            </td>
+
+                            <!-- Phân loại -->
+                            <td class="tw-px-6 tw-py-4">
+                                <div class="tw-space-y-2">
+                                    <div class="tw-flex tw-flex-wrap tw-gap-1">
+                                        <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-blue-100 tw-text-blue-800">
+                                            <span th:text="${sp.danhMuc.ten}"></span>
+                                        </span>
+                                        <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-green-100 tw-text-green-800">
+                                            <span th:text="${sp.loaiThu.ten}"></span>
+                                        </span>
+                                    </div>
+                                    <div class="tw-text-xs tw-text-gray-600">
+                                        <span class="tw-font-medium tw-text-gray-700">Chất liệu:</span>
+                                        <span th:text="${sp.chatLieu.ten}"></span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Chi tiết -->
+                            <td class="tw-px-6 tw-py-4">
+                                <div class="tw-space-y-1 tw-text-xs tw-text-gray-600">
+                                    <div class="tw-flex tw-items-center">
+                                        <span class="tw-font-medium tw-text-gray-700 tw-w-16">Thương hiệu:</span>
+                                        <span th:text="${sp.thuongHieu.ten}"></span>
+                                    </div>
+                                    <div class="tw-flex tw-items-center">
+                                        <span class="tw-font-medium tw-text-gray-700 tw-w-16">Xuất xứ:</span>
+                                        <span th:text="${sp.xuatXu.ten}"></span>
+                                    </div>
+                                    <div class="tw-flex tw-items-center">
+                                        <span class="tw-font-medium tw-text-gray-700 tw-w-16">Kiểu dáng:</span>
+                                        <span th:text="${sp.kieuDang.ten}"></span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Ngày tạo -->
+                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap">
+                                <div class="tw-text-sm tw-text-gray-500">
+                                    <div th:text="${#temporals.format(sp.ngayTao, 'dd/MM/yyyy')}"></div>
+                                    <div class="tw-text-xs tw-text-gray-400" th:text="${#temporals.format(sp.ngayTao, 'HH:mm')}"></div>
+                                </div>
+                            </td>
+
+                            <!-- Thao tác -->
+                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-right tw-text-sm tw-font-medium">
+                                <div class="tw-flex tw-items-center tw-space-x-2">
+                                    <a th:href="@{'/admin/san-pham/xem/' + ${sp.id}}"
+                                       class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-border tw-border-transparent tw-text-xs tw-font-medium tw-rounded-md tw-text-blue-700 tw-bg-blue-100 hover:tw-bg-blue-200 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500 tw-transition tw-duration-150 tw-ease-in-out">
+                                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        Xem
+                                    </a>
+                                    <a th:href="@{'/admin/san-pham/sua/' + ${sp.id}}"
+                                       class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-border tw-border-transparent tw-text-xs tw-font-medium tw-rounded-md tw-text-yellow-700 tw-bg-yellow-100 hover:tw-bg-yellow-200 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-yellow-500 tw-transition tw-duration-150 tw-ease-in-out">
+                                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                        Sửa
+                                    </a>
+                                    <a th:href="@{'/admin/san-pham/xoa/' + ${sp.id}}"
+                                       class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-border tw-border-transparent tw-text-xs tw-font-medium tw-rounded-md tw-text-red-700 tw-bg-red-100 hover:tw-bg-red-200 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-red-500 tw-transition tw-duration-150 tw-ease-in-out"
+                                       onclick="return confirm('Bạn có chắc muốn xoá sản phẩm này?')">
+                                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                        Xoá
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#productTable').DataTable();
+        // Global variables
+        let selectedProducts = new Set();
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#productTable tbody tr');
+
+            tableRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let found = false;
+
+                // Search in product code, name, description, category, brand, etc.
+                for (let i = 1; i < cells.length - 1; i++) { // Skip image column (0) and action column (last)
+                    const cellText = cells[i].textContent.toLowerCase();
+                    if (cellText.includes(searchTerm)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                row.style.display = found ? '' : 'none';
+            });
+        });
+
+        // Product selection functionality
+        function toggleProductSelection(row) {
+            // Prevent action buttons from triggering row selection
+            if (event.target.closest('a') || event.target.closest('button')) {
+                return;
+            }
+
+            const productId = parseInt(row.dataset.productId);
+
+            if (selectedProducts.has(productId)) {
+                selectedProducts.delete(productId);
+                row.classList.remove('tw-bg-blue-50', 'tw-border-l-4', 'tw-border-blue-500');
+                row.classList.add('hover:tw-bg-gray-50');
+            } else {
+                selectedProducts.add(productId);
+                row.classList.add('tw-bg-blue-50', 'tw-border-l-4', 'tw-border-blue-500');
+                row.classList.remove('hover:tw-bg-gray-50');
+            }
+
+            updateSelectedCount();
+            updateDiscountForm();
+        }
+
+        // Update selected count display
+        function updateSelectedCount() {
+            const countElement = document.getElementById('selectedCount');
+            countElement.textContent = `Đã chọn: ${selectedProducts.size} sản phẩm`;
+        }
+
+        // Update discount form with selected product IDs
+        function updateDiscountForm() {
+            const container = document.getElementById('selectedProductIds');
+            const applyBtn = document.getElementById('applyDiscountBtn');
+
+            // Clear existing inputs
+            container.innerHTML = '';
+
+            // Add hidden inputs for selected products
+            selectedProducts.forEach(productId => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'sanPhamIds';
+                input.value = productId;
+                container.appendChild(input);
+            });
+
+            // Enable/disable apply button
+            if (selectedProducts.size > 0) {
+                applyBtn.disabled = false;
+                applyBtn.classList.remove('tw-opacity-50', 'tw-cursor-not-allowed');
+                applyBtn.classList.add('hover:tw-bg-green-700');
+            } else {
+                applyBtn.disabled = true;
+                applyBtn.classList.add('tw-opacity-50', 'tw-cursor-not-allowed');
+                applyBtn.classList.remove('hover:tw-bg-green-700');
+            }
+        }
+
+        // Select all products
+        function selectAllProducts() {
+            const rows = document.querySelectorAll('.product-row');
+            rows.forEach(row => {
+                const productId = parseInt(row.dataset.productId);
+                if (!selectedProducts.has(productId)) {
+                    selectedProducts.add(productId);
+                    row.classList.add('tw-bg-blue-50', 'tw-border-l-4', 'tw-border-blue-500');
+                    row.classList.remove('hover:tw-bg-gray-50');
+                }
+            });
+            updateSelectedCount();
+            updateDiscountForm();
+        }
+
+        // Clear all selections
+        function clearAllSelections() {
+            const rows = document.querySelectorAll('.product-row');
+            rows.forEach(row => {
+                row.classList.remove('tw-bg-blue-50', 'tw-border-l-4', 'tw-border-blue-500');
+                row.classList.add('hover:tw-bg-gray-50');
+            });
+            selectedProducts.clear();
+            updateSelectedCount();
+            updateDiscountForm();
+        }
+
+        // Form submission validation
+        document.getElementById('discountForm').addEventListener('submit', function(e) {
+            if (selectedProducts.size === 0) {
+                e.preventDefault();
+                alert('Vui lòng chọn ít nhất một sản phẩm để áp dụng giảm giá!');
+                return false;
+            }
+        });
+
+        // Add some hover effects and animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fix submenu display issue
+            setTimeout(function() {
+                console.log('Fixing submenu display...');
+                const submenu = document.getElementById('ui-basic');
+                const currentPath = window.location.pathname;
+
+                if (currentPath.includes('/admin/san-pham')) {
+                    if (submenu) {
+                        submenu.classList.add('show');
+                        const parentNavItem = submenu.closest('.nav-item');
+                        if (parentNavItem) {
+                            parentNavItem.classList.add('active');
+                        }
+                        console.log('Submenu activated for product page');
+                    }
+                }
+            }, 500);
+
+            // Initialize selection state
+            updateSelectedCount();
+            updateDiscountForm();
         });
     </script>
 </section>
