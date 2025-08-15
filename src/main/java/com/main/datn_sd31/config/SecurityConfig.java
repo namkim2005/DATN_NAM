@@ -47,6 +47,9 @@ public class SecurityConfig {
                 .logoutUrl("/admin/logout")
                 .logoutSuccessUrl("/admin/dang-nhap?logout=true")
                 .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/admin/san-pham/tao-ma-ngau-nhien")
             );
         return http.build();
     }

@@ -1,10 +1,16 @@
 package com.main.datn_sd31.service.impl;
 
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamFilterDTO;
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamListDTO;
 import com.main.datn_sd31.dto.san_pham_DTO.Sanphamform;
+import com.main.datn_sd31.entity.ChiTietSanPham;
+import com.main.datn_sd31.entity.DotGiamGia;
+import com.main.datn_sd31.entity.HinhAnh;
 import com.main.datn_sd31.entity.SanPham;
 import com.main.datn_sd31.repository.ChatLieuRepository;
 import com.main.datn_sd31.repository.Chitietsanphamrepository;
 import com.main.datn_sd31.repository.Danhmucrepository;
+import com.main.datn_sd31.repository.Dotgiamgiarepository;
 import com.main.datn_sd31.repository.Hinhanhrepository;
 import com.main.datn_sd31.repository.Kieudangrepository;
 import com.main.datn_sd31.repository.Loaithurepository;
@@ -16,9 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,9 +40,359 @@ public class Sanphamservice {
     @Autowired private Hinhanhrepository hinhanhrepository;
     @Autowired private Chitietsanphamrepository chitietsanphamrepository;
     @Autowired private Loaithurepository loaithurepository;
+    @Autowired private Dotgiamgiarepository dotgiamgiarepository;
 
     public List<SanPham> getAll() {
         return sanPhamRepo.findAll();
+    }
+
+    /**
+     * Lấy danh sách sản phẩm với thông tin đầy đủ cho hiển thị
+     */
+    public List<SanPhamListDTO> getAllForDisplay() {
+        List<SanPham> sanPhams = sanPhamRepo.findAll();
+        return sanPhams.stream()
+                .map(this::convertToSanPhamListDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách sản phẩm với filter và sort
+     */
+    public List<SanPhamListDTO> getFilteredProducts(SanPhamFilterDTO filter) {
+        List<SanPham> sanPhams = getAll(); // Tạm thời lấy tất cả, sau này sẽ implement filter ở repository
+        
+        List<SanPhamListDTO> result = sanPhams.stream()
+                .map(this::convertToSanPhamListDTO)
+                .collect(Collectors.toList());
+        
+        // Apply filters
+        result = applyFilters(result, filter);
+        
+        // Apply sorting
+        result = applySorting(result, filter);
+        
+        return result;
+    }
+
+    /**
+     * Chuyển đổi SanPham entity thành SanPhamListDTO
+     */
+    private SanPhamListDTO convertToSanPhamListDTO(SanPham sanPham) {
+        List<ChiTietSanPham> chiTietSanPhams = new ArrayList<>(sanPham.getChiTietSanPhams());
+        
+        // Tính toán thông tin số lượng và giá
+        int tongSoLuong = chiTietSanPhams.stream()
+                .mapToInt(ChiTietSanPham::getSoLuong)
+                .sum();
+        
+        // Tính toán giá min/max
+        BigDecimal giaGocMin = null, giaGocMax = null;
+        BigDecimal giaBanMin = null, giaBanMax = null;
+        BigDecimal giaSauGiamMin = null, giaSauGiamMax = null;
+        
+        if (!chiTietSanPhams.isEmpty()) {
+            giaGocMin = chiTietSanPhams.stream()
+                    .map(ChiTietSanPham::getGiaGoc)
+                    .filter(Objects::nonNull)
+                    .min(BigDecimal::compareTo)
+                    .orElse(null);
+            
+            giaGocMax = chiTietSanPhams.stream()
+                    .map(ChiTietSanPham::getGiaGoc)
+                    .filter(Objects::nonNull)
+                    .max(BigDecimal::compareTo)
+                    .orElse(null);
+            
+            giaBanMin = chiTietSanPhams.stream()
+                    .map(ChiTietSanPham::getGiaBan)
+                    .filter(Objects::nonNull)
+                    .min(BigDecimal::compareTo)
+                    .orElse(null);
+            
+            giaBanMax = chiTietSanPhams.stream()
+                    .map(ChiTietSanPham::getGiaBan)
+                    .filter(Objects::nonNull)
+                    .max(BigDecimal::compareTo)
+                    .orElse(null);
+        }
+        
+        // Tính toán giá sau giảm (giaBan đã được tính toán từ giaGoc và dotGiamGia)
+        if (giaBanMin != null && giaBanMax != null) {
+            giaSauGiamMin = giaBanMin;
+            giaSauGiamMax = giaBanMax;
+        }
+        
+        // Lấy thông tin giảm giá
+        DotGiamGia dotGiamGia = chiTietSanPhams.stream()
+                .map(ChiTietSanPham::getDotGiamGia)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+        
+        // Xác định trạng thái hiển thị
+        String trangThaiHienThi = determineTrangThaiHienThi(sanPham.getTrangThai(), tongSoLuong);
+        String trangThaiClass = determineTrangThaiClass(trangThaiHienThi);
+        
+        // Lấy ảnh sản phẩm
+        List<HinhAnh> hinhAnhs = hinhanhrepository.findByhinhanhid(sanPham.getId());
+        String anhChinh = hinhAnhs.stream()
+                .filter(anh -> anh.getLoaiAnh() == 0) // Ảnh chính
+                .map(HinhAnh::getUrl)
+                .findFirst()
+                .orElse("/images/default-product.jpg");
+        
+        List<String> anhPhu = hinhAnhs.stream()
+                .filter(anh -> anh.getLoaiAnh() == 1) // Ảnh phụ
+                .map(HinhAnh::getUrl)
+                .collect(Collectors.toList());
+        
+        // Chuyển đổi chi tiết sản phẩm
+        List<SanPhamListDTO.ChiTietSanPhamDTO> chiTietDTOs = chiTietSanPhams.stream()
+                .map(this::convertToChiTietDTO)
+                .collect(Collectors.toList());
+        
+        return SanPhamListDTO.builder()
+                .id(sanPham.getId())
+                .ma(sanPham.getMa())
+                .ten(sanPham.getTen())
+                .moTa(sanPham.getMoTa())
+                .trangThai(sanPham.getTrangThai())
+                .ngayTao(sanPham.getNgayTao())
+                .chatLieu(sanPham.getChatLieu() != null ? sanPham.getChatLieu().getTen() : "")
+                .danhMuc(sanPham.getDanhMuc() != null ? sanPham.getDanhMuc().getTen() : "")
+                .kieuDang(sanPham.getKieuDang() != null ? sanPham.getKieuDang().getTen() : "")
+                .thuongHieu(sanPham.getThuongHieu() != null ? sanPham.getThuongHieu().getTen() : "")
+                .xuatXu(sanPham.getXuatXu() != null ? sanPham.getXuatXu().getTen() : "")
+                .loaiThu(sanPham.getLoaiThu() != null ? sanPham.getLoaiThu().getTen() : "")
+                .tongSoLuong(tongSoLuong)
+                .giaGocMin(giaGocMin)
+                .giaGocMax(giaGocMax)
+                .giaBanMin(giaBanMin)
+                .giaBanMax(giaBanMax)
+                .giaSauGiamMin(giaSauGiamMin)
+                .giaSauGiamMax(giaSauGiamMax)
+                .tenDotGiamGia(dotGiamGia != null ? dotGiamGia.getTen() : null)
+                .phanTramGiam(dotGiamGia != null ? dotGiamGia.getGiaTriDotGiamGia() : null)
+                .soTienGiam(dotGiamGia != null ? dotGiamGia.getGiaTriDotGiamGia() : null)
+                .trangThaiHienThi(trangThaiHienThi)
+                .trangThaiClass(trangThaiClass)
+                .anhChinh(anhChinh)
+                .anhPhu(anhPhu)
+                .chiTietSanPhams(chiTietDTOs)
+                .build();
+    }
+
+    /**
+     * Chuyển đổi ChiTietSanPham thành ChiTietSanPhamDTO
+     */
+    private SanPhamListDTO.ChiTietSanPhamDTO convertToChiTietDTO(ChiTietSanPham chiTiet) {
+        BigDecimal giaSauGiam = chiTiet.getGiaBan(); // Giá bán đã là giá sau giảm
+        
+        String trangThaiHienThi = determineChiTietTrangThai(chiTiet.getSoLuong());
+        
+        return SanPhamListDTO.ChiTietSanPhamDTO.builder()
+                .id(chiTiet.getId())
+                .tenCt(chiTiet.getTenCt())
+                .size(chiTiet.getSize() != null ? chiTiet.getSize().getTen() : "")
+                .mauSac(chiTiet.getMauSac() != null ? chiTiet.getMauSac().getTen() : "")
+                .soLuong(chiTiet.getSoLuong())
+                .giaGoc(chiTiet.getGiaGoc())
+                .giaBan(chiTiet.getGiaBan())
+                .giaSauGiam(giaSauGiam)
+                .trangThaiHienThi(trangThaiHienThi)
+                .build();
+    }
+
+    /**
+     * Xác định trạng thái hiển thị cho sản phẩm
+     */
+    private String determineTrangThaiHienThi(Boolean trangThai, int tongSoLuong) {
+        if (!trangThai) {
+            return "Ngưng hoạt động";
+        }
+        return "Đang hoạt động";
+    }
+
+    /**
+     * Xác định trạng thái hiển thị cho chi tiết sản phẩm
+     */
+    private String determineChiTietTrangThai(int soLuong) {
+        if (soLuong == 0) {
+            return "Hết hàng";
+        }
+        if (soLuong < 5) {
+            return "Sắp hết";
+        }
+        return "Còn hàng";
+    }
+
+    /**
+     * Xác định CSS class cho trạng thái
+     */
+    private String determineTrangThaiClass(String trangThaiHienThi) {
+        switch (trangThaiHienThi) {
+            case "Đang hoạt động":
+                return "status-active";
+            case "Ngưng hoạt động":
+                return "status-inactive";
+            default:
+                return "status-default";
+        }
+    }
+
+    /**
+     * Áp dụng filter cho danh sách sản phẩm
+     */
+    private List<SanPhamListDTO> applyFilters(List<SanPhamListDTO> products, SanPhamFilterDTO filter) {
+        return products.stream()
+                .filter(product -> {
+                    // Filter by keyword
+                    if (filter.getKeyword() != null && !filter.getKeyword().trim().isEmpty()) {
+                        String keyword = filter.getKeyword().toLowerCase();
+                        if (!product.getTen().toLowerCase().contains(keyword) &&
+                            !product.getMa().toLowerCase().contains(keyword)) {
+                            return false;
+                        }
+                    }
+                    
+                    // Filter by status
+                    if (filter.getTrangThaiHienThi() != null && !filter.getTrangThaiHienThi().isEmpty()) {
+                        if (!filter.getTrangThaiHienThi().equals(product.getTrangThaiHienThi())) {
+                            return false;
+                        }
+                    }
+                    
+                    // Filter by price range
+                    if (filter.getGiaMin() != null && product.getGiaSauGiamMin() != null) {
+                        if (product.getGiaSauGiamMin().compareTo(filter.getGiaMin()) < 0) {
+                            return false;
+                        }
+                    }
+                    if (filter.getGiaMax() != null && product.getGiaSauGiamMax() != null) {
+                        if (product.getGiaSauGiamMax().compareTo(filter.getGiaMax()) > 0) {
+                            return false;
+                        }
+                    }
+                    
+                    // Filter by quantity range
+                    if (filter.getSoLuongMin() != null) {
+                        if (product.getTongSoLuong() < filter.getSoLuongMin()) {
+                            return false;
+                        }
+                    }
+                    if (filter.getSoLuongMax() != null) {
+                        if (product.getTongSoLuong() > filter.getSoLuongMax()) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Áp dụng sorting cho danh sách sản phẩm
+     */
+    private List<SanPhamListDTO> applySorting(List<SanPhamListDTO> products, SanPhamFilterDTO filter) {
+        if (filter.getSortBy() == null || filter.getSortBy().isEmpty()) {
+            return products;
+        }
+        
+        Comparator<SanPhamListDTO> comparator = null;
+        
+        switch (filter.getSortBy()) {
+            case "ten":
+                comparator = Comparator.comparing(SanPhamListDTO::getTen, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "gia":
+                comparator = Comparator.comparing(SanPhamListDTO::getGiaSauGiamMin, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "soLuong":
+                comparator = Comparator.comparing(SanPhamListDTO::getTongSoLuong, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "ngayTao":
+                comparator = Comparator.comparing(SanPhamListDTO::getNgayTao, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            case "trangThai":
+                comparator = Comparator.comparing(SanPhamListDTO::getTrangThaiHienThi, Comparator.nullsLast(Comparator.naturalOrder()));
+                break;
+            default:
+                return products;
+        }
+        
+        if ("desc".equalsIgnoreCase(filter.getSortOrder())) {
+            comparator = comparator.reversed();
+        }
+        
+        return products.stream()
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Tính toán và cập nhật giá bán cho chi tiết sản phẩm
+     */
+    public void tinhToanVaCapNhatGiaBan(ChiTietSanPham chiTiet) {
+        if (chiTiet.getGiaGoc() == null) {
+            return;
+        }
+
+        BigDecimal giaGoc = chiTiet.getGiaGoc();
+        BigDecimal giaBan = giaGoc; // Mặc định giá bán = giá gốc
+
+        // Nếu có đợt giảm giá
+        if (chiTiet.getDotGiamGia() != null) {
+            DotGiamGia dotGiamGia = chiTiet.getDotGiamGia();
+            BigDecimal giaTriGiam = dotGiamGia.getGiaTriDotGiamGia();
+            
+            // Tính toán giá sau giảm
+            if ("TIEN".equalsIgnoreCase(dotGiamGia.getLoai())) {
+                // Giảm theo số tiền cố định
+                giaBan = giaGoc.subtract(giaTriGiam);
+            } else {
+                // Giảm theo phần trăm
+                BigDecimal phanTramGiam = giaTriGiam.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                BigDecimal soTienGiam = giaGoc.multiply(phanTramGiam);
+                giaBan = giaGoc.subtract(soTienGiam);
+            }
+            
+            // Đảm bảo giá bán không âm
+            if (giaBan.compareTo(BigDecimal.ZERO) < 0) {
+                giaBan = BigDecimal.ZERO;
+            }
+        }
+
+        // Cập nhật giá bán
+        chiTiet.setGiaBan(giaBan);
+        chiTiet.setNgaySua(LocalDateTime.now());
+        
+        // Lưu vào database
+        chitietsanphamrepository.save(chiTiet);
+    }
+
+    /**
+     * Áp dụng đợt giảm giá cho sản phẩm
+     */
+    public void apDungDotGiamGia(Integer sanPhamId, Integer dotGiamGiaId) {
+        List<ChiTietSanPham> chiTietList = chitietsanphamrepository.findBySanPhamId(sanPhamId);
+        
+        for (ChiTietSanPham chiTiet : chiTietList) {
+            if (dotGiamGiaId != null) {
+                // Áp dụng đợt giảm giá
+                DotGiamGia dotGiamGia = dotgiamgiarepository.findById(dotGiamGiaId).orElse(null);
+                if (dotGiamGia != null) {
+                    chiTiet.setDotGiamGia(dotGiamGia);
+                }
+            } else {
+                // Gỡ đợt giảm giá
+                chiTiet.setDotGiamGia(null);
+            }
+            
+            // Tính toán lại giá bán
+            tinhToanVaCapNhatGiaBan(chiTiet);
+        }
     }
 
     public List<SanPham> search(

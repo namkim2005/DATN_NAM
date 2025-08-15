@@ -1,6 +1,8 @@
 package com.main.datn_sd31.controller.admin_controller;
 
 import com.main.datn_sd31.dto.san_pham_DTO.ChiTietSanPhamForm;
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamFilterDTO;
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamListDTO;
 import com.main.datn_sd31.dto.san_pham_DTO.Sanphamform;
 import com.main.datn_sd31.entity.ChiTietSanPham;
 import com.main.datn_sd31.entity.DotGiamGia;
@@ -28,9 +30,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -74,38 +78,60 @@ public class SanPhamController {
 
     @GetMapping("/hien_thi")
     public String hienthi(Model model) {
-        List<SanPham> listSanPham = sanPhamService.getAll();
+        List<SanPhamListDTO> listSanPham = sanPhamService.getAllForDisplay();
         model.addAttribute("list", listSanPham);
         model.addAttribute("dsDotGiamGia", dotgiamgiarepository.findAll());
-
-        Map<Integer, BigDecimal[]> giaSanPhamMap = new HashMap<>();
-        for (SanPham sp : listSanPham) {
-            List<BigDecimal> giaList = sp.getChiTietSanPhams().stream()
-                    .map(ChiTietSanPham::getGiaBan)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            if (!giaList.isEmpty()) {
-                BigDecimal min = Collections.min(giaList);
-                BigDecimal max = Collections.max(giaList);
-                giaSanPhamMap.put(sp.getId(), new BigDecimal[]{min, max});
-            }
-        }
-        Map<Integer, DotGiamGia> dotMap = new HashMap<>();
-
-        for (SanPham sp : listSanPham) {
-            Optional<DotGiamGia> optionalDot = sp.getChiTietSanPhams().stream()
-                    .map(ChiTietSanPham::getDotGiamGia)
-                    .filter(Objects::nonNull)
-                    .findFirst();
-
-            optionalDot.ifPresent(dot -> dotMap.put(sp.getId(), dot));
-        }
-
-        model.addAttribute("dotMap", dotMap);
-
-        model.addAttribute("giaSanPhamMap", giaSanPhamMap);
+        
+        // Thêm dữ liệu cho filter
+        model.addAttribute("danhMucs", danhMucRepo.findAll());
+        model.addAttribute("thuongHieus", thuongHieuRepo.findAll());
+        model.addAttribute("chatLieus", chatLieuRepo.findAll());
+        model.addAttribute("xuatXus", xuatXuRepo.findAll());
+        model.addAttribute("kieuDangs", kieuDangRepo.findAll());
+        model.addAttribute("loaiThus", loaithurepository.findAll());
+        
         return "admin/pages/sanpham/list";
+    }
+
+    @GetMapping("/api/filter")
+    @ResponseBody
+    public ResponseEntity<List<SanPhamListDTO>> filterProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer danhMucId,
+            @RequestParam(required = false) Integer loaiThuId,
+            @RequestParam(required = false) Integer chatLieuId,
+            @RequestParam(required = false) Integer kieuDangId,
+            @RequestParam(required = false) Integer thuongHieuId,
+            @RequestParam(required = false) Integer xuatXuId,
+            @RequestParam(required = false) Boolean trangThai,
+            @RequestParam(required = false) String trangThaiHienThi,
+            @RequestParam(required = false) BigDecimal giaMin,
+            @RequestParam(required = false) BigDecimal giaMax,
+            @RequestParam(required = false) Integer soLuongMin,
+            @RequestParam(required = false) Integer soLuongMax,
+            @RequestParam(required = false, defaultValue = "ngayTao") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortOrder) {
+        
+        SanPhamFilterDTO filter = SanPhamFilterDTO.builder()
+                .keyword(keyword)
+                .danhMucId(danhMucId)
+                .loaiThuId(loaiThuId)
+                .chatLieuId(chatLieuId)
+                .kieuDangId(kieuDangId)
+                .thuongHieuId(thuongHieuId)
+                .xuatXuId(xuatXuId)
+                .trangThai(trangThai)
+                .trangThaiHienThi(trangThaiHienThi)
+                .giaMin(giaMin)
+                .giaMax(giaMax)
+                .soLuongMin(soLuongMin)
+                .soLuongMax(soLuongMax)
+                .sortBy(sortBy)
+                .sortOrder(sortOrder)
+                .build();
+        
+        List<SanPhamListDTO> result = sanPhamService.getFilteredProducts(filter);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/them")
@@ -628,5 +654,57 @@ public class SanPhamController {
 
         redirect.addFlashAttribute("message", "Cập nhật số lượng thành công!");
         return "redirect:/admin/san-pham/xem/" + ct.getSanPham().getId();
+    }
+
+    @PostMapping("/tao-ma-ngau-nhien")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> taoMaNgauNhien() {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            String maNgauNhien;
+            int maxAttempts = 10; // Giới hạn số lần thử để tránh vòng lặp vô hạn
+            int attempts = 0;
+            
+            do {
+                // Tạo mã ngẫu nhiên: SP + 6 số ngẫu nhiên
+                maNgauNhien = "SP" + String.format("%06d", (int)(Math.random() * 1000000));
+                attempts++;
+            } while (sanPhamRepository.existsByMa(maNgauNhien) && attempts < maxAttempts);
+            
+            if (attempts >= maxAttempts) {
+                response.put("success", false);
+                response.put("message", "Không thể tạo mã ngẫu nhiên sau nhiều lần thử. Vui lòng thử lại.");
+                return ResponseEntity.ok(response);
+            }
+            
+            response.put("success", true);
+            response.put("ma", maNgauNhien);
+            response.put("message", "Tạo mã thành công!");
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check-ma")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> checkMaSanPham(@RequestParam("ma") String ma) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            boolean exists = sanPhamRepository.existsByMa(ma);
+            response.put("exists", exists);
+            response.put("success", true);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
     }
 }
