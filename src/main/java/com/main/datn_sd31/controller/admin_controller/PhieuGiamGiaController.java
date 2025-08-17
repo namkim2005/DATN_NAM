@@ -3,6 +3,7 @@ package com.main.datn_sd31.controller.admin_controller;
 import com.main.datn_sd31.entity.PhieuGiamGia;
 import com.main.datn_sd31.service.HoaDonService;
 import com.main.datn_sd31.service.PhieuGiamGiaService;
+import com.main.datn_sd31.util.GetNhanVien;
 import com.main.datn_sd31.util.ThongBaoUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,8 @@ public class PhieuGiamGiaController {
     private final HoaDonService hoaDonService;
 
     private final PhieuGiamGiaService phieuGiamGiaService;
+
+    private final GetNhanVien get_nhan_vien;
 
     @GetMapping
     public String index(
@@ -72,7 +75,7 @@ public class PhieuGiamGiaController {
 
         phieuGiamGia.setNgayTao(LocalDate.now());
         phieuGiamGia.setNgaySua(LocalDate.now());
-        phieuGiamGiaService.save(phieuGiamGia);
+        phieuGiamGiaService.save(phieuGiamGia, get_nhan_vien.getCurrentNhanVien());
         ThongBaoUtils.addSuccess(redirectAttributes, "Thêm thành công");
         return "redirect:/admin/phieu-giam-gia";
     }
@@ -107,7 +110,7 @@ public class PhieuGiamGiaController {
         }
 
         pg.setNgaySua(LocalDate.now());
-        phieuGiamGiaService.save(pg);
+        phieuGiamGiaService.save(pg, get_nhan_vien.getCurrentNhanVien());
         ThongBaoUtils.addSuccess(redirectAttributes, "Cập nhật thành công");
         return "redirect:/admin/phieu-giam-gia";
     }

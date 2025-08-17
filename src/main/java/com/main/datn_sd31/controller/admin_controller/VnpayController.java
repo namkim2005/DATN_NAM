@@ -96,15 +96,15 @@ public class VnpayController {
         if ("00".equals(responseCode) && "00".equals(transactionStatus)) {
 
             hoaDonRepository.capNhatTrangThaiHoaDon(3,maHoaDon);
-            // Lưu lịch sử
-            LichSuHoaDon lichSu = new LichSuHoaDon();
-            lichSu.setHoaDon(hoaDon);
-            lichSu.setTrangThai(1);
-            lichSu.setNguoiTao(hoaDon.getNguoiTao());
-            lichSu.setNguoiSua(hoaDon.getNguoiSua());
-            lichSu.setGhiChu("Đặt hàng thành công");
-            lichSu.setNgayTao(LocalDateTime.now());
-            lichSuHoaDonRepository.save(lichSu);
+//            // Lưu lịch sử
+//            LichSuHoaDon lichSu = new LichSuHoaDon();
+//            lichSu.setHoaDon(hoaDon);
+//            lichSu.setTrangThai(1);
+//            lichSu.setNguoiTao(hoaDon.getNguoiTao());
+//            lichSu.setNguoiSua(hoaDon.getNguoiSua());
+//            lichSu.setGhiChu("Đặt hàng thành công");
+//            lichSu.setNgayTao(LocalDateTime.now());
+//            lichSuHoaDonRepository.save(lichSu);
 
             for (GioHangChiTiet item : gioHangChiTiets) {
                 ChiTietSanPham ctsp = item.getChiTietSp();

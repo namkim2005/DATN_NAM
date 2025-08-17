@@ -171,8 +171,8 @@
           <a th:href="@{/admin/don-hang(trang-thai=${status.name()})}" th:text="${status.moTa}"></a>
           <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                 th:if="${trangThaiCount[status.moTa] != null and
-                                   trangThaiCount[status.moTa] != 0
-                                   }"
+                         trangThaiCount[status.moTa] != 0
+                         }"
                 th:text="${trangThaiCount[status.moTa]}">
                     </span>
         </button>
@@ -276,26 +276,26 @@
                   </select>
                 </div>
 
-                <div class="mb-3"
-                     th:id="'lyDoGiaoKhongThanhCongGroup_' + ${hoaDon.ma}"
-                     th:attr="data-current=${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"
-                     th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)} ? '' : 'display:none;'">
-                  <label th:for="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}" class="form-label">
-                    Chọn lý do giao không thành công <span th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon) ? 'display: none;' : 'color: red;'}">*</span>
-                  </label>
-                  <select name="lyDoGiaoKhongThanhCong"
-                          th:id="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}"
-                          class="form-select"
-                          th:disabled="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"
-                          >
-                    <option value="" disabled>-- Chọn lý do --</option>
-                    <option th:each="lyDo : ${lyDoGiaoKhongThanhCongList}"
-                            th:value="${lyDo.getValue()}"
-                            th:text="${lyDo.moTa}"
-                            th:selected="${lyDo.getValue() == hoaDon.lyDoGiaoKhongThanhCongEnum}">
-                    </option>
-                  </select>
-                </div>
+<!--                <div class="mb-3"-->
+<!--                     th:id="'lyDoGiaoKhongThanhCongGroup_' + ${hoaDon.ma}"-->
+<!--                     th:attr="data-current=${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"-->
+<!--                     th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)} ? '' : 'display:none;'">-->
+<!--                  <label th:for="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}" class="form-label">-->
+<!--                    Chọn lý do giao không thành công <span th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon) ? 'display: none;' : 'color: red;'}">*</span>-->
+<!--                  </label>-->
+<!--                  <select name="lyDoGiaoKhongThanhCong"-->
+<!--                          th:id="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}"-->
+<!--                          class="form-select"-->
+<!--                          th:disabled="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"-->
+<!--                          >-->
+<!--                    <option value="" disabled>&#45;&#45; Chọn lý do &#45;&#45;</option>-->
+<!--                    <option th:each="lyDo : ${lyDoGiaoKhongThanhCongList}"-->
+<!--                            th:value="${lyDo.getValue()}"-->
+<!--                            th:text="${lyDo.moTa}"-->
+<!--                            th:selected="${lyDo.getValue() == hoaDon.lyDoGiaoKhongThanhCongEnum}">-->
+<!--                    </option>-->
+<!--                  </select>-->
+<!--                </div>-->
 
 
                 <div class="mb-3">
@@ -349,39 +349,39 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('[id^="trangThaiMoi_"]').forEach(function (select) {
-        const maHoaDon = select.id.split('_')[1];
-        const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup_' + maHoaDon);
-        const lyDoSelect = document.getElementById('lyDoGiaoKhongThanhCong_' + maHoaDon);
-        const isCurrentGiaoKhongThanhCong = lyDoGroup.dataset.current === 'true';
+<!--  <script>-->
+<!--    document.addEventListener('DOMContentLoaded', function () {-->
+<!--      document.querySelectorAll('[id^="trangThaiMoi_"]').forEach(function (select) {-->
+<!--        const maHoaDon = select.id.split('_')[1];-->
+<!--        const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup_' + maHoaDon);-->
+<!--        const lyDoSelect = document.getElementById('lyDoGiaoKhongThanhCong_' + maHoaDon);-->
+<!--        const isCurrentGiaoKhongThanhCong = lyDoGroup.dataset.current === 'true';-->
 
-        function checkTrangThai() {
-          if (select.value === '10') {
-            // Khi chọn trạng thái mới là "Giao không thành công"
-            lyDoGroup.style.display = 'block';
-            lyDoSelect.disabled = false;
-            lyDoSelect.setAttribute('required', 'required');
-          } else if (isCurrentGiaoKhongThanhCong) {
-            // Khi trạng thái hiện tại đã là "Giao không thành công"
-            lyDoGroup.style.display = 'block';
-            lyDoSelect.disabled = true;
-            lyDoSelect.removeAttribute('required');
-          } else {
-            // Các trường hợp còn lại
-            lyDoGroup.style.display = 'none';
-            lyDoSelect.disabled = true;
-            lyDoSelect.removeAttribute('required');
-            lyDoSelect.value = '';
-          }
-        }
+<!--        function checkTrangThai() {-->
+<!--          if (select.value === '10') {-->
+<!--            // Khi chọn trạng thái mới là "Giao không thành công"-->
+<!--            lyDoGroup.style.display = 'block';-->
+<!--            lyDoSelect.disabled = false;-->
+<!--            lyDoSelect.setAttribute('required', 'required');-->
+<!--          } else if (isCurrentGiaoKhongThanhCong) {-->
+<!--            // Khi trạng thái hiện tại đã là "Giao không thành công"-->
+<!--            lyDoGroup.style.display = 'block';-->
+<!--            lyDoSelect.disabled = true;-->
+<!--            lyDoSelect.removeAttribute('required');-->
+<!--          } else {-->
+<!--            // Các trường hợp còn lại-->
+<!--            lyDoGroup.style.display = 'none';-->
+<!--            lyDoSelect.disabled = true;-->
+<!--            lyDoSelect.removeAttribute('required');-->
+<!--            lyDoSelect.value = '';-->
+<!--          }-->
+<!--        }-->
 
-        select.addEventListener('change', checkTrangThai);
-        checkTrangThai();
-      });
-    });
-  </script>
+<!--        select.addEventListener('change', checkTrangThai);-->
+<!--        checkTrangThai();-->
+<!--      });-->
+<!--    });-->
+<!--  </script>-->
 
   <!--Change size Pagination-->
   <script>

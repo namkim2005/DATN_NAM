@@ -1,5 +1,6 @@
 package com.main.datn_sd31.service.impl;
 
+import com.main.datn_sd31.entity.NhanVien;
 import com.main.datn_sd31.entity.PhieuGiamGia;
 import com.main.datn_sd31.dto.phieu_giam_gia.PhieuGiamGiaDto;
 import com.main.datn_sd31.repository.PhieuGiamGiaRepository;
@@ -58,7 +59,9 @@ public class PhieuGiamGiaServiceImpl implements PhieuGiamGiaService {
     }
 
     @Override
-    public void save(PhieuGiamGia pg) {
+    public void save(PhieuGiamGia pg, NhanVien nhanVien) {
+        pg.setTrangThai(true);
+        pg.setNguoiTao(nhanVien.getId());
         repository.save(pg);
     }
 

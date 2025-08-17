@@ -78,6 +78,7 @@
                         <th class="p-3">Ảnh</th>
                         <th class="p-3">Tên Sản phẩm</th>
                         <th class="p-3">Giá</th>
+                        <th class="p-3">Hành động</th>
                     </tr>
                     </thead>
                     <tbody id="ketQuaTimSanPham">
@@ -180,8 +181,12 @@
                             <div class="col-md-6">
                                 <select class="form-select" name="maGiamGia">
                                     <option value="">-- Mã giảm giá --</option>
-                                    <option th:each="p : ${dsPhieuGiamGia}" th:value="${p.ma}"
-                                            th:text="${p.ma + '-' + (#numbers.formatDecimal(p.mucDo, 0, 'COMMA', 0, 'POINT')) + (p.loaiPhieuGiamGia == 1 ? '%' : 'đ') + ' - giảm tối đa:' + (#numbers.formatDecimal(p.giamToiDa, 0, 'COMMA', 0, 'POINT'))}">
+                                    <option th:each="p : ${dsPhieuGiamGia}"
+                                            th:value="${p.ma}"
+                                            th:text="${p.ma + '-' + (#numbers.formatDecimal(p.mucDo, 0, 'COMMA', 0, 'POINT'))
+                                            + (p.loaiPhieuGiamGia == 1 ? '%' : 'đ') + ' - giảm tối đa:'
+                                            + (#numbers.formatDecimal(p.giamToiDa, 0, 'COMMA', 0, 'POINT')) + ' /ĐK: '
+                                            + p.dieuKien}">
                                     </option>
                                 </select>
                             </div>
@@ -218,10 +223,18 @@
                             </div>
 
                             <div class="mb-3">
+                                <label for="ten" class="form-label">Tên người nhận:</label>
+                                <input type="text" name="ten" class="form-control" id="ten" placeholder="Nhập tên người nhận">
+                            </div>
+                            <div class="mb-3">
                                 <label for="soDienThoai" class="form-label">Số điện thoại:</label>
                                 <input type="text" name="soDienThoai" class="form-control" id="soDienThoai" placeholder="Nhập số điện thoại">
                             </div>
 
+                            <div class="mb-3">
+                                <label for="ghichu" class="form-label">Ghi chú:</label>
+                                <input type="text" name="ghichu" class="form-control" id="ghichu" placeholder="Nhập ghi chú">
+                            </div>
                             <!-- Nút tạo đơn vận chuyển -->
 
                         </div>
@@ -489,7 +502,7 @@
                         <td class="p-3">${index + 1}</td>
                         <td class="p-3">${sp.ma || ''}</td>
                         <td class="p-3">
-                            <img src="${sp.hinhAnh}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
+                            <img src="${'/uploads/' + sp.hinhAnh}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
                         </td>
                         <td class="p-3">${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc} - SL: ${sp.soLuong}</td>
                         <td class="p-3">${sp.giaBan}</td>

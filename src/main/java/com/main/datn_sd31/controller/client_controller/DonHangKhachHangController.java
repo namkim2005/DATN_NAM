@@ -70,7 +70,7 @@ public class DonHangKhachHangController {
 
         Map<String, List<TrangThaiLichSuHoaDon>> trangThaiHopLeMap = new HashMap<>();
         for (HoaDonDTO hd : hoaDonList.getContent()) {
-            trangThaiHopLeMap.put(hd.getMa(), lichSuHoaDonService.getTrangThaiTiepTheoHopLe(hd.getTrangThaiLichSuHoaDon(), hd));
+            trangThaiHopLeMap.put(hd.getMa(), lichSuHoaDonService.getTrangThaiTiepTheoHopLeKhachHang(hd.getTrangThaiLichSuHoaDon(), hd));
         }
         model.addAttribute("trangThaiHopLeMap", trangThaiHopLeMap);
 

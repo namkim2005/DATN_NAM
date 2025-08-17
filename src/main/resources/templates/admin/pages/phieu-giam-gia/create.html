@@ -217,52 +217,64 @@
             </div>
         </form>
     </div>
+
+    <!--Kiểm soát giá trị input number-->
+    <script>
+        function limitNumberLength(el, maxLength) {
+            if (el.value.length > maxLength) {
+                el.value = el.value.slice(0, maxLength);
+            }
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            function handleLoaiPhieuChange() {
+                const selectedValue = parseInt($("#loaiPhieuGiamGia").val());
+                const mucDo = parseFloat($("#mucDo").val()) || 0;
+
+                if (selectedValue === 1) {
+                    // Giảm %
+                    $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
+                    $("#divGiamToiDa").show();
+                    $("#giamToiDa")
+                        .attr("required", true)
+                        .removeAttr("readonly")
+                        .val(0);
+                } else if (selectedValue === 2) {
+                    // Giảm tiền
+                    $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
+                    $("#divGiamToiDa").show(); // vẫn hiển thị
+                    $("#giamToiDa")
+                        .attr("readonly", true)
+                        .removeAttr("required")
+                        .val(mucDo); // gán giá trị bằng mức giảm
+                }
+            }
+
+            // Khi thay đổi loại phiếu
+            $("#loaiPhieuGiamGia").on("change", function () {
+                handleLoaiPhieuChange();
+            });
+
+            // Nếu thay đổi mức giảm và đang ở loại "Giảm tiền", cập nhật luôn giamToiDa
+            $("#mucDo").on("input", function () {
+                const selectedValue = parseInt($("#loaiPhieuGiamGia").val());
+                if (selectedValue === 2) {
+                    const mucDo = parseFloat($(this).val()) || 0;
+                    $("#giamToiDa").val(mucDo);
+                }
+            });
+
+            // Gọi khi load form
+            handleLoaiPhieuChange();
+        });
+    </script>
+
 </section>
 
 
-<script>
-    $(document).ready(function () {
-        function handleLoaiPhieuChange() {
-            const selectedValue = parseInt($("#loaiPhieuGiamGia").val());
-            const mucDo = parseFloat($("#mucDo").val()) || 0;
 
-            if (selectedValue === 1) {
-                // Giảm %
-                $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
-                $("#divGiamToiDa").show();
-                $("#giamToiDa")
-                    .attr("required", true)
-                    .removeAttr("readonly")
-                    .val(0);
-            } else if (selectedValue === 2) {
-                // Giảm tiền
-                $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
-                $("#divGiamToiDa").show(); // vẫn hiển thị
-                $("#giamToiDa")
-                    .attr("readonly", true)
-                    .removeAttr("required")
-                    .val(mucDo); // gán giá trị bằng mức giảm
-            }
-        }
-
-        // Khi thay đổi loại phiếu
-        $("#loaiPhieuGiamGia").on("change", function () {
-            handleLoaiPhieuChange();
-        });
-
-        // Nếu thay đổi mức giảm và đang ở loại "Giảm tiền", cập nhật luôn giamToiDa
-        $("#mucDo").on("input", function () {
-            const selectedValue = parseInt($("#loaiPhieuGiamGia").val());
-            if (selectedValue === 2) {
-                const mucDo = parseFloat($(this).val()) || 0;
-                $("#giamToiDa").val(mucDo);
-            }
-        });
-
-        // Gọi khi load form
-        handleLoaiPhieuChange();
-    });
-</script>
 
 <!--  Thong bao-->
 <script th:inline="javascript">
@@ -303,14 +315,7 @@
 </script>
 <!--  Thong bao-->
 
-<!--Kiểm soát giá trị input number-->
-<script>
-    function limitNumberLength(el, maxLength) {
-        if (el.value.length > maxLength) {
-            el.value = el.value.slice(0, maxLength);
-        }
-    }
-</script>
+
 
 </body>
 </html>

@@ -446,13 +446,13 @@
                   th:text="${!hoaDon.ghiChu.isEmpty() ? hoaDon.ghiChu.toString() : 'Không có ghi chú'}">
             </span>
 
-            <form th:action="@{/admin/hoa-don/detail/cap-nhat-ghi-chu}" method="post"
-                  th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">
-                <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}" />
+<!--            <form th:action="@{/admin/hoa-don/detail/cap-nhat-ghi-chu}" method="post"-->
+<!--                  th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">-->
+<!--                <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}" />-->
 
-                <input type="text" name="ghiChuHoaDon" th:value="${hoaDon.ghiChu}" class="form-control"/>
-                <button type="submit" class="btn btn-primary mt-2">Cập nhật ghi chú</button>
-            </form>
+<!--                <input type="text" name="ghiChuHoaDon" th:value="${hoaDon.ghiChu}" class="form-control"/>-->
+<!--                <button type="submit" class="btn btn-primary mt-2">Cập nhật ghi chú</button>-->
+<!--            </form>-->
         </p>
     </div>
 
@@ -477,20 +477,20 @@
                     <td th:text="${index.count}" class="text-center"></td>
                     <td th:text="${hdct.tenCTSP}" class="text-center"></td>
                     <td th:text="${@utils.formatCurrency(hdct.giaSauGiam)}" class="text-end"></td>
-<!--                    <td th:text="${hdct.soLuong}" class="text-center"></td>-->
-                    <td class="text-center">
-                        <div class="input-group input-group-sm justify-content-center"
-                             th:if="${hoaDon.trangThaiLichSuHoaDon.name() == 'CHO_XAC_NHAN'}">
-                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, -1)">-</button>
-                            <input type="number" class="form-control text-center so-luong-input" th:value="${hdct.soLuong}"
-                                   min="1" th:data-id="${hdct.idHoaDonChiTiet}" onchange="capNhatSoLuong(this)">
-                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, 1)">+</button>
-                        </div>
+                    <td th:text="${hdct.soLuong}" class="text-center"></td>
+<!--                    <td class="text-center">-->
+<!--                        <div class="input-group input-group-sm justify-content-center"-->
+<!--                             th:if="${hoaDon.trangThaiLichSuHoaDon.name() == 'CHO_XAC_NHAN'}">-->
+<!--                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, -1)">-</button>-->
+<!--                            <input type="number" class="form-control text-center so-luong-input" th:value="${hdct.soLuong}"-->
+<!--                                   min="1" th:data-id="${hdct.idHoaDonChiTiet}" onchange="capNhatSoLuong(this)">-->
+<!--                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, 1)">+</button>-->
+<!--                        </div>-->
 
-                        <!-- Nếu không được thay đổi -->
-                        <span th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'CHO_XAC_NHAN'}"
-                              th:text="${hdct.soLuong}"></span>
-                    </td>
+<!--                        &lt;!&ndash; Nếu không được thay đổi &ndash;&gt;-->
+<!--                        <span th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'CHO_XAC_NHAN'}"-->
+<!--                              th:text="${hdct.soLuong}"></span>-->
+<!--                    </td>-->
                     <td class="text-end tong-tien" th:text="${@utils.formatCurrency(hdct.tongTien)}"></td>
                 </tr>
                 </tbody>

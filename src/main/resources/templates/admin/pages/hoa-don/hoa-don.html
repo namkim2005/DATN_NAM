@@ -105,6 +105,14 @@
             pointer-events: auto; /* Cho phép hover nhưng không click vì có 'disabled' */
         }
 
+        .filter-buttons .btn.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .filter-buttons .btn.active a {
+            color: white;
+        }
+
     </style>
 </head>
 <body>
@@ -163,19 +171,18 @@
         <div class="table-section" style="width: initial;">
             <div class="filter-buttons mb-3">
                 <button class="btn btn-outline-primary">
-                    <a th:href="@{/admin/hoa-don}">Tất cả</a>
+                    <a th:href="@{/admin/hoa-don}"
+                       th:classappend="${selectedStatus == null} ? ' active' : ''">
+                        Tất cả
+                    </a>
                 </button>
-                <button th:each="status : ${T(com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon).values()}"
-                        th:if="${(status.value == 5 or status.value == 8 or status.value == 9 or status.value == 10)}"
-                        class="btn btn-outline-primary position-relative">
-                    <a th:href="@{/admin/hoa-don(trang-thai=${status.name()})}" th:text="${status.moTa}"></a>
-<!--                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"-->
-<!--                          th:if="${trangThaiCount[status.moTa] != null and-->
-<!--                                   trangThaiCount[status.moTa] != 0 and-->
-<!--                                   !(status.name() == 'HOAN_THANH' or status.name() == 'DA_HOAN' or status.name() == 'HUY')}"-->
-<!--                          th:text="${trangThaiCount[status.moTa]}">-->
-<!--                    </span>-->
-                </button>
+                <a th:each="status : ${T(com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon).values()}"
+                   th:if="${status.value == 5 or status.value == 8 or status.value == 9}"
+                   th:href="@{/admin/hoa-don(trang-thai=${status.name()})}"
+                   class="btn btn-outline-primary position-relative"
+                   th:classappend="${selectedStatus != null and selectedStatus.name() == status.name()} ? ' active' : ''"
+                   th:text="${status.moTa}">
+                </a>
             </div>
 
             <table id="billTable" class="table table-bordered table-hover">
@@ -291,8 +298,8 @@
                                 <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}"/>
 
                                 <div class="mb-3" th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'HOAN_THANH'
-                                                                and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
-                                                                and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
+                                                        and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
+                                                        and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
                                     <label class="form-label">Chọn trạng thái mới:</label>
                                     <select name="trangThaiMoi" class="form-select">
                                         <option th:each="tt : ${trangThaiHopLeMap[hoaDon.ma]}"

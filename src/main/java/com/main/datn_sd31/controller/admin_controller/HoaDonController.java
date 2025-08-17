@@ -67,10 +67,13 @@ public class HoaDonController {
         model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
 
         Map<String, List<TrangThaiLichSuHoaDon>> trangThaiHopLeMap = new HashMap<>();
+
         for (HoaDonDTO hd : hoaDonList.getContent()) {
             trangThaiHopLeMap.put(hd.getMa(), lichSuHoaDonService.getTrangThaiTiepTheoHopLe(hd.getTrangThaiLichSuHoaDon(), hd));
         }
+
         model.addAttribute("trangThaiHopLeMap", trangThaiHopLeMap);
+        model.addAttribute("selectedStatus", trangThai);
 
         return "admin/pages/hoa-don/hoa-don";
     }
@@ -123,7 +126,7 @@ public class HoaDonController {
         var ketQua = lichSuHoaDonService.xuLyCapNhatTrangThai(
                 maHoaDon,
                 trangThaiMoi,
-                lyDoGiaoKhongThanhCong,
+//                lyDoGiaoKhongThanhCong,
                 ghiChu,
                 getNhanVien.getCurrentNhanVien()
         );

@@ -224,130 +224,131 @@
             </table>
         </div>
     </div>
+
+    <!-- Nếu sử dụng Thymeleaf để mở modal khi có lỗi -->
+    <script th:if="${showCreateModal}" th:inline="javascript">
+        const createModal = new bootstrap.Modal(document.getElementById("createModal"));
+        createModal.show();
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $(".table").DataTable({
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
+                },
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+            });
+        });
+    </script>
+
+    <script>
+        // ✅ Định nghĩa hàm resetForm là global để dùng được trong onclick
+        window.resetForm = function () {
+            const form = document.getElementById("phieuGiamGiaForm");
+            if (form) form.reset();
+
+            // Xóa giá trị hidden ID nếu có
+            const hiddenId = document.querySelector("input[name='id']");
+            if (hiddenId) hiddenId.value = "";
+
+            // Đặt lại placeholder và ẩn/hiện giảm tối đa
+            document.getElementById("mucDo").placeholder = "";
+            document.getElementById("giamToiDa").value = 0;
+            document.getElementById("divGiamToiDa").style.display = "block";
+
+            // Đổi action về create
+            document.getElementById("phieuGiamGiaForm").setAttribute("action", "/admin/phieu-giam-gia/create");
+
+            // Hiển thị modal
+            const modal = new bootstrap.Modal(document.getElementById("createModal"));
+            modal.show();
+        };
+
+        // ✅ Phần chạy sau khi DOM đã load
+        $(document).ready(function () {
+            // Kích hoạt datatables
+            $(".table").DataTable({
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
+                },
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+            });
+
+            // Submit form ajax
+            $("#phieuGiamGiaForm").on("submit", function (e) {
+                e.preventDefault();
+                const form = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert("Lưu thành công!");
+                            location.reload();
+                        } else {
+                            alert("Có lỗi xảy ra: " + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Có lỗi xảy ra khi lưu dữ liệu.");
+                    },
+                });
+            });
+
+            // Bắt sự kiện khi click nút sửa
+            $(".btn-edit").on("click", function (e) {
+                e.preventDefault();
+                const id = $(this).data("id");
+                $.ajax({
+                    url: "/admin/phieu-giam-gia/get/" + id,
+                    method: "GET",
+                    success: function (data) {
+                        const form = $("#phieuGiamGiaForm");
+
+                        // Gán action update
+                        form.attr("action", "/admin/phieu-giam-gia/update");
+
+                        // Gán dữ liệu từ response vào form
+                        for (let field in data) {
+                            form.find("[name='" + field + "']").val(data[field]);
+                        }
+
+                        // Trigger lại loại phiếu để xử lý hiển thị giảm tối đa
+                        $("#loaiPhieuGiamGia").trigger("change");
+
+                        const modal = new bootstrap.Modal(document.getElementById("createModal"));
+                        modal.show();
+                    },
+                    error: function () {
+                        alert("Không thể lấy dữ liệu phiếu giảm giá.");
+                    },
+                });
+            });
+
+            // Xử lý hiển thị giảm tối đa theo loại phiếu
+            $("#loaiPhieuGiamGia").on("change", function () {
+                const selectedValue = $(this).val();
+                if (selectedValue === "GIAM_PERCENT") {
+                    $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
+                    $("#divGiamToiDa").show();
+                    $("#giamToiDa").attr("required", true).val(0);
+                } else if (selectedValue === "GIAM_TIEN") {
+                    $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
+                    $("#divGiamToiDa").hide();
+                    $("#giamToiDa").removeAttr("required").val(0);
+                }
+            });
+        });
+
+        // ✅ Hiển thị modal tự động nếu có biến showCreateModal được set
+        // Ví dụ được dùng khi redirect lại với trạng thái lỗi
+    </script>
+
 </section>
-
-<script>
-    // ✅ Định nghĩa hàm resetForm là global để dùng được trong onclick
-    window.resetForm = function () {
-        const form = document.getElementById("phieuGiamGiaForm");
-        if (form) form.reset();
-
-        // Xóa giá trị hidden ID nếu có
-        const hiddenId = document.querySelector("input[name='id']");
-        if (hiddenId) hiddenId.value = "";
-
-        // Đặt lại placeholder và ẩn/hiện giảm tối đa
-        document.getElementById("mucDo").placeholder = "";
-        document.getElementById("giamToiDa").value = 0;
-        document.getElementById("divGiamToiDa").style.display = "block";
-
-        // Đổi action về create
-        document.getElementById("phieuGiamGiaForm").setAttribute("action", "/admin/phieu-giam-gia/create");
-
-        // Hiển thị modal
-        const modal = new bootstrap.Modal(document.getElementById("createModal"));
-        modal.show();
-    };
-
-    // ✅ Phần chạy sau khi DOM đã load
-    $(document).ready(function () {
-        // Kích hoạt datatables
-        $(".table").DataTable({
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
-            },
-            pageLength: 10,
-            lengthMenu: [10, 25, 50, 100],
-        });
-
-        // Submit form ajax
-        $("#phieuGiamGiaForm").on("submit", function (e) {
-            e.preventDefault();
-            const form = $(this);
-            $.ajax({
-                type: "POST",
-                url: form.attr("action"),
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        alert("Lưu thành công!");
-                        location.reload();
-                    } else {
-                        alert("Có lỗi xảy ra: " + response.message);
-                    }
-                },
-                error: function () {
-                    alert("Có lỗi xảy ra khi lưu dữ liệu.");
-                },
-            });
-        });
-
-        // Bắt sự kiện khi click nút sửa
-        $(".btn-edit").on("click", function (e) {
-            e.preventDefault();
-            const id = $(this).data("id");
-            $.ajax({
-                url: "/admin/phieu-giam-gia/get/" + id,
-                method: "GET",
-                success: function (data) {
-                    const form = $("#phieuGiamGiaForm");
-
-                    // Gán action update
-                    form.attr("action", "/admin/phieu-giam-gia/update");
-
-                    // Gán dữ liệu từ response vào form
-                    for (let field in data) {
-                        form.find("[name='" + field + "']").val(data[field]);
-                    }
-
-                    // Trigger lại loại phiếu để xử lý hiển thị giảm tối đa
-                    $("#loaiPhieuGiamGia").trigger("change");
-
-                    const modal = new bootstrap.Modal(document.getElementById("createModal"));
-                    modal.show();
-                },
-                error: function () {
-                    alert("Không thể lấy dữ liệu phiếu giảm giá.");
-                },
-            });
-        });
-
-        // Xử lý hiển thị giảm tối đa theo loại phiếu
-        $("#loaiPhieuGiamGia").on("change", function () {
-            const selectedValue = $(this).val();
-            if (selectedValue === "GIAM_PERCENT") {
-                $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
-                $("#divGiamToiDa").show();
-                $("#giamToiDa").attr("required", true).val(0);
-            } else if (selectedValue === "GIAM_TIEN") {
-                $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
-                $("#divGiamToiDa").hide();
-                $("#giamToiDa").removeAttr("required").val(0);
-            }
-        });
-    });
-
-    // ✅ Hiển thị modal tự động nếu có biến showCreateModal được set
-    // Ví dụ được dùng khi redirect lại với trạng thái lỗi
-</script>
-
-<!-- Nếu sử dụng Thymeleaf để mở modal khi có lỗi -->
-<script th:if="${showCreateModal}" th:inline="javascript">
-    const createModal = new bootstrap.Modal(document.getElementById("createModal"));
-    createModal.show();
-</script>
-
-<script>
-    $(document).ready(function () {
-        $(".table").DataTable({
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
-            },
-            pageLength: 10,
-            lengthMenu: [10, 25, 50, 100],
-        });
-    });
-</script>
 
 </body>
 </html>

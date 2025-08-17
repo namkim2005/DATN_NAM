@@ -69,7 +69,7 @@ public class HoaDonServiceIpml implements HoaDonService {
             } else {
                 dto.setCapNhatLanCuoi(DateTimeUtils.format(hoaDon.getNgayTao()));
             }
-            dto.setLyDoGiaoKhongThanhCongEnum(lichSuMoiNhat.getLyDoGiaoKhongThanhCong());
+//            dto.setLyDoGiaoKhongThanhCongEnum(lichSuMoiNhat.getLyDoGiaoKhongThanhCong());
         } else {
             dto.setTrangThaiLichSuHoaDon(10);
             dto.setCapNhatLanCuoi(DateTimeUtils.format(hoaDon.getNgayTao()));

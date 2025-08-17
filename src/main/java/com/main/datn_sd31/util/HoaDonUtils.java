@@ -20,7 +20,7 @@ public class HoaDonUtils {
 
     public static boolean khongChoPhepCapNhatTrangThai(TrangThaiLichSuHoaDon trangThai) {
         return switch (trangThai) {
-            case HOAN_THANH, DA_HOAN, HUY, DA_GIAO -> false;
+            case HOAN_THANH, DA_HOAN, HUY -> false;
             default -> true;
         };
     }

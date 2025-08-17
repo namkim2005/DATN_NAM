@@ -386,51 +386,57 @@
                     <div class="modal-body">
                         <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}"/>
 
-                        <div class="mb-3" id="trangThaiMoiGroup"
-                             th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'HOAN_THANH'
-                                      and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
-                                      and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_GIAO'
-                                      and hoaDon.trangThaiLichSuHoaDon.name() != 'GIAO_KHONG_THANH_CONG'
-                                      and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
-                            <label for="trangThaiMoi" class="form-label">Chọn trạng thái mới:</label>
-                            <select name="trangThaiMoi" id="trangThaiMoi" class="form-select">
+                        <div class="mb-3" th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'HOAN_THANH'
+                                          and hoaDon.trangThaiLichSuHoaDon.name() != 'DA_HOAN'
+                                          and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
+                            <label class="form-label">Chọn trạng thái mới:</label>
+                            <select name="trangThaiMoi" class="form-select"
+                                    th:id="'trangThaiMoi_' + ${hoaDon.ma}">
                                 <option th:each="tt : ${trangThaiHopLe}"
                                         th:value="${tt.value}"
-                                        th:text="${tt.moTa}">
+                                        th:text="${tt.getValue() == 11 ? tt.moTa + ' (Shop chịu phí ship)' :
+                                      (tt.getValue() == 7 ? tt.moTa + ' (Khách chịu phí ship)' :
+                                      tt.moTa)}"
+                                        th:selected="${hoaDon.lyDoGiaoKhongThanhCongEnum != null ?
+                                      (#lists.contains({2,4,7}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
+                                        (tt.getValue() == 11) :
+                                        (#lists.contains({1,5,6}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
+                                          (tt.getValue() == 9) :
+                                          (tt.getValue() == 7))
+                                      )
+                                    : (tt.getValue() == 7)}">
                                 </option>
                             </select>
                         </div>
 
-                        <div class="mb-3" id="lyDoGiaoKhongThanhCongGroup"
-                             th:id="'lyDoGiaoKhongThanhCongGroup_' + ${hoaDon.ma}"
-                             style="display:none;">
-                            <label for="lyDoGiaoKhongThanhCong" class="form-label">Chọn lý do giao không thành công <span style="color: red;">*</span></label>
-                            <select name="lyDoGiaoKhongThanhCong"
-                                    id="lyDoGiaoKhongThanhCong"
-                                    class="form-select"
-                                    required>
-                                <option value="" disabled selected>-- Chọn lý do --</option>
-                                <option th:each="lyDo : ${lyDoGiaoKhongThanhCongList}"
-                                        th:value="${lyDo.getValue()}"
-                                        th:text="${lyDo.moTa}"
-                                >
-                                </option>
-                            </select>
-                        </div>
+<!--                        <div class="mb-3"-->
+<!--                             th:id="'lyDoGiaoKhongThanhCongGroup_' + ${hoaDon.ma}"-->
+<!--                             th:attr="data-current=${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"-->
+<!--                             th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)} ? '' : 'display:none;'">-->
+<!--                            <label th:for="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}" class="form-label">-->
+<!--                                Chọn lý do giao không thành công <span th:style="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon) ? 'display: none;' : 'color: red;'}">*</span>-->
+<!--                            </label>-->
+<!--                            <select name="lyDoGiaoKhongThanhCong"-->
+<!--                                    th:id="'lyDoGiaoKhongThanhCong_' + ${hoaDon.ma}"-->
+<!--                                    class="form-select"-->
+<!--                                    th:disabled="${@hoa_don_utils.hienThiLyDoGiaoKhongThanhCong(hoaDon.trangThaiLichSuHoaDon)}"-->
+<!--                            >-->
+<!--                                <option value="" disabled>&#45;&#45; Chọn lý do &#45;&#45;</option>-->
+<!--                                <option th:each="lyDo : ${lyDoGiaoKhongThanhCongList}"-->
+<!--                                        th:value="${lyDo.getValue()}"-->
+<!--                                        th:text="${lyDo.moTa}"-->
+<!--                                        th:selected="${lyDo.getValue() == hoaDon.lyDoGiaoKhongThanhCongEnum}">-->
+<!--                                </option>-->
+<!--                            </select>-->
+<!--                        </div>-->
 
 
                         <div class="mb-3">
-                            <label for="ghiChu" class="form-label">Ghi chú</label>
-                            <textarea class="form-control" id="ghiChu" name="ghiChu" rows="3"
+                            <label class="form-label">Ghi chú</label>
+                            <textarea class="form-control" name="ghiChu" rows="3"
                                       placeholder="Nhập ghi chú..."></textarea>
                         </div>
 
-                        <!--                        <div class="form-check">-->
-                        <!--                            <input class="form-check-input" type="checkbox" name="quayLui" id="quayLui" value="true">-->
-                        <!--                            <label class="form-check-label" for="quayLui">-->
-                        <!--                                Quay lại trạng thái trước đó-->
-                        <!--                            </label>-->
-                        <!--                        </div>-->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -466,13 +472,13 @@
                   th:text="${!hoaDon.ghiChu.isEmpty() ? hoaDon.ghiChu.toString() : 'Không có ghi chú'}">
             </span>
 
-        <form th:action="@{/admin/don-hang/detail/cap-nhat-ghi-chu}" method="post"
-              th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">
-            <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}" />
+<!--        <form th:action="@{/admin/don-hang/detail/cap-nhat-ghi-chu}" method="post"-->
+<!--              th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">-->
+<!--            <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}" />-->
 
-            <input type="text" name="ghiChuHoaDon" th:value="${hoaDon.ghiChu}" class="form-control"/>
-            <button type="submit" class="btn btn-primary mt-2">Cập nhật ghi chú</button>
-        </form>
+<!--            <input type="text" name="ghiChuHoaDon" th:value="${hoaDon.ghiChu}" class="form-control"/>-->
+<!--            <button type="submit" class="btn btn-primary mt-2">Cập nhật ghi chú</button>-->
+<!--        </form>-->
         </p>
     </div>
 
@@ -497,20 +503,20 @@
                     <td th:text="${index.count}" class="text-center"></td>
                     <td th:text="${hdct.tenCTSP}" class="text-center"></td>
                     <td th:text="${@utils.formatCurrency(hdct.giaSauGiam)}" class="text-end"></td>
-                    <!--                    <td th:text="${hdct.soLuong}" class="text-center"></td>-->
-                    <td class="text-center">
-                        <div class="input-group input-group-sm justify-content-center"
-                             th:if="${hoaDon.trangThaiLichSuHoaDon.name() == 'CHO_XAC_NHAN'}">
-                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, -1)">-</button>
-                            <input type="number" class="form-control text-center so-luong-input" th:value="${hdct.soLuong}"
-                                   min="1" th:data-id="${hdct.idHoaDonChiTiet}" onchange="capNhatSoLuong(this)">
-                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, 1)">+</button>
-                        </div>
+                    <td th:text="${hdct.soLuong}" class="text-center"></td>
+<!--                    <td class="text-center">-->
+<!--                        <div class="input-group input-group-sm justify-content-center"-->
+<!--                             th:if="${hoaDon.trangThaiLichSuHoaDon.name() == 'CHO_XAC_NHAN'}">-->
+<!--                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, -1)">-</button>-->
+<!--                            <input type="number" class="form-control text-center so-luong-input" th:value="${hdct.soLuong}"-->
+<!--                                   min="1" th:data-id="${hdct.idHoaDonChiTiet}" onchange="capNhatSoLuong(this)">-->
+<!--                            <button class="btn btn-outline-secondary btn-sm" onclick="thayDoiSoLuong(this, 1)">+</button>-->
+<!--                        </div>-->
 
-                        <!-- Nếu không được thay đổi -->
-                        <span th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'CHO_XAC_NHAN'}"
-                              th:text="${hdct.soLuong}"></span>
-                    </td>
+<!--                        &lt;!&ndash; Nếu không được thay đổi &ndash;&gt;-->
+<!--                        <span th:if="${hoaDon.trangThaiLichSuHoaDon.name() != 'CHO_XAC_NHAN'}"-->
+<!--                              th:text="${hdct.soLuong}"></span>-->
+<!--                    </td>-->
                     <td class="text-end tong-tien" th:text="${@utils.formatCurrency(hdct.tongTien)}"></td>
                 </tr>
                 </tbody>
@@ -648,33 +654,32 @@
     </script>
     <!--  Thong bao-->
 
-    <!--Li do Giao Khong Thanh Cong-->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('[id^="trangThaiMoi_"]').forEach(function (select) {
-                const maHoaDon = select.id.split('_')[1];
-                const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup_' + maHoaDon);
-                const lyDoSelect = lyDoGroup.querySelector('select'); // lấy select bên trong group
+<!--    &lt;!&ndash;Li do Giao Khong Thanh Cong&ndash;&gt;-->
+<!--    <script>-->
+<!--        document.addEventListener('DOMContentLoaded', function () {-->
+<!--            document.querySelectorAll('[id^="trangThaiMoi_"]').forEach(function (select) {-->
+<!--                const maHoaDon = select.id.split('_')[1];-->
+<!--                const lyDoGroup = document.getElementById('lyDoGiaoKhongThanhCongGroup_' + maHoaDon);-->
+<!--                const lyDoSelect = lyDoGroup.querySelector('select'); // lấy select bên trong group-->
 
-                function checkTrangThai() {
-                    if (select.value === '10') { // Giao không thành công
-                        lyDoGroup.style.display = 'block';
-                        lyDoSelect.setAttribute('required', 'required');
-                        lyDoSelect.disabled = false;
-                    } else {
-                        lyDoGroup.style.display = 'none';
-                        lyDoSelect.removeAttribute('required');
-                        lyDoSelect.disabled = true; // để tránh submit
-                        lyDoSelect.value = '';
-                    }
-                }
+<!--                function checkTrangThai() {-->
+<!--                    if (select.value === '10') { // Giao không thành công-->
+<!--                        lyDoGroup.style.display = 'block';-->
+<!--                        lyDoSelect.setAttribute('required', 'required');-->
+<!--                        lyDoSelect.disabled = false;-->
+<!--                    } else {-->
+<!--                        lyDoGroup.style.display = 'none';-->
+<!--                        lyDoSelect.removeAttribute('required');-->
+<!--                        lyDoSelect.disabled = true; // để tránh submit-->
+<!--                        lyDoSelect.value = '';-->
+<!--                    }-->
+<!--                }-->
 
-                select.addEventListener('change', checkTrangThai);
-                checkTrangThai();
-            });
-        });
-    </script>
-
+<!--                select.addEventListener('change', checkTrangThai);-->
+<!--                checkTrangThai();-->
+<!--            });-->
+<!--        });-->
+<!--    </script>-->
 
 </section>
 

@@ -218,6 +218,24 @@
             </div>
         </form>
     </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#loaiPhieuGiamGia").on("change", function () {
+                const selectedValue = parseInt($(this).val());
+                if (selectedValue === 1) {
+                    $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
+                    $("#divGiamToiDa").show();
+                    $("#giamToiDa").attr("required", true).val(0);
+                } else if (selectedValue === 2) {
+                    $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
+                    $("#divGiamToiDa").hide();
+                    $("#giamToiDa").removeAttr("required").val(0);
+                }
+            });
+        });
+    </script>
+
 </section>
 
 <!--  Thong bao-->
@@ -259,22 +277,7 @@
 </script>
 <!--  Thong bao-->
 
-<script>
-    $(document).ready(function () {
-        $("#loaiPhieuGiamGia").on("change", function () {
-            const selectedValue = parseInt($(this).val());
-            if (selectedValue === 1) {
-                $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
-                $("#divGiamToiDa").show();
-                $("#giamToiDa").attr("required", true).val(0);
-            } else if (selectedValue === 2) {
-                $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
-                $("#divGiamToiDa").hide();
-                $("#giamToiDa").removeAttr("required").val(0);
-            }
-        });
-    });
-</script>
+
 
 </body>
 </html>

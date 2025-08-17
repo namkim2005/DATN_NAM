@@ -80,37 +80,37 @@ public class DonHangChiTietController {
 
         var trangThaiHopLe = lichSuHoaDonService.getTrangThaiTiepTheoHopLe(hoaDon.getTrangThaiLichSuHoaDon(), hoaDon);
         model.addAttribute("trangThaiHopLe", trangThaiHopLe);
-        model.addAttribute("lyDoGiaoKhongThanhCongList", LyDoGiaoKhongThanhCong.values());
+//        model.addAttribute("lyDoGiaoKhongThanhCongList", LyDoGiaoKhongThanhCong.values());
         return "admin/pages/don-hang/don-hang-detail";
     }
 
-    @PostMapping("/cap-nhat-ghi-chu")
-    public String capNhatGhiChu(
-            @RequestParam("maHoaDon") String maHoaDon,
-            @RequestParam(value = "ghiChuHoaDon", required = false) String ghiChuHoaDon,
-            RedirectAttributes redirectAttributes
-    ) {
-        if (ghiChuHoaDon == null) {
-            return "redirect:/admin/don-hang/detail";
-        }
-        hoaDonService.capNhatGhiChuHoaDon(maHoaDon, ghiChuHoaDon);
-        redirectAttributes.addFlashAttribute("success", "Cập nhật ghi chú thành công.");
-        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
-        return "redirect:/admin/don-hang/detail";
-    }
+//    @PostMapping("/cap-nhat-ghi-chu")
+//    public String capNhatGhiChu(
+//            @RequestParam("maHoaDon") String maHoaDon,
+//            @RequestParam(value = "ghiChuHoaDon", required = false) String ghiChuHoaDon,
+//            RedirectAttributes redirectAttributes
+//    ) {
+//        if (ghiChuHoaDon == null) {
+//            return "redirect:/admin/don-hang/detail";
+//        }
+//        hoaDonService.capNhatGhiChuHoaDon(maHoaDon, ghiChuHoaDon);
+//        redirectAttributes.addFlashAttribute("success", "Cập nhật ghi chú thành công.");
+//        redirectAttributes.addAttribute("maHoaDon", maHoaDon);
+//        return "redirect:/admin/don-hang/detail";
+//    }
 
     @PostMapping("/cap-nhat-trang-thai")
     public String capNhatTrangThai(
             @RequestParam("maHoaDon") String maHoaDon,
             @RequestParam(value = "trangThaiMoi", required = false) Integer trangThaiMoi,
-            @RequestParam(value = "lyDoGiaoKhongThanhCong", required = false) Integer lyDoGiaoKhongThanhCong,
+//            @RequestParam(value = "lyDoGiaoKhongThanhCong", required = false) Integer lyDoGiaoKhongThanhCong,
             @RequestParam(value = "ghiChu", required = false) String ghiChu,
             RedirectAttributes redirectAttributes
     ) {
         var ketQua = lichSuHoaDonService.xuLyCapNhatTrangThai(
                 maHoaDon,
                 trangThaiMoi,
-                lyDoGiaoKhongThanhCong,
+//                lyDoGiaoKhongThanhCong,
                 ghiChu,
                 getCurrentNhanVien()
         );
@@ -179,22 +179,22 @@ public class DonHangChiTietController {
         document.close();
     }
 
-    @PostMapping("/api/cap-nhat-so-luong")
-    @ResponseBody
-    public ResponseEntity<Map<String, String>> apiCapNhatSoLuong(@RequestBody Map<String, Object> payload) {
-        Integer id = Integer.valueOf(payload.get("id").toString());
-        Integer soLuong = Integer.valueOf(payload.get("soLuong").toString());
-
-        HoaDonChiTietDTO hdct = hoaDonChiTietService.capNhatSoLuong(id, soLuong);
-        BigDecimal tongTien = hdct.getGiaSauGiam().multiply(BigDecimal.valueOf(soLuong));
-
-        String tongTienFormatted = ThymleafHelper.formatCurrency(tongTien); // bạn đã có hàm này rồi
-
-        Map<String, String> response = new HashMap<>();
-        response.put("tongTienFormatted", tongTienFormatted);
-
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/api/cap-nhat-so-luong")
+//    @ResponseBody
+//    public ResponseEntity<Map<String, String>> apiCapNhatSoLuong(@RequestBody Map<String, Object> payload) {
+//        Integer id = Integer.valueOf(payload.get("id").toString());
+//        Integer soLuong = Integer.valueOf(payload.get("soLuong").toString());
+//
+//        HoaDonChiTietDTO hdct = hoaDonChiTietService.capNhatSoLuong(id, soLuong);
+//        BigDecimal tongTien = hdct.getGiaSauGiam().multiply(BigDecimal.valueOf(soLuong));
+//
+//        String tongTienFormatted = ThymleafHelper.formatCurrency(tongTien); // bạn đã có hàm này rồi
+//
+//        Map<String, String> response = new HashMap<>();
+//        response.put("tongTienFormatted", tongTienFormatted);
+//
+//        return ResponseEntity.ok(response);
+//    }
 
 
 
