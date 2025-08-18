@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,Integer> {
@@ -22,6 +23,8 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
         select n from ChiTietSanPham n where n.sanPham.id = :id
     """)
     List<ChiTietSanPham> findBySanPhamId(@Param("id") Integer id);
+
+    Page<ChiTietSanPham> findBySanPham_Id(Integer id, Pageable pageable);
 
     @Modifying
     @Transactional
@@ -96,6 +99,22 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
     List<Size> findDistinctSizeBySanPhamIdAndMauSacTen(@Param("sanPhamId") Integer sanPhamId, @Param("tenMau") String tenMau);
 
     List<ChiTietSanPham> findBySanPham_TenContainingIgnoreCase(String keyword);
+    
+    // Kiểm tra biến thể có được sử dụng trong đơn hàng không
+    @Query("SELECT COUNT(hdct) > 0 FROM HoaDonChiTiet hdct WHERE hdct.chiTietSanPham.id = :bienTheId")
+    boolean existsInHoaDonChiTiet(@Param("bienTheId") Integer bienTheId);
+    
+    // Kiểm tra biến thể có trong giỏ hàng không
+    @Query("SELECT COUNT(ghct) > 0 FROM GioHangChiTiet ghct WHERE ghct.chiTietSp.id = :bienTheId")
+    boolean existsInGioHangChiTiet(@Param("bienTheId") Integer bienTheId);
+    
+    // Tìm biến thể theo ID với đầy đủ thông tin
+    @Query("SELECT ctsp FROM ChiTietSanPham ctsp " +
+           "JOIN FETCH ctsp.sanPham " +
+           "JOIN FETCH ctsp.mauSac " +
+           "JOIN FETCH ctsp.size " +
+           "WHERE ctsp.id = :id")
+    Optional<ChiTietSanPham> findByIdWithDetails(@Param("id") Integer id);
 
 }
 

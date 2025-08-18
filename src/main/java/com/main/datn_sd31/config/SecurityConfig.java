@@ -33,7 +33,7 @@ public class SecurityConfig {
         http
             .securityMatcher("/admin/**")
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin/dang-nhap", "/admin/logout").permitAll()
+                .requestMatchers("/admin/dang-nhap", "/admin/logout", "/admin/san-pham/api/export-excel").permitAll()
                 .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
             )
             .formLogin(form -> form
@@ -49,7 +49,10 @@ public class SecurityConfig {
                 .permitAll()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/admin/san-pham/tao-ma-ngau-nhien")
+                .ignoringRequestMatchers(
+                    "/admin/san-pham/tao-ma-ngau-nhien",
+                    "/admin/san-pham/api/export-excel"
+                )
             );
         return http.build();
     }

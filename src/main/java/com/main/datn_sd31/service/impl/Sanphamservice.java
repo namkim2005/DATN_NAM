@@ -3,6 +3,8 @@ package com.main.datn_sd31.service.impl;
 import com.main.datn_sd31.dto.san_pham_DTO.SanPhamFilterDTO;
 import com.main.datn_sd31.dto.san_pham_DTO.SanPhamListDTO;
 import com.main.datn_sd31.dto.san_pham_DTO.Sanphamform;
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamThongKeDTO;
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamExportDTO;
 import com.main.datn_sd31.entity.ChiTietSanPham;
 import com.main.datn_sd31.entity.DotGiamGia;
 import com.main.datn_sd31.entity.HinhAnh;
@@ -20,12 +22,20 @@ import com.main.datn_sd31.repository.Thuonghieurepository;
 import com.main.datn_sd31.repository.Xuatxurepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Service
 public class Sanphamservice {
@@ -57,6 +67,49 @@ public class Sanphamservice {
     }
 
     /**
+     * Lấy danh sách sản phẩm có phân trang
+     */
+    public Page<SanPhamListDTO> getAllForDisplayPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("ngayTao").descending());
+        Page<SanPham> sanPhamPage = sanPhamRepo.findAll(pageable);
+        
+        return sanPhamPage.map(this::convertToSanPhamListDTO);
+    }
+
+    /**
+     * Lấy danh sách sản phẩm có phân trang với filter và sort
+     */
+    public Page<SanPhamListDTO> getAllForDisplayPaginatedWithFilter(SanPhamFilterDTO filter) {
+        // Lấy tất cả sản phẩm
+        List<SanPham> allSanPhams = getAll();
+        
+        // Chuyển đổi sang DTO
+        List<SanPhamListDTO> allDTOs = allSanPhams.stream()
+                .map(this::convertToSanPhamListDTO)
+                .collect(Collectors.toList());
+        
+        // Áp dụng filter
+        List<SanPhamListDTO> filteredDTOs = applyFilters(allDTOs, filter);
+        
+        // Áp dụng sorting
+        List<SanPhamListDTO> sortedDTOs = applySorting(filteredDTOs, filter);
+        
+        // Tính toán pagination
+        int totalElements = sortedDTOs.size();
+        int totalPages = (int) Math.ceil((double) totalElements / filter.getSize());
+        int startIndex = filter.getPage() * filter.getSize();
+        int endIndex = Math.min(startIndex + filter.getSize(), totalElements);
+        
+        // Lấy content cho trang hiện tại
+        List<SanPhamListDTO> pageContent = startIndex < totalElements ? 
+                sortedDTOs.subList(startIndex, endIndex) : new ArrayList<>();
+        
+        // Tạo Page object
+        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
+        return new PageImpl<>(pageContent, pageable, totalElements);
+    }
+
+    /**
      * Lấy danh sách sản phẩm với filter và sort
      */
     public List<SanPhamListDTO> getFilteredProducts(SanPhamFilterDTO filter) {
@@ -73,6 +126,25 @@ public class Sanphamservice {
         result = applySorting(result, filter);
         
         return result;
+    }
+
+    /**
+     * Kiểm tra xem file ảnh có tồn tại không
+     */
+    private String validateImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            return "/images/favicon.png";
+        }
+        
+        // Nếu là ảnh upload, kiểm tra file có tồn tại không
+        if (imageUrl.startsWith("/uploads/")) {
+            String filePath = "src/main/resources/static" + imageUrl;
+            if (!Files.exists(Paths.get(filePath))) {
+                return "/images/favicon.png"; // Fallback về ảnh mặc định
+            }
+        }
+        
+        return imageUrl;
     }
 
     /**
@@ -140,12 +212,26 @@ public class Sanphamservice {
                 .filter(anh -> anh.getLoaiAnh() == 0) // Ảnh chính
                 .map(HinhAnh::getUrl)
                 .findFirst()
-                .orElse("/images/default-product.jpg");
+                .orElse("/images/favicon.png");
+        
+        // Kiểm tra và validate ảnh chính
+        anhChinh = validateImageUrl(anhChinh);
         
         List<String> anhPhu = hinhAnhs.stream()
                 .filter(anh -> anh.getLoaiAnh() == 1) // Ảnh phụ
                 .map(HinhAnh::getUrl)
                 .collect(Collectors.toList());
+        
+        // Kiểm tra và validate ảnh phụ
+        List<String> anhPhuValid = anhPhu.stream()
+                .map(this::validateImageUrl)
+                .filter(url -> !url.equals("/images/favicon.png") || anhPhu.size() == 1) // Giữ lại ít nhất 1 ảnh
+                .collect(Collectors.toList());
+        
+        // Nếu không có ảnh phụ nào hợp lệ, sử dụng ảnh mặc định
+        if (anhPhuValid.isEmpty()) {
+            anhPhuValid = Arrays.asList("/images/favicon.png");
+        }
         
         // Chuyển đổi chi tiết sản phẩm
         List<SanPhamListDTO.ChiTietSanPhamDTO> chiTietDTOs = chiTietSanPhams.stream()
@@ -178,7 +264,7 @@ public class Sanphamservice {
                 .trangThaiHienThi(trangThaiHienThi)
                 .trangThaiClass(trangThaiClass)
                 .anhChinh(anhChinh)
-                .anhPhu(anhPhu)
+                .anhPhu(anhPhuValid) // Sử dụng ảnh phụ đã validate
                 .chiTietSanPhams(chiTietDTOs)
                 .build();
     }
@@ -506,5 +592,80 @@ public class Sanphamservice {
         }
 
         return basicFiltered;
+    }
+
+    /**
+     * Lấy thống kê tổng quan về sản phẩm
+     */
+    public SanPhamThongKeDTO getThongKeSanPham() {
+        List<SanPham> allSanPhams = getAll();
+        
+        long tongSanPham = allSanPhams.size();
+        long dangHoatDong = allSanPhams.stream()
+                .filter(SanPham::getTrangThai)
+                .count();
+        long ngungHoatDong = tongSanPham - dangHoatDong;
+        
+        // Sắp hết hàng: sản phẩm có tổng số lượng < 5
+        long sapHetHang = allSanPhams.stream()
+                .filter(sanPham -> {
+                    int tongSoLuong = sanPham.getChiTietSanPhams().stream()
+                            .mapToInt(ChiTietSanPham::getSoLuong)
+                            .sum();
+                    return tongSoLuong < 5;
+                })
+                .count();
+        
+        return SanPhamThongKeDTO.builder()
+                .tongSanPham(tongSanPham)
+                .dangHoatDong(dangHoatDong)
+                .ngungHoatDong(ngungHoatDong)
+                .sapHetHang(sapHetHang)
+                .build();
+    }
+
+    /**
+     * Lấy danh sách sản phẩm theo filter để xuất Excel
+     */
+    public List<SanPhamExportDTO> getSanPhamForExport(SanPhamFilterDTO filter) {
+        // Lấy tất cả sản phẩm
+        List<SanPham> allSanPhams = getAll();
+        
+        // Chuyển đổi sang DTO
+        List<SanPhamListDTO> allDTOs = allSanPhams.stream()
+                .map(this::convertToSanPhamListDTO)
+                .collect(Collectors.toList());
+        
+        // Áp dụng filter
+        List<SanPhamListDTO> filteredDTOs = applyFilters(allDTOs, filter);
+        
+        // Áp dụng sorting
+        List<SanPhamListDTO> sortedDTOs = applySorting(filteredDTOs, filter);
+        
+        // Chuyển đổi sang ExportDTO
+        return sortedDTOs.stream()
+                .map(this::convertToSanPhamExportDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Chuyển đổi SanPhamListDTO sang SanPhamExportDTO
+     */
+    private SanPhamExportDTO convertToSanPhamExportDTO(SanPhamListDTO dto) {
+        return SanPhamExportDTO.builder()
+                .ma(dto.getMa())
+                .ten(dto.getTen())
+                .moTa(dto.getMoTa())
+                .danhMuc(dto.getDanhMuc())
+                .thuongHieu(dto.getThuongHieu())
+                .chatLieu(dto.getChatLieu())
+                .xuatXu(dto.getXuatXu())
+                .kieuDang(dto.getKieuDang())
+                .loaiThu(dto.getLoaiThu())
+                .gia(dto.getGiaGocMin())
+                .soLuong(dto.getTongSoLuong())
+                .trangThai(dto.getTrangThai() ? "Đang hoạt động" : "Ngưng hoạt động")
+                .ngayTao(dto.getNgayTao())
+                .build();
     }
 }

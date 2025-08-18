@@ -2,7 +2,10 @@
 
 class ProductListManager {
     constructor() {
-        this.selectedProducts = new Set();
+        this.currentPage = 0;
+        this.pageSize = 10;
+        this.totalPages = 0;
+        this.totalElements = 0;
         this.initializeEventListeners();
     }
 
@@ -22,75 +25,165 @@ class ProductListManager {
             }
         });
 
-        // Product row clicks
-        document.addEventListener('click', (e) => {
-            const row = e.target.closest('.product-row');
-            if (row && !e.target.closest('button, a')) {
-                this.toggleProductSelection(row);
-            }
-        });
-    }
+        // Pagination controls
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        const pageSizeSelector = document.getElementById('pageSizeSelector');
 
-    toggleProductSelection(row) {
-        const productId = row.getAttribute('data-product-id');
-        if (this.selectedProducts.has(productId)) {
-            this.selectedProducts.delete(productId);
-            row.classList.remove('tw-bg-blue-50', 'tw-border-blue-200');
-        } else {
-            this.selectedProducts.add(productId);
-            row.classList.add('tw-bg-blue-50', 'tw-border-blue-200');
-        }
-        this.updateSelectedCount();
-    }
-
-    updateSelectedCount() {
-        const count = this.selectedProducts.size;
-        const countElement = document.getElementById('selectedCount');
-        const applyBtn = document.getElementById('applyDiscountBtn');
-        const hiddenInputs = document.getElementById('selectedProductIds');
-
-        if (countElement) {
-            countElement.textContent = `Đã chọn: ${count} sản phẩm`;
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => this.goToPage(this.currentPage - 1));
         }
 
-        if (applyBtn) {
-            if (count > 0) {
-                applyBtn.disabled = false;
-                applyBtn.classList.remove('tw-opacity-50', 'tw-cursor-not-allowed');
-            } else {
-                applyBtn.disabled = true;
-                applyBtn.classList.add('tw-opacity-50', 'tw-cursor-not-allowed');
-            }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => this.goToPage(this.currentPage + 1));
         }
 
-        // Update hidden inputs
-        if (hiddenInputs) {
-            hiddenInputs.innerHTML = '';
-            this.selectedProducts.forEach(id => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'sanPhamIds';
-                input.value = id;
-                hiddenInputs.appendChild(input);
+        if (pageSizeSelector) {
+            pageSizeSelector.addEventListener('change', (e) => {
+                this.pageSize = parseInt(e.target.value);
+                this.currentPage = 0;
+                this.loadPage(0);
             });
         }
     }
 
     async filterProducts() {
-        const params = this.buildFilterParams();
-        
+        // Reset to first page when filtering
+        this.currentPage = 0;
+        await this.loadPage(0);
+    }
+
+    async loadPage(page) {
         try {
-            const response = await fetch(`/admin/san-pham/api/filter?${params.toString()}`);
+            const params = new URLSearchParams({
+                page: page.toString(),
+                size: this.pageSize.toString()
+            });
+
+            // Add filter params if they exist
+            const filterParams = this.buildFilterParams();
+            filterParams.forEach((value, key) => {
+                if (value && value.trim() !== '') {
+                    params.append(key, value);
+                }
+            });
+
+            const response = await fetch(`/admin/san-pham/api/paginated?${params.toString()}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            
+
             const data = await response.json();
-            this.updateProductTable(data);
+            this.updateProductTable(data.content);
+            this.updatePagination(data);
+            this.currentPage = data.currentPage;
         } catch (error) {
-            console.error('Error filtering products:', error);
-            this.showError('Có lỗi xảy ra khi lọc sản phẩm');
+            console.error('Error loading page:', error);
+            this.showError('Có lỗi xảy ra khi tải trang');
         }
+    }
+
+    goToPage(page) {
+        if (page >= 0 && page < this.totalPages) {
+            this.loadPage(page);
+        }
+    }
+
+    updatePagination(data) {
+        this.totalPages = data.totalPages;
+        this.totalElements = data.totalElements;
+        this.currentPage = data.currentPage;
+
+        // Update page info
+        const pageInfo = document.querySelector('.tw-text-sm.tw-text-gray-700');
+        if (pageInfo) {
+            if (data.totalElements > 0) {
+                const startItem = (data.currentPage * data.pageSize) + 1;
+                const endItem = Math.min((data.currentPage + 1) * data.pageSize, data.totalElements);
+                pageInfo.innerHTML = `Hiển thị <span class="tw-font-medium">${this.formatNumber(startItem)}</span> - <span class="tw-font-medium">${this.formatNumber(endItem)}</span> trong tổng số <span class="tw-font-medium">${this.formatNumber(data.totalElements)}</span> sản phẩm (Trang <span class="tw-font-medium">${data.currentPage + 1}</span> / <span class="tw-font-medium">${data.totalPages}</span>)`;
+            } else {
+                pageInfo.innerHTML = `Không có sản phẩm nào`;
+            }
+        }
+
+        // Update navigation buttons
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        
+        if (prevBtn) {
+            prevBtn.disabled = !data.hasPrevious;
+            prevBtn.classList.toggle('tw-opacity-50', !data.hasPrevious);
+            prevBtn.classList.toggle('tw-cursor-not-allowed', !data.hasPrevious);
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = !data.hasNext;
+            nextBtn.classList.toggle('tw-opacity-50', !data.hasNext);
+            nextBtn.classList.toggle('tw-cursor-not-allowed', !data.hasNext);
+        }
+
+        // Generate page numbers
+        this.generatePageNumbers();
+    }
+
+    generatePageNumbers() {
+        const pageNumbersContainer = document.getElementById('pageNumbers');
+        if (!pageNumbersContainer) return;
+
+        pageNumbersContainer.innerHTML = '';
+        
+        // Nếu không có trang nào, không hiển thị gì
+        if (this.totalPages <= 0) return;
+        
+        const maxVisiblePages = 5;
+        let startPage = Math.max(0, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(this.totalPages - 1, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(0, endPage - maxVisiblePages + 1);
+        }
+
+        // First page
+        if (startPage > 0) {
+            this.addPageNumber(0, '1');
+            if (startPage > 1) {
+                this.addPageEllipsis();
+            }
+        }
+
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            this.addPageNumber(i, (i + 1).toString());
+        }
+
+        // Last page
+        if (endPage < this.totalPages - 1) {
+            if (endPage < this.totalPages - 2) {
+                this.addPageEllipsis();
+            }
+            this.addPageNumber(this.totalPages - 1, this.totalPages.toString());
+        }
+    }
+
+    addPageNumber(pageNum, text) {
+        const pageNumbersContainer = document.getElementById('pageNumbers');
+        const pageBtn = document.createElement('button');
+        pageBtn.className = `tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-rounded-lg tw-border ${
+            pageNum === this.currentPage
+                ? 'tw-bg-blue-600 tw-text-white tw-border-blue-600'
+                : 'tw-text-gray-500 tw-bg-white tw-border-gray-300 hover:tw-bg-gray-50'
+        }`;
+        pageBtn.textContent = text;
+        pageBtn.addEventListener('click', () => this.goToPage(pageNum));
+        pageNumbersContainer.appendChild(pageBtn);
+    }
+
+    addPageEllipsis() {
+        const pageNumbersContainer = document.getElementById('pageNumbers');
+        const ellipsis = document.createElement('span');
+        ellipsis.className = 'tw-px-2 tw-py-2 tw-text-sm tw-text-gray-500';
+        ellipsis.textContent = '...';
+        pageNumbersContainer.appendChild(ellipsis);
     }
 
     buildFilterParams() {
@@ -130,7 +223,7 @@ class ProductListManager {
         if (products.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="tw-px-6 tw-py-8 tw-text-center tw-text-gray-500">
+                    <td colspan="8" class="tw-px-6 tw-py-8 tw-text-center tw-text-gray-500">
                         <div class="tw-flex tw-flex-col tw-items-center">
                             <svg class="tw-w-12 tw-h-12 tw-text-gray-400 tw-mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
@@ -152,7 +245,7 @@ class ProductListManager {
 
     createProductRow(product) {
         const row = document.createElement('tr');
-        row.className = 'hover:tw-bg-gray-50 tw-transition-colors tw-duration-150 tw-cursor-pointer product-row';
+        row.className = 'hover:tw-bg-gray-50 tw-transition-colors tw-duration-150 product-row';
         row.setAttribute('data-product-id', product.id);
 
         row.innerHTML = `
@@ -192,11 +285,13 @@ class ProductListManager {
                 </div>
             </td>
             <td class="tw-px-6 tw-py-4">
+                <div class="tw-text-center">
+                    <div class="tw-text-2xl tw-font-bold tw-text-blue-600">${product.tongSoLuong}</div>
+                    <div class="tw-text-xs tw-text-gray-500 tw-mt-1">Sản phẩm</div>
+                </div>
+            </td>
+            <td class="tw-px-6 tw-py-4">
                 <div class="tw-space-y-2">
-                    <div class="tw-text-sm">
-                        <span class="tw-font-medium tw-text-gray-700">Số lượng:</span>
-                        <span class="tw-text-lg tw-font-semibold tw-text-blue-600">${product.tongSoLuong}</span>
-                    </div>
                     ${this.formatPriceSection(product)}
                 </div>
             </td>
@@ -222,7 +317,7 @@ class ProductListManager {
                         </svg>
                         Sửa
                     </a>
-                    <button onclick="productListManager.deleteProduct(event, ${product.id})" class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-red-100 tw-text-red-700 tw-rounded-md hover:tw-bg-red-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
+                    <button onclick="deleteProduct(event, ${product.id})" class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-red-100 tw-text-red-700 tw-rounded-md hover:tw-bg-red-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
                         <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -277,6 +372,10 @@ class ProductListManager {
         
         if (min === max) return formatPrice(min) + 'đ';
         return formatPrice(min) + ' - ' + formatPrice(max) + 'đ';
+    }
+
+    formatNumber(number) {
+        return new Intl.NumberFormat('vi-VN').format(number);
     }
 
     formatDate(dateString) {
@@ -334,6 +433,33 @@ class ProductListManager {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     window.productListManager = new ProductListManager();
+    
+    // Initialize pagination with current page data from server
+    const paginationContainer = document.querySelector('[data-current-page]');
+    if (paginationContainer) {
+        window.productListManager.currentPage = parseInt(paginationContainer.dataset.currentPage);
+        window.productListManager.totalPages = parseInt(paginationContainer.dataset.totalPages);
+        window.productListManager.totalElements = parseInt(paginationContainer.dataset.totalElements);
+        window.productListManager.pageSize = parseInt(paginationContainer.dataset.pageSize);
+        
+        // Update pagination display
+        if (window.productListManager.totalPages > 0) {
+            window.productListManager.updatePagination({
+                currentPage: window.productListManager.currentPage,
+                totalPages: window.productListManager.totalPages,
+                totalElements: window.productListManager.totalElements,
+                pageSize: window.productListManager.pageSize,
+                hasNext: window.productListManager.currentPage < window.productListManager.totalPages - 1,
+                hasPrevious: window.productListManager.currentPage > 0
+            });
+        }
+        
+        // Update page size selector
+        const pageSizeSelector = document.getElementById('pageSizeSelector');
+        if (pageSizeSelector) {
+            pageSizeSelector.value = window.productListManager.pageSize;
+        }
+    }
 });
 
 // Global function for delete (for onclick handlers)

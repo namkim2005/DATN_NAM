@@ -75,6 +75,10 @@ class ProductAddForm {
 
     // Product Code Validation: SP + 6 digits, check for duplicates
     async validateProductCode(value) {
+        const maField = this.fields && this.fields.ma ? this.fields.ma : null;
+        if ((maField && (maField.disabled || maField.readOnly)) || this.isEditMode()) {
+            return null;
+        }
         if (!value || value.trim().length === 0) {
             return 'Mã sản phẩm không được để trống';
         }
@@ -149,6 +153,11 @@ class ProductAddForm {
     }
 
     validateMainImage(value) {
+        if (this.isEditMode()) {
+            if (!value || value.files.length === 0) {
+                return null;
+            }
+        }
         if (!value || value.files.length === 0) {
             return 'Vui lòng chọn ảnh chính';
         }
@@ -395,6 +404,11 @@ class ProductAddForm {
             button.classList.remove('btn-loading');
             button.innerHTML = '<i class="fas fa-dice tw-mr-2"></i>Tạo mã';
         }
+    }
+
+    isEditMode() {
+        const idInput = this.form ? this.form.querySelector('input[name="id"]') : null;
+        return !!(idInput && idInput.value && idInput.value.trim() !== '');
     }
 }
 

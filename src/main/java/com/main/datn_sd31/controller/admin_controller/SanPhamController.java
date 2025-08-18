@@ -4,6 +4,8 @@ import com.main.datn_sd31.dto.san_pham_DTO.ChiTietSanPhamForm;
 import com.main.datn_sd31.dto.san_pham_DTO.SanPhamFilterDTO;
 import com.main.datn_sd31.dto.san_pham_DTO.SanPhamListDTO;
 import com.main.datn_sd31.dto.san_pham_DTO.Sanphamform;
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamThongKeDTO;
+import com.main.datn_sd31.dto.san_pham_DTO.SanPhamExportDTO;
 import com.main.datn_sd31.entity.ChiTietSanPham;
 import com.main.datn_sd31.entity.DotGiamGia;
 import com.main.datn_sd31.entity.HinhAnh;
@@ -24,6 +26,7 @@ import com.main.datn_sd31.repository.Sizerepository;
 import com.main.datn_sd31.repository.Thuonghieurepository;
 import com.main.datn_sd31.repository.Xuatxurepository;
 import com.main.datn_sd31.service.impl.Sanphamservice;
+import com.main.datn_sd31.service.ChiTietSanPhamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,9 +37,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -55,12 +63,30 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+// Apache POI imports for Excel export
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.util.CellRangeAddress;
+
+import com.main.datn_sd31.dto.san_pham_DTO.MauBlock;
+import com.main.datn_sd31.dto.san_pham_DTO.VariantRow;
+import com.main.datn_sd31.util.ColorUtil;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/san-pham")
 public class SanPhamController {
 
     private final Sanphamservice sanPhamService;
+    private final ChiTietSanPhamService chiTietSanPhamService;
     private final NhanVienRepository nhanvienRepo;
     private final ChatLieuRepository chatLieuRepo;
     private final Danhmucrepository danhMucRepo;
@@ -78,9 +104,13 @@ public class SanPhamController {
 
     @GetMapping("/hien_thi")
     public String hienthi(Model model) {
-        List<SanPhamListDTO> listSanPham = sanPhamService.getAllForDisplay();
-        model.addAttribute("list", listSanPham);
-        model.addAttribute("dsDotGiamGia", dotgiamgiarepository.findAll());
+        // Lấy trang đầu tiên với 10 sản phẩm mỗi trang
+        Page<SanPhamListDTO> pageData = sanPhamService.getAllForDisplayPaginated(0, 10);
+        model.addAttribute("list", pageData.getContent());
+        model.addAttribute("currentPage", 0);
+        model.addAttribute("totalPages", pageData.getTotalPages());
+        model.addAttribute("totalElements", pageData.getTotalElements());
+        model.addAttribute("pageSize", 10);
         
         // Thêm dữ liệu cho filter
         model.addAttribute("danhMucs", danhMucRepo.findAll());
@@ -91,6 +121,62 @@ public class SanPhamController {
         model.addAttribute("loaiThus", loaithurepository.findAll());
         
         return "admin/pages/sanpham/list";
+    }
+
+    @GetMapping("/api/paginated")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getPaginatedProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer danhMucId,
+            @RequestParam(required = false) Integer loaiThuId,
+            @RequestParam(required = false) Integer chatLieuId,
+            @RequestParam(required = false) Integer kieuDangId,
+            @RequestParam(required = false) Integer thuongHieuId,
+            @RequestParam(required = false) Integer xuatXuId,
+            @RequestParam(required = false) Boolean trangThai,
+            @RequestParam(required = false) String trangThaiHienThi,
+            @RequestParam(required = false) BigDecimal giaMin,
+            @RequestParam(required = false) BigDecimal giaMax,
+            @RequestParam(required = false) Integer soLuongMin,
+            @RequestParam(required = false) Integer soLuongMax,
+            @RequestParam(required = false, defaultValue = "ngayTao") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortOrder) {
+        
+        // Tạo filter DTO
+        SanPhamFilterDTO filter = SanPhamFilterDTO.builder()
+                .keyword(keyword)
+                .danhMucId(danhMucId)
+                .loaiThuId(loaiThuId)
+                .chatLieuId(chatLieuId)
+                .kieuDangId(kieuDangId)
+                .thuongHieuId(thuongHieuId)
+                .xuatXuId(xuatXuId)
+                .trangThai(trangThai)
+                .trangThaiHienThi(trangThaiHienThi)
+                .giaMin(giaMin)
+                .giaMax(giaMax)
+                .soLuongMin(soLuongMin)
+                .soLuongMax(soLuongMax)
+                .sortBy(sortBy)
+                .sortOrder(sortOrder)
+                .page(page)
+                .size(size)
+                .build();
+        
+        Page<SanPhamListDTO> pageData = sanPhamService.getAllForDisplayPaginatedWithFilter(filter);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", pageData.getContent());
+        response.put("currentPage", pageData.getNumber());
+        response.put("totalPages", pageData.getTotalPages());
+        response.put("totalElements", pageData.getTotalElements());
+        response.put("pageSize", pageData.getSize());
+        response.put("hasNext", pageData.hasNext());
+        response.put("hasPrevious", pageData.hasPrevious());
+        
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/api/filter")
@@ -270,7 +356,10 @@ public class SanPhamController {
     @GetMapping("/xem/{id}")
     public String xemSanPhamChiTiet(@PathVariable("id") Integer id,
                                     @RequestParam(value = "mauId", required = false) Integer mauId,
+                                    @RequestParam(value = "colorIds", required = false) List<Integer> colorIds,
                                     @RequestParam(value = "themMau", required = false) Boolean themMau,
+                                    @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                    @RequestParam(value = "size", defaultValue = "10") Integer pageSize,
                                     Model model) {
 
         SanPham sanPham = sanPhamService.findbyid(id);
@@ -312,6 +401,45 @@ public class SanPhamController {
         model.addAttribute("dsLoaiThu", xuatxurepository.findAll());
         model.addAttribute("themMau", themMau != null && themMau);
         model.addAttribute("dsDotGiamGia", dotgiamgiarepository.findAll());
+
+		        Page<ChiTietSanPham> pageChiTiet = chitietsanphamRepo.findBySanPham_Id(id, PageRequest.of(page, pageSize));
+		model.addAttribute("pageChiTiet", pageChiTiet);
+
+		// Build color blocks (multi-color if colorIds provided; fallback to single mauId)
+		List<MauBlock> mauBlocks = new ArrayList<>();
+		List<Integer> targetColorIds = colorIds != null && !colorIds.isEmpty()
+				? colorIds
+				: (mauId != null ? List.of(mauId) : List.of());
+		model.addAttribute("selectedColorIds", targetColorIds);
+		for (Integer colorId : targetColorIds) {
+			MauSac selectedMau = mausacrepository.findById(colorId).orElse(null);
+			if (selectedMau == null) continue;
+			MauBlock block = new MauBlock();
+			block.setMau(selectedMau);
+			block.setLightText(ColorUtil.isLightColor(selectedMau.getMaMau()));
+			List<VariantRow> rows = new ArrayList<>();
+			int nextIndex = 0;
+			for (Size s : allSizes) {
+				ChiTietSanPham existing = danhSachChiTiet.stream()
+						.filter(ct -> ct.getMauSac().getId().equals(selectedMau.getId()) && ct.getSize().getId().equals(s.getId()))
+						.findFirst().orElse(null);
+				if (existing != null) {
+					rows.add(new VariantRow(s, true, existing.getGiaGoc(), existing.getGiaNhap(), existing.getGiaBan(), existing.getSoLuong(), null));
+				} else {
+					rows.add(new VariantRow(s, false, null, null, null, null, nextIndex));
+					ChiTietSanPham ct = new ChiTietSanPham();
+					ct.setSanPham(sanPham);
+					ct.setMauSac(selectedMau);
+					ct.setSize(s);
+					block.getForm().getChiTietList().add(ct);
+					nextIndex++;
+				}
+			}
+			block.setRows(rows);
+			block.setMissingCount((int) rows.stream().filter(r -> !r.isExisted()).count());
+			mauBlocks.add(block);
+		}
+		model.addAttribute("mauBlocks", mauBlocks);
 
         return "admin/pages/sanpham/xemchitiet";
     }
@@ -357,52 +485,99 @@ public class SanPhamController {
         model.addAttribute("dsChiTietSanPham", daCo);
         model.addAttribute("sanPham", sp);
         model.addAttribute("cacMau", cacMau);
-        model.addAttribute("dsDotGiamGia", dotgiamgiarepository.findAll());
+                model.addAttribute("dsDotGiamGia", dotgiamgiarepository.findAll());
 
+        // Bổ sung phân trang biến thể đã có để template không bị null
+        Page<ChiTietSanPham> pageChiTiet = chitietsanphamRepo.findBySanPham_Id(id, PageRequest.of(0, 10));
+        model.addAttribute("pageChiTiet", pageChiTiet);
+ 
         return "admin/pages/sanpham/xemchitiet";
     }
 
     @PostMapping("/chitietsanpham/them")
     public String luuChiTietMoi(@ModelAttribute("form") ChiTietSanPhamForm form,
-                                @RequestParam("sanPhamId") Integer sanPhamId) {
+                                @RequestParam("sanPhamId") Integer sanPhamId,
+                                RedirectAttributes redirectAttributes) {
         SanPham sp = sanPhamService.findbyid(sanPhamId);
 
+        int successCount = 0;
+        int errorCount = 0;
+        List<String> errorMessages = new ArrayList<>();
+
         for (ChiTietSanPham ct : form.getChiTietList()) {
-            // Load lại Size và MauSac từ DB nếu bị thiếu
-            if (ct.getSize() == null || ct.getSize().getId() == null) continue;
-            if (ct.getMauSac() == null || ct.getMauSac().getId() == null) continue;
+            try {
+                if (ct.getSize() == null || ct.getSize().getId() == null) {
+                    errorMessages.add("Thiếu size");
+                    errorCount++; continue;
+                }
+                if (ct.getMauSac() == null || ct.getMauSac().getId() == null) {
+                    errorMessages.add("Thiếu màu sắc");
+                    errorCount++; continue;
+                }
 
-            Size size = sizerepository.findById(ct.getSize().getId()).orElse(null);
-            MauSac mau = mausacrepository.findById(ct.getMauSac().getId()).orElse(null);
+                Size theSize = sizerepository.findById(ct.getSize().getId()).orElse(null);
+                MauSac theMau = mausacrepository.findById(ct.getMauSac().getId()).orElse(null);
+                if (theSize == null) { errorMessages.add("Size không tồn tại"); errorCount++; continue; }
+                if (theMau == null) { errorMessages.add("Màu sắc không tồn tại"); errorCount++; continue; }
 
-            if (size == null || mau == null) continue;
-            ct.setSize(size);
-            ct.setMauSac(mau);
+                ct.setSize(theSize);
+                ct.setMauSac(theMau);
 
-            // Gán tên chi tiết từ màu + size
-            ct.setTenCt(mau.getTen() + " - " + size.getTen());
+                if (ct.getSoLuong() == null || ct.getSoLuong() < 5 || ct.getSoLuong() > 1000) {
+                    errorMessages.add("Số lượng phải từ 5-1000");
+                    errorCount++; continue;
+                }
 
-            // Gán trạng thái mặc định
-            ct.setTrangThai(true);
+                if (ct.getGiaGoc() == null || ct.getGiaGoc().compareTo(BigDecimal.ZERO) <= 0) {
+                    errorMessages.add("Giá gốc phải > 0");
+                    errorCount++; continue;
+                }
+                if (ct.getGiaNhap() == null || ct.getGiaNhap().compareTo(BigDecimal.ZERO) <= 0) {
+                    errorMessages.add("Giá nhập phải > 0");
+                    errorCount++; continue;
+                }
+                if (ct.getGiaNhap().compareTo(ct.getGiaGoc()) > 0) {
+                    errorMessages.add("Giá nhập không được > giá gốc");
+                    errorCount++; continue;
+                }
+                if (ct.getGiaBan() != null) {
+                    if (ct.getGiaBan().compareTo(BigDecimal.ZERO) <= 0) {
+                        errorMessages.add("Giá bán phải > 0");
+                        errorCount++; continue;
+                    }
+                    if (ct.getGiaBan().compareTo(ct.getGiaGoc()) > 0) {
+                        errorMessages.add("Giá bán không được > giá gốc");
+                        errorCount++; continue;
+                    }
+                    if (ct.getGiaBan().compareTo(ct.getGiaNhap()) < 0) {
+                        errorMessages.add("Giá bán không được < giá nhập");
+                        errorCount++; continue;
+                    }
+                }
 
-            // Gán mô tả và ghi chú null
-            ct.setMoTa(null);
-            ct.setGhiChu(null);
+                ct.setTenCt(theMau.getTen() + " - " + theSize.getTen());
+                ct.setTrangThai(true);
+                ct.setMoTa(null);
+                ct.setGhiChu(null);
 
-            String randomMaVach = "SP" + System.currentTimeMillis();
-            ct.setMaVach(randomMaVach);
-            if (ct.getGiaBan() == null && ct.getGiaGoc() != null) {
-                ct.setGiaBan(ct.getGiaGoc());
+                String randomMaVach = "SP" + System.currentTimeMillis();
+                ct.setMaVach(randomMaVach);
+                if (ct.getGiaBan() == null) { ct.setGiaBan(ct.getGiaGoc()); }
+                if (ct.getSanPham() == null) { ct.setSanPham(sp); }
+
+                chitietsanphamRepo.save(ct);
+                successCount++;
+            } catch (Exception e) {
+                errorCount++;
+                errorMessages.add("Lỗi hệ thống khi lưu biến thể");
             }
-            if (ct.getGiaBan() == null) {
-                ct.setGiaBan(ct.getGiaGoc());
-            }
-            // Gán sản phẩm nếu chưa có
-            if (ct.getSanPham() == null) {
-                ct.setSanPham(sp);
-            }
+        }
 
-            chitietsanphamRepo.save(ct);
+        if (successCount > 0) {
+            redirectAttributes.addFlashAttribute("success", "Đã lưu " + successCount + " biến thể");
+        }
+        if (errorCount > 0) {
+            redirectAttributes.addFlashAttribute("error", String.join("; ", errorMessages));
         }
 
         return "redirect:/admin/san-pham/chitietsanpham/them?id=" + sanPhamId;
@@ -451,197 +626,11 @@ public class SanPhamController {
         return "redirect:/admin/san-pham/xem/" + sanPhamId + "?themMau=true";
     }
 
-    @PostMapping("/ap-dung-giam-gia-nhieu")
-    public String apDungGiamGiaNhieu(@RequestParam(value = "dotGiamGiaId", required = false) Integer dotGiamGiaId,
-                                     @RequestParam(value = "sanPhamIds", required = false) List<Integer> sanPhamIds,
-                                     RedirectAttributes redirectAttributes) {
 
-        if (sanPhamIds == null || sanPhamIds.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Bạn chưa chọn sản phẩm nào để áp dụng.");
-            return "redirect:/admin/san-pham/hien_thi";
-        }
 
-        // Nếu không chọn đợt nào → Gỡ đợt giảm giá khỏi CTSP
-        if (dotGiamGiaId == null) {
-            List<ChiTietSanPham> toUpdate = new ArrayList<>();
-            for (Integer spId : sanPhamIds) {
-                List<ChiTietSanPham> chiTietList = chitietsanphamRepo.findBySanPhamId(spId);
-                for (ChiTietSanPham ct : chiTietList) {
-                    ct.setDotGiamGia(null);
-                    if (ct.getGiaGoc() != null) {
-                        ct.setGiaBan(ct.getGiaGoc());
-                    }
-                    toUpdate.add(ct);
-                }
-            }
-            chitietsanphamRepo.saveAll(toUpdate);
-            redirectAttributes.addFlashAttribute("success", "Đã gỡ đợt giảm giá khỏi các sản phẩm đã chọn.");
-            return "redirect:/admin/san-pham/hien_thi";
-        }
 
-        // Ngược lại: thực hiện áp dụng đợt giảm giá như cũ
-        DotGiamGia dot = dotgiamgiarepository.findById(dotGiamGiaId).orElse(null);
-        if (dot == null) {
-            redirectAttributes.addFlashAttribute("error", "Đợt giảm giá không tồn tại.");
-            return "redirect:/admin/san-pham/hien_thi";
-        }
 
-        List<ChiTietSanPham> toUpdate = new ArrayList<>();
-        List<String> khongCapNhat = new ArrayList<>();
 
-        for (Integer spId : sanPhamIds) {
-            List<ChiTietSanPham> chiTietList = chitietsanphamRepo.findBySanPhamId(spId);
-            for (ChiTietSanPham ct : chiTietList) {
-                if (ct.getGiaBan() == null || ct.getGiaNhap() == null) continue;
-
-                if (ct.getGiaGoc() == null) {
-                    ct.setGiaGoc(ct.getGiaBan());
-                }
-
-                BigDecimal giaGoc = ct.getGiaGoc();
-                BigDecimal giaNhap = ct.getGiaNhap();
-                BigDecimal giam;
-
-                if ("TIEN".equalsIgnoreCase(dot.getLoai())) {
-                    giam = dot.getGiaTriDotGiamGia();
-                } else {
-                    giam = giaGoc.multiply(dot.getGiaTriDotGiamGia())
-                            .divide(BigDecimal.valueOf(100));
-                }
-
-                BigDecimal giaSauGiam = giaGoc.subtract(giam);
-                ct.setDotGiamGia(dot);
-
-                if (giaSauGiam.compareTo(giaNhap) >= 0 && giaSauGiam.compareTo(giaGoc) < 0) {
-                    ct.setGiaBan(giaSauGiam);
-                    toUpdate.add(ct);
-                } else {
-                    khongCapNhat.add("CTSP ID: " + ct.getId());
-                }
-            }
-        }
-
-        if (!toUpdate.isEmpty()) {
-            chitietsanphamRepo.saveAll(toUpdate);
-        }
-
-        if (!khongCapNhat.isEmpty()) {
-            redirectAttributes.addFlashAttribute("warning",
-                    "Một số chi tiết sản phẩm không cập nhật: " + String.join(", ", khongCapNhat));
-        } else {
-            redirectAttributes.addFlashAttribute("success", "Áp dụng đợt giảm giá thành công cho các sản phẩm đã chọn.");
-        }
-
-        return "redirect:/admin/san-pham/hien_thi";
-    }
-
-    @PostMapping("/cap-nhat-dot-giam-gia")
-    public String apDungDotGiamGia(@RequestParam("dotGiamGiaId") Integer dotGiamGiaId,
-                                   @RequestParam("sanPhamId") Integer sanPhamId,
-                                   @RequestParam(value = "chiTietIds", required = false) List<Integer> chiTietIds,
-                                   RedirectAttributes redirectAttributes) {
-
-        DotGiamGia dot = dotgiamgiarepository.findById(dotGiamGiaId).orElse(null);
-        if (dot == null) {
-            redirectAttributes.addFlashAttribute("error", "Đợt giảm giá không tồn tại.");
-            return "redirect:/admin/san-pham/hien_thi";
-        }
-
-        List<ChiTietSanPham> chiTietList = (chiTietIds != null && !chiTietIds.isEmpty())
-                ? chitietsanphamRepo.findAllById(chiTietIds)
-                : chitietsanphamRepo.findBySanPhamId(sanPhamId);
-
-        List<String> danhSachKhongCapNhat = new ArrayList<>();
-        for (ChiTietSanPham ct : chiTietList) {
-            if (ct.getGiaBan() != null && ct.getGiaNhap() != null) {
-
-                if (ct.getGiaGoc() == null) {
-                    ct.setGiaGoc(ct.getGiaBan());
-                }
-
-                BigDecimal giaGoc = ct.getGiaGoc();
-                BigDecimal giaNhap = ct.getGiaNhap();
-                BigDecimal giam;
-
-                String loai = dot.getLoai() != null ? dot.getLoai().trim() : "";
-                if (loai.equalsIgnoreCase("TIEN")) {
-                    giam = dot.getGiaTriDotGiamGia();
-                } else {
-                    giam = giaGoc.multiply(dot.getGiaTriDotGiamGia()).divide(BigDecimal.valueOf(100));
-                }
-
-                BigDecimal giaSauGiam = giaGoc.subtract(giam);
-                ct.setDotGiamGia(dot); // Gán đợt giảm giá
-
-                if (giaSauGiam.compareTo(giaNhap) >= 0 && giaSauGiam.compareTo(giaGoc) < 0) {
-                    ct.setGiaBan(giaSauGiam);
-                } else {
-                    danhSachKhongCapNhat.add("ID: " + ct.getId());
-                }
-            }
-        }
-
-        chitietsanphamRepo.saveAll(chiTietList);
-
-        if (!danhSachKhongCapNhat.isEmpty()) {
-            redirectAttributes.addFlashAttribute("warning",
-                    "Một số sản phẩm không cập nhật do giá sau giảm < giá nhập hoặc không hợp lệ: "
-                            + String.join(", ", danhSachKhongCapNhat));
-        } else {
-            redirectAttributes.addFlashAttribute("success", "Áp dụng đợt giảm giá thành công!");
-        }
-
-        return "redirect:/admin/san-pham/xem/" + sanPhamId;
-    }
-    @PostMapping("/ap-dung-giam-gia-tat-ca")
-    public String apDungGiamGiaTatCa(@RequestParam("dotGiamGiaId") Integer dotGiamGiaId,
-                                     RedirectAttributes redirectAttributes) {
-
-        DotGiamGia dot = dotgiamgiarepository.findById(dotGiamGiaId).orElse(null);
-        if (dot == null) {
-            redirectAttributes.addFlashAttribute("error", "Đợt giảm giá không tồn tại.");
-            return "redirect:/admin/san-pham/hien_thi";
-        }
-
-        List<ChiTietSanPham> allChiTiet = chitietsanphamRepo.findAll();
-        List<String> loi = new ArrayList<>();
-
-        for (ChiTietSanPham ct : allChiTiet) {
-            if (ct.getGiaBan() == null || ct.getGiaNhap() == null) continue;
-
-            if (ct.getGiaGoc() == null) {
-                ct.setGiaGoc(ct.getGiaBan());
-            }
-
-            BigDecimal giaGoc = ct.getGiaGoc();
-            BigDecimal giaNhap = ct.getGiaNhap();
-            BigDecimal giam;
-
-            if ("TIEN".equalsIgnoreCase(dot.getLoai())) {
-                giam = dot.getGiaTriDotGiamGia();
-            } else {
-                giam = giaGoc.multiply(dot.getGiaTriDotGiamGia()).divide(BigDecimal.valueOf(100));
-            }
-
-            BigDecimal giaSauGiam = giaGoc.subtract(giam);
-            if (giaSauGiam.compareTo(giaNhap) >= 0 && giaSauGiam.compareTo(giaGoc) < 0) {
-                ct.setGiaBan(giaSauGiam);
-                ct.setDotGiamGia(dot);
-            } else {
-                loi.add("CTSP ID: " + ct.getId());
-            }
-        }
-
-        chitietsanphamRepo.saveAll(allChiTiet);
-
-        if (!loi.isEmpty()) {
-            redirectAttributes.addFlashAttribute("warning", "Một số sản phẩm không áp dụng được: " + String.join(", ", loi));
-        } else {
-            redirectAttributes.addFlashAttribute("success", "Đã áp dụng giảm giá cho tất cả sản phẩm.");
-        }
-
-        return "redirect:/admin/san-pham/hien_thi";
-    }
     @PostMapping("/admin/san-pham/cap-nhat-so-luong")
     public String capNhatSoLuongChiTiet(@RequestParam("id") Integer id,
                                         @RequestParam("soLuong") int soLuong,
@@ -703,6 +692,219 @@ public class SanPhamController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * API lấy thống kê sản phẩm
+     */
+    @GetMapping("/api/thong-ke")
+    @ResponseBody
+    public ResponseEntity<SanPhamThongKeDTO> getThongKeSanPham() {
+        try {
+            SanPhamThongKeDTO thongKe = sanPhamService.getThongKeSanPham();
+            return ResponseEntity.ok(thongKe);
+        } catch (Exception e) {
+            // Trả về thống kê mặc định nếu có lỗi
+            SanPhamThongKeDTO thongKeMacDinh = SanPhamThongKeDTO.builder()
+                    .tongSanPham(0L)
+                    .dangHoatDong(0L)
+                    .ngungHoatDong(0L)
+                    .sapHetHang(0L)
+                    .build();
+            return ResponseEntity.ok(thongKeMacDinh);
+        }
+    }
+
+    /**
+     * API xuất Excel sản phẩm theo filter hiện tại
+     */
+    @GetMapping("/api/export-excel")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> xuatExcelSanPham(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String trangThaiHienThi,
+            @RequestParam(required = false) Integer danhMucId,
+            @RequestParam(required = false) Integer thuongHieuId,
+            @RequestParam(required = false, defaultValue = "ngayTao:desc") String sortBy,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "1000") int size) {
+        
+        // Tạo filter DTO từ parameters
+        SanPhamFilterDTO filter = SanPhamFilterDTO.builder()
+                .keyword(keyword)
+                .trangThaiHienThi(trangThaiHienThi)
+                .danhMucId(danhMucId)
+                .thuongHieuId(thuongHieuId)
+                .sortBy(sortBy)
+                .page(page)
+                .size(size)
+                .build();
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Lấy danh sách sản phẩm theo filter
+            List<SanPhamExportDTO> danhSachXuat = sanPhamService.getSanPhamForExport(filter);
+            
+            if (danhSachXuat.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Không có dữ liệu để xuất Excel!");
+                return ResponseEntity.ok(response);
+            }
+            
+            // Tạo file Excel
+            byte[] excelFile = createExcelFile(danhSachXuat);
+            
+            // Lưu file tạm thời
+            String fileName = "SanPham-dgfashion-" + LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yy-MM-dd")) + ".xlsx";
+            
+            response.put("success", true);
+            response.put("message", "Xuất Excel thành công!");
+            response.put("fileName", fileName);
+            response.put("fileSize", excelFile.length);
+            response.put("data", java.util.Base64.getEncoder().encodeToString(excelFile));
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Có lỗi xảy ra khi xuất Excel: " + e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Tạo file Excel từ danh sách sản phẩm
+     */
+    private byte[] createExcelFile(List<SanPhamExportDTO> danhSach) throws IOException {
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            XSSFSheet sheet = workbook.createSheet("Danh sách sản phẩm");
+            
+            // Tạo style cho header
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+            
+            // Tạo style cho dữ liệu
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
+            
+            // Tạo tiêu đề
+            Row titleRow = sheet.createRow(0);
+            Cell titleCell = titleRow.createCell(0);
+            titleCell.setCellValue("Báo cáo về sản phẩm D&G Fashion");
+            titleCell.setCellStyle(headerStyle);
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 12));
+            
+            // Tạo header
+            Row headerRow = sheet.createRow(1);
+            String[] headers = {
+                "Mã SP", "Tên SP", "Mô tả", "Danh mục", "Thương hiệu", "Chất liệu", 
+                "Xuất xứ", "Kiểu dáng", "Loại thú", "Giá gốc", "Số lượng", "Trạng thái", "Ngày tạo"
+            };
+            
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+            
+            // Thêm dữ liệu
+            int rowNum = 2;
+            for (SanPhamExportDTO sp : danhSach) {
+                Row row = sheet.createRow(rowNum++);
+                
+                row.createCell(0).setCellValue(sp.getMa() != null ? sp.getMa() : "");
+                row.createCell(1).setCellValue(sp.getTen() != null ? sp.getTen() : "");
+                row.createCell(2).setCellValue(sp.getMoTa() != null ? sp.getMoTa() : "");
+                row.createCell(3).setCellValue(sp.getDanhMuc() != null ? sp.getDanhMuc() : "");
+                row.createCell(4).setCellValue(sp.getThuongHieu() != null ? sp.getThuongHieu() : "");
+                row.createCell(5).setCellValue(sp.getChatLieu() != null ? sp.getChatLieu() : "");
+                row.createCell(6).setCellValue(sp.getXuatXu() != null ? sp.getXuatXu() : "");
+                row.createCell(7).setCellValue(sp.getKieuDang() != null ? sp.getKieuDang() : "");
+                row.createCell(8).setCellValue(sp.getLoaiThu() != null ? sp.getLoaiThu() : "");
+                row.createCell(9).setCellValue(sp.getGia() != null ? sp.getGia().doubleValue() : 0.0);
+                row.createCell(10).setCellValue(sp.getSoLuong() != null ? sp.getSoLuong() : 0);
+                row.createCell(11).setCellValue(sp.getTrangThai() != null ? sp.getTrangThai() : "");
+                row.createCell(12).setCellValue(sp.getNgayTao() != null ? sp.getNgayTao().toString() : "");
+            }
+            
+            // Auto-fit columns
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+            
+            // Ghi file vào ByteArrayOutputStream
+            java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    /**
+     * Test endpoint để kiểm tra routing
+     */
+    @GetMapping("/api/test")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> testEndpoint() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Test endpoint hoạt động!");
+        response.put("timestamp", LocalDateTime.now().toString());
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Xóa biến thể sản phẩm
+     */
+    @DeleteMapping("/bien-the/xoa/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> xoaBienThe(@PathVariable("id") Integer id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Kiểm tra biến thể có tồn tại không
+            if (!chiTietSanPhamService.findById(id).isPresent()) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy biến thể sản phẩm");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Kiểm tra có thể xóa không
+            if (!chiTietSanPhamService.coTheXoaBienThe(id)) {
+                response.put("success", false);
+                response.put("message", "Không thể xóa biến thể này. Biến thể đang được sử dụng trong đơn hàng hoặc giỏ hàng.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Thực hiện xóa
+            boolean xoaThanhCong = chiTietSanPhamService.xoaBienThe(id);
+            
+            if (xoaThanhCong) {
+                response.put("success", true);
+                response.put("message", "Xóa biến thể thành công");
+            } else {
+                response.put("success", false);
+                response.put("message", "Có lỗi xảy ra khi xóa biến thể");
+            }
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+            e.printStackTrace();
         }
         
         return ResponseEntity.ok(response);

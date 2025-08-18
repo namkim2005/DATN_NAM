@@ -42,22 +42,7 @@
                 <p class="tw-text-sm tw-text-gray-600">Danh sách tất cả sản phẩm trong hệ thống</p>
             </div>
 
-            <!-- Search and Refresh Section -->
-            <div class="tw-flex-shrink-0 tw-w-full lg:tw-w-80">
-                <div class="tw-relative">
-                    <div class="tw-absolute tw-inset-y-0 tw-left-0 tw-pl-3 tw-flex tw-items-center tw-pointer-events-none">
-                        <svg class="tw-h-5 tw-w-5 tw-text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                    </div>
-                    <input
-                        type="text"
-                        id="searchInput"
-                        class="tw-block tw-w-full tw-pl-10 tw-pr-3 tw-py-3 tw-border tw-border-gray-300 tw-rounded-lg tw-leading-5 tw-bg-white tw-placeholder-gray-500 focus:tw-outline-none focus:tw-placeholder-gray-400 focus:tw-ring-2 focus:tw-ring-blue-500 focus:tw-border-blue-500 tw-text-sm tw-transition tw-duration-150 tw-ease-in-out"
-                        placeholder="Tìm kiếm sản phẩm..."
-                    />
-                </div>
-            </div>
+
         </div>
 
         <!-- Filter Section -->
@@ -109,9 +94,97 @@
 
         <!-- Action Section -->
         <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-p-6">
+            <!-- Statistics Row -->
+            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-4 tw-gap-6 tw-mb-6">
+                <!-- Total Products -->
+                <div class="tw-bg-gradient-to-r tw-from-blue-500 tw-to-blue-600 tw-rounded-lg tw-p-4 tw-text-white">
+                    <div class="tw-flex tw-items-center tw-justify-between">
+                        <div>
+                            <p class="tw-text-blue-100 tw-text-sm tw-font-medium">Tổng sản phẩm</p>
+                            <p class="tw-text-2xl tw-font-bold" id="totalProducts">0</p>
+                        </div>
+                        <div class="tw-bg-blue-400 tw-rounded-full tw-p-3">
+                            <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Products -->
+                <div class="tw-bg-gradient-to-r tw-from-green-500 tw-to-green-600 tw-rounded-lg tw-p-4 tw-text-white">
+                    <div class="tw-flex tw-items-center tw-justify-between">
+                        <div>
+                            <p class="tw-text-green-100 tw-text-sm tw-font-medium">Đang hoạt động</p>
+                            <p class="tw-text-2xl tw-font-bold" id="activeProducts">0</p>
+                        </div>
+                        <div class="tw-bg-green-400 tw-rounded-full tw-p-3">
+                            <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inactive Products -->
+                <div class="tw-bg-gradient-to-r tw-from-red-500 tw-to-red-600 tw-rounded-lg tw-p-4 tw-text-white">
+                    <div class="tw-flex tw-items-center tw-justify-between">
+                        <div>
+                            <p class="tw-text-red-100 tw-text-sm tw-font-medium">Ngưng hoạt động</p>
+                            <p class="tw-text-2xl tw-font-bold" id="inactiveProducts">0</p>
+                        </div>
+                        <div class="tw-bg-red-400 tw-rounded-full tw-p-3">
+                            <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Products -->
+                <div class="tw-bg-gradient-to-r tw-from-yellow-500 tw-to-yellow-600 tw-rounded-lg tw-p-4 tw-text-white">
+                    <div class="tw-flex tw-items-center tw-justify-between">
+                        <div>
+                            <p class="tw-text-yellow-100 tw-text-sm tw-font-medium">Sắp hết hàng</p>
+                            <p class="tw-text-2xl tw-font-bold" id="lowStockProducts">0</p>
+                        </div>
+                        <div class="tw-bg-yellow-400 tw-rounded-full tw-p-3">
+                            <svg class="tw-w-6 tw-h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Actions Row -->
             <div class="tw-flex tw-flex-col tw-space-y-4 lg:tw-flex-row lg:tw-justify-between lg:tw-items-center lg:tw-space-y-0">
-                <!-- Add Product Button -->
+                <!-- Search Box -->
+                <div class="tw-flex-1 tw-max-w-md">
+                    <div class="tw-relative">
+                        <div class="tw-absolute tw-inset-y-0 tw-left-0 tw-pl-3 tw-flex tw-items-center tw-pointer-events-none">
+                            <svg class="tw-h-5 tw-w-5 tw-text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="searchInput" 
+                               class="tw-block tw-w-full tw-pl-10 tw-pr-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg tw-leading-5 tw-bg-white tw-placeholder-gray-500 focus:tw-outline-none focus:tw-placeholder-gray-400 focus:tw-ring-1 focus:tw-ring-blue-500 focus:tw-border-blue-500 sm:tw-text-sm" 
+                               placeholder="Tìm kiếm sản phẩm...">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
                 <div class="tw-flex tw-items-center tw-space-x-3">
+                    <!-- Export Button -->
+                    <button type="button" onclick="exportProducts()" 
+                            class="tw-inline-flex tw-items-center tw-px-4 tw-py-2.5 tw-bg-gray-600 tw-border tw-border-transparent tw-rounded-lg tw-font-medium tw-text-sm tw-text-white hover:tw-bg-gray-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-gray-500 tw-transition tw-duration-150 tw-ease-in-out tw-shadow-sm">
+                        <svg class="tw-w-5 tw-h-5 tw-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Xuất Excel
+                    </button>
+
+                    <!-- Add Product Button -->
                     <a href="/admin/san-pham/them"
                        class="tw-inline-flex tw-items-center tw-px-4 tw-py-2.5 tw-bg-blue-600 tw-border tw-border-transparent tw-rounded-lg tw-font-medium tw-text-sm tw-text-white hover:tw-bg-blue-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-blue-500 tw-transition tw-duration-150 tw-ease-in-out tw-shadow-sm">
                         <svg class="tw-w-5 tw-h-5 tw-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,32 +193,6 @@
                         Thêm sản phẩm
                     </a>
                 </div>
-
-                <!-- Discount Application Form -->
-                <form th:action="@{/admin/san-pham/ap-dung-giam-gia-nhieu}" method="post" id="discountForm"
-                      class="tw-flex tw-flex-col tw-space-y-3 sm:tw-flex-row sm:tw-space-y-0 sm:tw-space-x-3 sm:tw-items-end">
-                    <div class="tw-flex tw-flex-col">
-                        <label for="dotGiamGiaId" class="tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-1">Đợt giảm giá</label>
-                        <select name="dotGiamGiaId" id="dotGiamGiaId"
-                                class="tw-block tw-w-full tw-px-3 tw-py-2.5 tw-border tw-border-gray-300 tw-rounded-lg tw-bg-white tw-text-sm focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-green-500 focus:tw-border-green-500 tw-transition tw-duration-150 tw-ease-in-out">
-                            <option value="">-- Chọn đợt giảm giá (hoặc để trống để gỡ giảm giá) --</option>
-                            <option th:each="dgg : ${dsDotGiamGia}" th:value="${dgg.id}" th:text="${dgg.ten}"></option>
-                        </select>
-                    </div>
-                    <div class="tw-flex tw-items-center tw-space-x-2">
-                        <span id="selectedCount" class="tw-text-sm tw-text-gray-600">Đã chọn: 0 sản phẩm</span>
-                        <button type="submit" id="applyDiscountBtn"
-                                class="tw-inline-flex tw-items-center tw-px-4 tw-py-2.5 tw-bg-green-600 tw-border tw-border-transparent tw-rounded-lg tw-font-medium tw-text-sm tw-text-white hover:tw-bg-green-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-offset-2 focus:tw-ring-green-500 tw-transition tw-duration-150 tw-ease-in-out tw-shadow-sm tw-opacity-50 tw-cursor-not-allowed"
-                                disabled>
-                            <svg class="tw-w-5 tw-h-5 tw-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                            </svg>
-                            Áp dụng giảm giá
-                        </button>
-                    </div>
-                    <!-- Hidden inputs for selected product IDs -->
-                    <div id="selectedProductIds"></div>
-                </form>
             </div>
         </div>
 
@@ -191,8 +238,11 @@
                             <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-40">
                                 Phân loại
                             </th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-24">
+                                Số lượng
+                            </th>
                             <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-32">
-                                Giá & Số lượng
+                                Giá
                             </th>
                             <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-32">
                                 Trạng thái
@@ -208,8 +258,7 @@
                     <tbody class="tw-bg-white tw-divide-y tw-divide-gray-200">
                         <tr th:each="sp : ${list}"
                             th:data-product-id="${sp.id}"
-                            class="hover:tw-bg-gray-50 tw-transition-colors tw-duration-150 tw-cursor-pointer product-row"
-                            onclick="toggleProductSelection(this)">
+                            class="hover:tw-bg-gray-50 tw-transition-colors tw-duration-150 product-row">
                             <!-- Hình ảnh -->
                             <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap">
                                 <div class="tw-flex-shrink-0 tw-h-16 tw-w-16">
@@ -268,15 +317,17 @@
                                 </div>
                             </td>
 
-                            <!-- Giá & Số lượng -->
+                            <!-- Số lượng -->
+                            <td class="tw-px-6 tw-py-4">
+                                <div class="tw-text-center">
+                                    <div class="tw-text-2xl tw-font-bold tw-text-blue-600" th:text="${sp.tongSoLuong}"></div>
+                                    <div class="tw-text-xs tw-text-gray-500 tw-mt-1">Sản phẩm</div>
+                                </div>
+                            </td>
+
+                            <!-- Giá -->
                             <td class="tw-px-6 tw-py-4">
                                 <div class="tw-space-y-2">
-                                    <!-- Số lượng -->
-                                    <div class="tw-text-sm">
-                                        <span class="tw-font-medium tw-text-gray-700">Số lượng:</span>
-                                        <span class="tw-text-lg tw-font-semibold tw-text-blue-600" th:text="${sp.tongSoLuong}"></span>
-                                    </div>
-                                    
                                     <!-- Giá gốc -->
                                     <div class="tw-text-sm" th:if="${sp.giaGocMin != null and sp.giaGocMax != null}">
                                         <span class="tw-font-medium tw-text-gray-700">Giá gốc:</span>
@@ -327,7 +378,7 @@
                                         </svg>
                                         Sửa
                                     </a>
-                                    <button onclick="deleteProduct(event, [[${sp.id}]])"
+                                    <button th:onclick="'deleteProduct(event, ' + ${sp.id} + ')'"
                                             class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-red-100 tw-text-red-700 tw-rounded-md hover:tw-bg-red-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
                                         <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -341,10 +392,229 @@
                 </table>
             </div>
         </div>
+
+        <!-- Pagination Section -->
+        <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-p-6" 
+             th:data-current-page="${currentPage}" 
+             th:data-total-pages="${totalPages}" 
+             th:data-total-elements="${totalElements}" 
+             th:data-page-size="${pageSize}">
+            <div class="tw-flex tw-flex-col tw-items-center tw-space-y-4 sm:tw-flex-row sm:tw-justify-between sm:tw-space-y-0">
+                <!-- Page Info -->
+                <div class="tw-text-sm tw-text-gray-700">
+                    Hiển thị <span class="tw-font-medium" th:text="${pageSize}"></span> 
+                    trong tổng số <span class="tw-font-medium" th:text="${totalElements}"></span> sản phẩm
+                    <span th:if="${totalElements > 0}">
+                        (Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span>)
+                    </span>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="tw-flex tw-items-center tw-space-x-2">
+                    <!-- Previous Button -->
+                    <button id="prevPage" 
+                            th:disabled="${currentPage == 0}"
+                            class="tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-500 tw-bg-white tw-border tw-border-gray-300 tw-rounded-lg hover:tw-bg-gray-50 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed">
+                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Trước
+                    </button>
+
+                    <!-- Page Numbers -->
+                    <div id="pageNumbers" class="tw-flex tw-items-center tw-space-x-1">
+                        <!-- Page numbers will be generated by JavaScript -->
+                    </div>
+
+                    <!-- Next Button -->
+                    <button id="nextPage" 
+                            th:disabled="${currentPage == totalPages - 1}"
+                            class="tw-inline-flex tw-items-center tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-500 tw-bg-white tw-border tw-border-gray-300 tw-rounded-lg hover:tw-bg-gray-50 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed">
+                        Tiếp
+                        <svg class="tw-w-4 tw-h-4 tw-ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Page Size Selector -->
+                <div class="tw-flex tw-items-center tw-space-x-2">
+                    <label class="tw-text-sm tw-text-gray-700">Hiển thị:</label>
+                    <select id="pageSizeSelector" class="tw-px-3 tw-py-2 tw-text-sm tw-border tw-border-gray-300 tw-rounded-lg tw-bg-white focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-blue-500">
+                        <option value="5">5</option>
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    </select>
+                    <span class="tw-text-sm tw-text-gray-700">sản phẩm/trang</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Custom JavaScript -->
     <script th:src="@{/js/admin/sanpham/list.js}"></script>
+    
+    <!-- Statistics JavaScript -->
+    <script>
+        // Hàm gọi API thống kê
+        async function loadThongKe() {
+            try {
+                const response = await fetch('/admin/san-pham/api/thong-ke');
+                const data = await response.json();
+                
+                // Cập nhật UI với count up animation
+                updateStatistics(data);
+            } catch (error) {
+                console.error('Lỗi khi tải thống kê:', error);
+                // Hiển thị số 0 nếu có lỗi
+                updateStatistics({
+                    tongSanPham: 0,
+                    dangHoatDong: 0,
+                    ngungHoatDong: 0,
+                    sapHetHang: 0
+                });
+            }
+        }
+
+        // Hàm cập nhật thống kê với animation
+        function updateStatistics(data) {
+            // Tổng sản phẩm
+            animateCount('totalProducts', data.tongSanPham);
+            
+            // Đang hoạt động
+            animateCount('activeProducts', data.dangHoatDong);
+            
+            // Ngưng hoạt động
+            animateCount('inactiveProducts', data.ngungHoatDong);
+            
+            // Sắp hết hàng
+            animateCount('lowStockProducts', data.sapHetHang);
+        }
+
+        // Hàm animation count up
+        function animateCount(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const startValue = 0;
+            const duration = 1000; // 1 giây
+            const increment = targetValue / (duration / 16); // 60fps
+            let currentValue = startValue;
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(currentValue);
+            }, 16);
+        }
+
+        // Hàm export sản phẩm
+        async function exportProducts() {
+            // Hiển thị popup xác nhận
+            if (!confirm('Bạn có chắc chắn muốn xuất Excel danh sách sản phẩm hiện tại?')) {
+                return;
+            }
+            
+            // Hiển thị "Đang xuất..."
+            const exportBtn = document.querySelector('button[onclick="exportProducts()"]');
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin tw-mr-2"></i>Đang xuất...';
+            exportBtn.disabled = true;
+            
+            try {
+                // Lấy filter hiện tại từ UI
+                const filter = getCurrentFilter();
+                
+                // Tạo query string từ filter
+                const queryString = createQueryString(filter);
+                
+                // Gọi API xuất Excel bằng GET request
+                const response = await fetch(`/admin/san-pham/api/export-excel?${queryString}`, {
+                    method: 'GET'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Tạo và download file
+                    const byteCharacters = atob(result.data);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = result.fileName;
+                    link.click();
+                    
+                    alert('Xuất Excel thành công!');
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+                
+            } catch (error) {
+                console.error('Lỗi khi xuất Excel:', error);
+                alert('Có lỗi xảy ra khi xuất Excel. Vui lòng thử lại!');
+            } finally {
+                // Khôi phục button
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+            }
+        }
+
+        // Hàm lấy filter hiện tại từ UI
+        function getCurrentFilter() {
+            const filter = {
+                keyword: document.getElementById('searchInput')?.value || '',
+                trangThaiHienThi: document.getElementById('statusFilter')?.value || '',
+                danhMucId: document.getElementById('categoryFilter')?.value || null,
+                thuongHieuId: document.getElementById('brandFilter')?.value || null,
+                sortBy: document.getElementById('sortBy')?.value || 'ngayTao:desc',
+                page: 0,
+                size: 1000 // Lấy tất cả để xuất
+            };
+            
+            // Chuyển đổi string sang number nếu cần
+            if (filter.danhMucId && filter.danhMucId !== '') {
+                filter.danhMucId = parseInt(filter.danhMucId);
+            }
+            if (filter.thuongHieuId && filter.thuongHieuId !== '') {
+                filter.thuongHieuId = parseInt(filter.thuongHieuId);
+            }
+            
+            return filter;
+        }
+
+        // Hàm tạo query string từ filter
+        function createQueryString(filter) {
+            const params = new URLSearchParams();
+            
+            if (filter.keyword) params.append('keyword', filter.keyword);
+            if (filter.trangThaiHienThi) params.append('trangThaiHienThi', filter.trangThaiHienThi);
+            if (filter.danhMucId) params.append('danhMucId', filter.danhMucId);
+            if (filter.thuongHieuId) params.append('thuongHieuId', filter.thuongHieuId);
+            if (filter.sortBy) params.append('sortBy', filter.sortBy);
+            params.append('page', filter.page);
+            params.append('size', filter.size);
+            
+            return params.toString();
+        }
+
+        // Load thống kê khi trang được load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadThongKe();
+            
+            // Cập nhật thống kê mỗi 30 giây
+            setInterval(loadThongKe, 30000);
+        });
+    </script>
 </section>
 </body>
 </html>
