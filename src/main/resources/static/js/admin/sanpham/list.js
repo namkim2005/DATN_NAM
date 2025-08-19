@@ -248,6 +248,10 @@ class ProductListManager {
         row.className = 'hover:tw-bg-gray-50 tw-transition-colors tw-duration-150 product-row';
         row.setAttribute('data-product-id', product.id);
 
+        const danhMuc = product.danhMuc || '';
+        const loaiThu = product.loaiThu || '';
+        const tooltip = `Chất liệu: ${product.chatLieu || ''}\nThương hiệu: ${product.thuongHieu || ''}\nXuất xứ: ${product.xuatXu || ''}\nKiểu dáng: ${product.kieuDang || ''}`;
+
         row.innerHTML = `
             <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap">
                 <div class="tw-flex-shrink-0 tw-h-16 tw-w-16">
@@ -258,70 +262,44 @@ class ProductListManager {
                 </div>
             </td>
             <td class="tw-px-6 tw-py-4">
-                <div class="tw-space-y-1">
-                    <div class="tw-text-sm tw-font-medium tw-text-gray-900">${product.ma}</div>
-                    <div class="tw-text-sm tw-font-semibold tw-text-gray-800">${product.ten}</div>
-                    ${product.moTa ? `<div class="tw-text-xs tw-text-gray-500 tw-line-clamp-2 tw-max-w-xs" title="${product.moTa}">${product.moTa}</div>` : ''}
+                <div class="tw-space-y-1 tw-max-w-xs">
+                    <div class="tw-text-xs tw-text-gray-500">${product.ma || ''}</div>
+                    <div class="tw-text-sm tw-font-semibold tw-text-gray-800 tw-line-clamp-1" title="${product.ten || ''}">${product.ten || ''}</div>
+                    ${product.moTa ? `<div class="tw-text-[11px] tw-text-gray-500 tw-line-clamp-1" title="${product.moTa}">${product.moTa}</div>` : ''}
                 </div>
             </td>
             <td class="tw-px-6 tw-py-4">
-                <div class="tw-space-y-2">
-                    <div class="tw-flex tw-flex-wrap tw-gap-1">
-                        <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-blue-100 tw-text-blue-800">${product.danhMuc}</span>
-                        <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-green-100 tw-text-green-800">${product.loaiThu}</span>
-                    </div>
-                    <div class="tw-text-xs tw-text-gray-600">
-                        <span class="tw-font-medium tw-text-gray-700">Chất liệu:</span> ${product.chatLieu}
-                    </div>
-                    <div class="tw-text-xs tw-text-gray-600">
-                        <span class="tw-font-medium tw-text-gray-700">Thương hiệu:</span> ${product.thuongHieu}
-                    </div>
-                    <div class="tw-text-xs tw-text-gray-600">
-                        <span class="tw-font-medium tw-text-gray-700">Xuất xứ:</span> ${product.xuatXu}
-                    </div>
-                    <div class="tw-text-xs tw-text-gray-600">
-                        <span class="tw-font-medium tw-text-gray-700">Kiểu dáng:</span> ${product.kieuDang}
-                    </div>
+                <div class="tw-flex tw-flex-wrap tw-gap-1">
+                    ${danhMuc ? `<span class=\"tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-blue-50 tw-text-blue-700\">${danhMuc}</span>` : ''}
+                    ${loaiThu ? `<span class=\"tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-green-50 tw-text-green-700\">${loaiThu}</span>` : ''}
+                    <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-gray-50 tw-text-gray-600" title="${tooltip}">+ chi tiết</span>
                 </div>
             </td>
             <td class="tw-px-6 tw-py-4">
-                <div class="tw-text-center">
-                    <div class="tw-text-2xl tw-font-bold tw-text-blue-600">${product.tongSoLuong}</div>
-                    <div class="tw-text-xs tw-text-gray-500 tw-mt-1">Sản phẩm</div>
+                <div class="tw-text-right">
+                    <div class="tw-text-xl tw-font-bold tw-text-gray-800">${this.formatNumber(product.tongSoLuong || 0)}</div>
                 </div>
             </td>
             <td class="tw-px-6 tw-py-4">
-                <div class="tw-space-y-2">
-                    ${this.formatPriceSection(product)}
-                </div>
+                ${this.formatPriceSection(product)}
             </td>
             <td class="tw-px-6 tw-py-4">
                 <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-border ${product.trangThaiClass}">${product.trangThaiHienThi}</span>
             </td>
-            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-500">
+            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-500 tw-hidden lg:tw-table-cell">
                 <div>${this.formatDate(product.ngayTao)}</div>
                 <div>${this.formatTime(product.ngayTao)}</div>
             </td>
             <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-font-medium">
-                <div class="tw-flex tw-space-x-2">
-                    <a href="/admin/san-pham/xem/${product.id}" class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-blue-100 tw-text-blue-700 tw-rounded-md hover:tw-bg-blue-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
-                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                        Xem
+                <div class="tw-flex tw-items-center tw-gap-2">
+                    <a href="/admin/san-pham/xem/${product.id}" class="tw-text-gray-400 hover:tw-text-gray-700 tw-p-2 tw-transition tw-duration-150" title="Chi tiết">
+                        <i class="fas fa-layer-group"></i>
                     </a>
-                    <a href="/admin/san-pham/sua/${product.id}" class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-yellow-100 tw-text-yellow-700 tw-rounded-md hover:tw-bg-yellow-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
-                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                        Sửa
+                    <a href="/admin/san-pham/sua/${product.id}" class="tw-text-gray-400 hover:tw-text-gray-700 tw-p-2 tw-transition tw-duration-150" title="Sửa">
+                        <i class="fas fa-edit"></i>
                     </a>
-                    <button onclick="deleteProduct(event, ${product.id})" class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-red-100 tw-text-red-700 tw-rounded-md hover:tw-bg-red-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
-                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        Xoá
+                    <button onclick="deleteProduct(event, ${product.id})" class="tw-text-gray-400 hover:tw-text-gray-700 tw-p-2 tw-transition tw-duration-150" title="Xóa">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </td>
@@ -331,38 +309,34 @@ class ProductListManager {
     }
 
     formatPriceSection(product) {
-        let html = '';
-        
-        // Giá gốc
-        if (product.giaGocMin && product.giaGocMax) {
-            html += `
-                <div class="tw-text-sm">
-                    <span class="tw-font-medium tw-text-gray-700">Giá gốc:</span>
-                    <span class="tw-text-gray-600">${this.formatPriceRange(product.giaGocMin, product.giaGocMax)}</span>
-                </div>
-            `;
-        }
-        
-        // Giá bán
-        if (product.giaSauGiamMin && product.giaSauGiamMax) {
-            html += `
-                <div class="tw-text-sm">
-                    <span class="tw-font-medium tw-text-gray-700">Giá bán:</span>
-                    <span class="tw-text-lg tw-font-semibold tw-text-red-600">${this.formatPriceRange(product.giaSauGiamMin, product.giaSauGiamMax)}</span>
-                </div>
-            `;
-        }
-        
-        // Thông tin giảm giá
-        if (product.tenDotGiamGia) {
-            html += `
-                <div class="tw-text-xs tw-text-green-600">
-                    <span class="tw-font-medium">Giảm giá:</span> ${product.tenDotGiamGia}
-                </div>
-            `;
-        }
-        
-        return html;
+        const range = (min, max) => {
+            const fmt = (v) => new Intl.NumberFormat('vi-VN').format(v);
+            if (min == null && max == null) return '';
+            if (min != null && max != null) {
+                if (min === max) return fmt(min) + 'đ';
+                return fmt(min) + ' - ' + fmt(max) + 'đ';
+            }
+            if (min != null) return fmt(min) + 'đ';
+            if (max != null) return fmt(max) + 'đ';
+            return '';
+        };
+
+        const giaBan = (product.giaSauGiamMin != null && product.giaSauGiamMax != null)
+            ? range(product.giaSauGiamMin, product.giaSauGiamMax)
+            : null;
+        const giaGoc = (product.giaGocMin != null && product.giaGocMax != null)
+            ? range(product.giaGocMin, product.giaGocMax)
+            : null;
+
+        const main = giaBan || giaGoc || '';
+        const tooltip = giaGoc ? `title=\"${giaGoc}\"` : '';
+
+        return `
+            <div class=\"tw-text-right\">
+                ${giaGoc ? `<div class=\\"tw-text-sm tw-text-gray-500\\" ${tooltip}>&nbsp;</div>` : ''}
+                <div class=\"tw-text-base tw-font-semibold tw-text-gray-900\">${main}</div>
+            </div>
+        `;
     }
 
     formatPriceRange(min, max) {

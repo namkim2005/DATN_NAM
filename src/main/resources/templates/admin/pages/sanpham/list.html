@@ -229,30 +229,14 @@
                 <table class="tw-min-w-full tw-divide-y tw-divide-gray-200" id="productTable">
                     <thead class="tw-bg-gray-50">
                         <tr>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-20">
-                                Ảnh
-                            </th>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-48">
-                                Thông tin sản phẩm
-                            </th>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-40">
-                                Phân loại
-                            </th>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-24">
-                                Số lượng
-                            </th>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-32">
-                                Giá
-                            </th>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-32">
-                                Trạng thái
-                            </th>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-24">
-                                Ngày tạo
-                            </th>
-                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-32">
-                                Thao tác
-                            </th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider tw-w-20">Ảnh</th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider">Sản phẩm</th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider">Phân loại</th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-right tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider">Số lượng</th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-right tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider">Giá</th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider">Trạng thái</th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider tw-hidden lg:tw-table-cell">Ngày tạo</th>
+                            <th scope="col" class="tw-px-6 tw-py-3 tw-text-left tw-text-[11px] tw-font-semibold tw-text-gray-500 tw-uppercase tw-tracking-wider">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody class="tw-bg-white tw-divide-y tw-divide-gray-200">
@@ -277,11 +261,11 @@
 
                             <!-- Thông tin sản phẩm -->
                             <td class="tw-px-6 tw-py-4">
-                                <div class="tw-space-y-1">
-                                    <div class="tw-text-sm tw-font-medium tw-text-gray-900" th:text="${sp.ma}"></div>
-                                    <div class="tw-text-sm tw-font-semibold tw-text-gray-800" th:text="${sp.ten}"></div>
+                                <div class="tw-space-y-1 tw-max-w-xs">
+                                    <div class="tw-text-xs tw-text-gray-500" th:text="${sp.ma}"></div>
+                                    <div class="tw-text-sm tw-font-semibold tw-text-gray-800 tw-line-clamp-1" th:text="${sp.ten}" th:title="${sp.ten}"></div>
                                     <div th:if="${sp.moTa != null and !sp.moTa.isEmpty()}"
-                                         class="tw-text-xs tw-text-gray-500 tw-line-clamp-2 tw-max-w-xs"
+                                         class="tw-text-[11px] tw-text-gray-500 tw-line-clamp-1"
                                          th:text="${sp.moTa}"
                                          th:title="${sp.moTa}"></div>
                                 </div>
@@ -289,62 +273,25 @@
 
                             <!-- Phân loại -->
                             <td class="tw-px-6 tw-py-4">
-                                <div class="tw-space-y-2">
-                                    <div class="tw-flex tw-flex-wrap tw-gap-1">
-                                        <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-blue-100 tw-text-blue-800">
-                                            <span th:text="${sp.danhMuc}"></span>
-                                        </span>
-                                        <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-green-100 tw-text-green-800">
-                                            <span th:text="${sp.loaiThu}"></span>
-                                        </span>
-                                    </div>
-                                    <div class="tw-text-xs tw-text-gray-600">
-                                        <span class="tw-font-medium tw-text-gray-700">Chất liệu:</span>
-                                        <span th:text="${sp.chatLieu}"></span>
-                                    </div>
-                                    <div class="tw-text-xs tw-text-gray-600">
-                                        <span class="tw-font-medium tw-text-gray-700">Thương hiệu:</span>
-                                        <span th:text="${sp.thuongHieu}"></span>
-                                    </div>
-                                    <div class="tw-text-xs tw-text-gray-600">
-                                        <span class="tw-font-medium tw-text-gray-700">Xuất xứ:</span>
-                                        <span th:text="${sp.xuatXu}"></span>
-                                    </div>
-                                    <div class="tw-text-xs tw-text-gray-600">
-                                        <span class="tw-font-medium tw-text-gray-700">Kiểu dáng:</span>
-                                        <span th:text="${sp.kieuDang}"></span>
-                                    </div>
+                                <div class="tw-flex tw-flex-wrap tw-gap-1">
+                                    <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-blue-50 tw-text-blue-700" th:text="${sp.danhMuc}"></span>
+                                    <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-green-50 tw-text-green-700" th:text="${sp.loaiThu}"></span>
+                                    <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-gray-50 tw-text-gray-600" th:title="'Chất liệu: ' + ${sp.chatLieu} + '\nThương hiệu: ' + ${sp.thuongHieu} + '\nXuất xứ: ' + ${sp.xuatXu} + '\nKiểu dáng: ' + ${sp.kieuDang}">+ chi tiết</span>
                                 </div>
                             </td>
 
                             <!-- Số lượng -->
                             <td class="tw-px-6 tw-py-4">
-                                <div class="tw-text-center">
-                                    <div class="tw-text-2xl tw-font-bold tw-text-blue-600" th:text="${sp.tongSoLuong}"></div>
-                                    <div class="tw-text-xs tw-text-gray-500 tw-mt-1">Sản phẩm</div>
+                                <div class="tw-text-right">
+                                    <div class="tw-text-xl tw-font-bold tw-text-gray-800" th:text="${sp.tongSoLuong}"></div>
                                 </div>
                             </td>
 
                             <!-- Giá -->
                             <td class="tw-px-6 tw-py-4">
-                                <div class="tw-space-y-2">
-                                    <!-- Giá gốc -->
-                                    <div class="tw-text-sm" th:if="${sp.giaGocMin != null and sp.giaGocMax != null}">
-                                        <span class="tw-font-medium tw-text-gray-700">Giá gốc:</span>
-                                        <span class="tw-text-gray-600" th:text="${sp.giaGocFormatted}"></span>
-                                    </div>
-                                    
-                                    <!-- Giá bán -->
-                                    <div class="tw-text-sm" th:if="${sp.giaSauGiamMin != null and sp.giaSauGiamMax != null}">
-                                        <span class="tw-font-medium tw-text-gray-700">Giá bán:</span>
-                                        <span class="tw-text-lg tw-font-semibold tw-text-red-600" th:text="${sp.giaSauGiamFormatted}"></span>
-                                    </div>
-                                    
-                                    <!-- Thông tin giảm giá -->
-                                    <div th:if="${sp.tenDotGiamGia != null}" class="tw-text-xs tw-text-green-600">
-                                        <span class="tw-font-medium">Giảm giá:</span>
-                                        <span th:text="${sp.tenDotGiamGia}"></span>
-                                    </div>
+                                <div class="tw-text-right">
+                                    <div class="tw-text-sm tw-text-gray-500" th:if="${sp.giaGocFormatted != null}" th:title="${sp.giaGocFormatted}"> </div>
+                                    <div class="tw-text-base tw-font-semibold tw-text-gray-900" th:text="${sp.giaSauGiamFormatted != null ? sp.giaSauGiamFormatted : sp.giaGocFormatted}"></div>
                                 </div>
                             </td>
 
@@ -355,35 +302,28 @@
                             </td>
 
                             <!-- Ngày tạo -->
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-500">
+                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-500 tw-hidden lg:tw-table-cell">
                                 <div th:text="${#temporals.format(sp.ngayTao, 'dd/MM/yyyy')}"></div>
                                 <div th:text="${#temporals.format(sp.ngayTao, 'HH:mm')}"></div>
                             </td>
 
                             <!-- Thao tác -->
                             <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-font-medium">
-                                <div class="tw-flex tw-space-x-2">
+                                <div class="tw-flex tw-items-center tw-gap-2">
                                     <a th:href="@{/admin/san-pham/xem/{id}(id=${sp.id})}"
-                                       class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-blue-100 tw-text-blue-700 tw-rounded-md hover:tw-bg-blue-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
-                                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                        </svg>
-                                        Xem
+                                       class="tw-text-gray-400 hover:tw-text-gray-700 tw-p-2 tw-transition tw-duration-150"
+                                       title="Chi tiết">
+                                        <i class="fas fa-layer-group"></i>
                                     </a>
                                     <a th:href="@{/admin/san-pham/sua/{id}(id=${sp.id})}"
-                                       class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-yellow-100 tw-text-yellow-700 tw-rounded-md hover:tw-bg-yellow-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
-                                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                        Sửa
+                                       class="tw-text-gray-400 hover:tw-text-gray-700 tw-p-2 tw-transition tw-duration-150"
+                                       title="Sửa">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     <button th:onclick="'deleteProduct(event, ' + ${sp.id} + ')'"
-                                            class="tw-inline-flex tw-items-center tw-px-3 tw-py-1.5 tw-bg-red-100 tw-text-red-700 tw-rounded-md hover:tw-bg-red-200 tw-transition-colors tw-duration-150 tw-ease-in-out">
-                                        <svg class="tw-w-4 tw-h-4 tw-mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                        Xoá
+                                            class="tw-text-gray-400 hover:tw-text-gray-700 tw-p-2 tw-transition tw-duration-150"
+                                            title="Xóa">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
