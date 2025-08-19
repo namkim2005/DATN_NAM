@@ -34,7 +34,7 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
     int findBydeleteid(@Param("id") Integer id);
 
     @Query("""
-        select n from ChiTietSanPham n where n.sanPham.id = :sanphamId and n.size.id = :sizeId and n.mauSac.id = :mauSacId
+        select n from ChiTietSanPham n where n.sanPham.id = :sanphamId and n.size.id = :mauSacId and n.mauSac.id = :mauSacId
     """)
     ChiTietSanPham findBySanPhamIdAndSizeIdAndMauSacId(Integer sanphamId, Integer sizeId, Integer mauSacId);
 
@@ -116,5 +116,8 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
            "WHERE ctsp.id = :id")
     Optional<ChiTietSanPham> findByIdWithDetails(@Param("id") Integer id);
 
+    // --- Bổ sung cho Đợt giảm giá ---
+    boolean existsByDotGiamGia_Id(Integer dotId);
+    long countByDotGiamGia_Id(Integer dotId);
 }
 

@@ -82,6 +82,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Make toggleAccordion available globally for onclick events
     window.toggleAccordion = toggleAccordion;
+
+    // sort dropdown
+    const sortSelect = document.querySelector('select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'Giá tăng dần') { window.currentSortBy = 'price'; window.currentSortDir = 'asc'; }
+            else if (val === 'Giá giảm dần') { window.currentSortBy = 'price'; window.currentSortDir = 'desc'; }
+            else if (val === 'Mới nhất') { window.currentSortBy = 'newest'; window.currentSortDir = 'desc'; }
+            else { window.currentSortBy = null; window.currentSortDir = null; }
+            applyFilters();
+        });
+    }
 });
 
 // Load initial filter values from URL or server
@@ -436,6 +449,9 @@ function applyFilters() {
             }
         }
     });
+    // sort controls
+    if (window.currentSortBy) params.append('sortBy', window.currentSortBy);
+    if (window.currentSortDir) params.append('sortDir', window.currentSortDir);
 
     // Make AJAX request
     fetch(`/san-pham/danh-sach/filter?${params.toString()}`, {
@@ -781,18 +797,24 @@ function addToCart(productId) {
 
 // Add to wishlist function
 function addToWishlist(productId) {
-    // Show success message
-    const toast = document.createElement('div');
-    toast.className = 'tw-fixed tw-top-4 tw-right-4 tw-bg-blue-500 tw-text-white tw-px-6 tw-py-3 tw-rounded-lg tw-shadow-lg tw-z-50';
-    toast.textContent = 'Đã thêm sản phẩm vào danh sách yêu thích!';
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
+    fetch('/yeu-thich/toggle', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId })
+    }).then(async res => {
+        if (res.status === 401) {
+            showErrorMessage('Vui lòng đăng nhập để sử dụng yêu thích');
+            return;
         }
-    }, 3000);
+        const data = await res.json();
+        const btn = document.querySelector(`button[data-wishlist-id="${productId}"]`);
+        if (btn) {
+            btn.classList.toggle('tw-text-pink-600', data.liked);
+            btn.classList.toggle('tw-text-gray-400', !data.liked);
+        }
+    }).catch(() => showErrorMessage('Không thể cập nhật yêu thích'));
 }
 
 // Enhance color display

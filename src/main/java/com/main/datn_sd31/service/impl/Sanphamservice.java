@@ -551,7 +551,9 @@ public class Sanphamservice {
             Integer kieuDangId,
             Integer thuongHieuId,
             Integer xuatXuId,
-            Integer priceRange
+            Integer priceRange,
+            String sortBy,
+            String sortDir
     ) {
         // normalize keyword
         String keyword = (q == null ? "" : q.trim());
@@ -591,7 +593,54 @@ public class Sanphamservice {
                 .collect(Collectors.toList());
         }
 
+        // Áp dụng sắp xếp nếu có
+        if (sortBy != null && !sortBy.isBlank()) {
+            boolean desc = "desc".equalsIgnoreCase(sortDir);
+            switch (sortBy) {
+                case "price" -> {
+                    basicFiltered.sort((a, b) -> {
+                        int cmp = getMinDiscountedPrice(a).compareTo(getMinDiscountedPrice(b));
+                        return desc ? -cmp : cmp;
+                    });
+                }
+                case "newest" -> {
+                    basicFiltered.sort((a, b) -> {
+                        if (a.getNgayTao() == null && b.getNgayTao() == null) return 0;
+                        if (a.getNgayTao() == null) return desc ? 1 : -1;
+                        if (b.getNgayTao() == null) return desc ? -1 : 1;
+                        int cmp = a.getNgayTao().compareTo(b.getNgayTao());
+                        return desc ? -cmp : cmp;
+                    });
+                }
+                default -> {}
+            }
+        }
+
         return basicFiltered;
+    }
+
+    private java.math.BigDecimal getMinDiscountedPrice(SanPham sp) {
+        return sp.getChiTietSanPhams().stream()
+                .map(ct -> {
+                    java.math.BigDecimal giaGoc = ct.getGiaGoc() == null ? java.math.BigDecimal.ZERO : ct.getGiaGoc();
+                    java.math.BigDecimal giaBan = giaGoc;
+                    if (ct.getDotGiamGia() != null && giaGoc != null) {
+                        var dgg = ct.getDotGiamGia();
+                        var giaTri = dgg.getGiaTriDotGiamGia();
+                        if (giaTri != null) {
+                            if ("TIEN".equalsIgnoreCase(dgg.getLoai())) {
+                                giaBan = giaGoc.subtract(giaTri);
+                            } else {
+                                var phanTram = giaTri.divide(new java.math.BigDecimal(100), 2, java.math.RoundingMode.HALF_UP);
+                                giaBan = giaGoc.subtract(giaGoc.multiply(phanTram));
+                            }
+                            if (giaBan.compareTo(java.math.BigDecimal.ZERO) < 0) giaBan = java.math.BigDecimal.ZERO;
+                        }
+                    }
+                    return giaBan;
+                })
+                .min(java.util.Comparator.naturalOrder())
+                .orElse(java.math.BigDecimal.ZERO);
     }
 
     /**

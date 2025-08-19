@@ -205,11 +205,16 @@
 
         <div class="d-flex d-lg-none align-items-end mt-3">
           <ul class="d-flex justify-content-end list-unstyled m-0">
-            <li>
-              <a href="account.html" class="mx-3">
+            <!-- Mobile User Dropdown -->
+            <li class="dropdown">
+              <a href="#" class="mx-3" id="mobileUserDropdown" role="button">
                 <iconify-icon icon="healthicons:person" class="fs-4"></iconify-icon>
               </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileUserDropdown" id="mobileUserDropdownMenu">
+                <!-- Content will be loaded dynamically -->
+              </ul>
             </li>
+            
             <li>
               <a href="wishlist.html" class="mx-3">
                 <iconify-icon icon="mdi:heart" class="fs-4"></iconify-icon>
@@ -280,11 +285,16 @@
 
             <div class="d-none d-lg-flex align-items-end">
               <ul class="d-flex justify-content-end list-unstyled m-0">
-                <li>
-                  <a href="#" class="mx-3">
+                <!-- User Dropdown -->
+                <li class="dropdown">
+                  <a href="#" class="mx-3" id="userDropdown" role="button">
                     <iconify-icon icon="healthicons:person" class="fs-4"></iconify-icon>
                   </a>
+                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown" id="userDropdownMenu">
+                    <!-- Content will be loaded dynamically -->
+                  </ul>
                 </li>
+                
                 <li>
                   <a href="#" class="mx-3">
                     <iconify-icon icon="mdi:heart" class="fs-4"></iconify-icon>
@@ -427,6 +437,215 @@
   <script th:src="@{/client-static/js/plugins.js}"></script>
   <script th:src="@{/client-static/js/script.js}"></script>
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  
+  <!-- Custom CSS for User Dropdown -->
+  <style>
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      z-index: 1000;
+      min-width: 280px;
+      padding: 0.5rem 0;
+      margin: 0.125rem 0 0;
+      font-size: 0.875rem;
+      color: #212529;
+      text-align: left;
+      list-style: none;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 0.375rem;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .dropdown-menu.show {
+      display: block !important;
+    }
+    
+    .dropdown-menu .dropdown-header {
+      padding: 0.5rem 1rem;
+      margin-bottom: 0;
+      font-size: 0.875rem;
+      color: #6c757d;
+      white-space: nowrap;
+    }
+    
+    .dropdown-menu .dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      clear: both;
+      font-weight: 400;
+      color: #212529;
+      text-align: inherit;
+      text-decoration: none;
+      white-space: nowrap;
+      background-color: transparent;
+      border: 0;
+    }
+    
+    .dropdown-menu .dropdown-item:hover {
+      color: #1e2125;
+      background-color: #e9ecef;
+    }
+    
+    .dropdown-menu .dropdown-item.text-danger {
+      color: #dc3545 !important;
+    }
+    
+    .dropdown-menu .dropdown-item.text-danger:hover {
+      color: #fff !important;
+      background-color: #dc3545 !important;
+    }
+    
+    .dropdown-menu .dropdown-divider {
+      height: 0;
+      margin: 0.5rem 0;
+      overflow: hidden;
+      border-top: 1px solid rgba(0, 0, 0, 0.15);
+    }
+  </style>
+  
+  <!-- User Authentication Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const userDropdown = document.getElementById('userDropdown');
+      const userDropdownMenu = document.getElementById('userDropdownMenu');
+      const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+      const mobileUserDropdownMenu = document.getElementById('mobileUserDropdownMenu');
+      
+      // Function to check auth status and handle response
+      function checkAuthStatus(targetDropdown, targetMenu) {
+        fetch('/auth/status')
+          .then(response => response.json())
+          .then(data => {
+            if (data.authenticated) {
+              // User đã đăng nhập - hiển thị dropdown
+              showUserDropdown(data.user, targetMenu);
+            } else {
+              // User chưa đăng nhập - chuyển đến trang login
+              window.location.href = '/khach-hang/dang-nhap';
+            }
+          })
+          .catch(error => {
+            console.error('Error checking auth status:', error);
+            // Fallback: chuyển đến trang login
+            window.location.href = '/khach-hang/dang-nhap';
+          });
+      }
+      
+      // Desktop user dropdown
+      if (userDropdown) {
+        userDropdown.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Nếu dropdown đang hiển thị thì đóng lại
+          if (userDropdownMenu.classList.contains('show')) {
+            userDropdownMenu.classList.remove('show');
+            return;
+          }
+          
+          checkAuthStatus(userDropdown, userDropdownMenu);
+        });
+      }
+      
+      // Mobile user dropdown
+      if (mobileUserDropdown) {
+        mobileUserDropdown.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Nếu dropdown đang hiển thị thì đóng lại
+          if (mobileUserDropdownMenu.classList.contains('show')) {
+            mobileUserDropdownMenu.classList.remove('show');
+            return;
+          }
+          
+          checkAuthStatus(mobileUserDropdown, mobileUserDropdownMenu);
+        });
+      }
+      
+      function showUserDropdown(user, targetMenu) {
+        const dropdownContent = `
+          <li>
+            <div class="dropdown-header">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <iconify-icon icon="healthicons:person" class="text-white"></iconify-icon>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <div class="fw-bold">${user.ten}</div>
+                  <div class="small text-muted">${user.email}</div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="/khach-hang/thong-tin">
+              <iconify-icon icon="mdi:account" class="me-2"></iconify-icon>
+              Thông tin tài khoản
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/khach-hang/don-hang">
+              <iconify-icon icon="mdi:package-variant" class="me-2"></iconify-icon>
+              Đơn hàng của tôi
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/khach-hang/yeu-thich">
+              <iconify-icon icon="mdi:heart" class="me-2"></iconify-icon>
+              Sản phẩm yêu thích
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/khach-hang/dia-chi">
+              <iconify-icon icon="mdi:map-marker" class="me-2"></iconify-icon>
+              Địa chỉ giao hàng
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item text-danger" href="#" onclick="logout()">
+              <iconify-icon icon="mdi:logout" class="me-2"></iconify-icon>
+              Đăng xuất
+            </a>
+          </li>
+        `;
+        
+        targetMenu.innerHTML = dropdownContent;
+        
+        // Hiển thị dropdown bằng cách thêm class show
+        targetMenu.classList.add('show');
+        
+        // Thêm event listener để đóng dropdown khi click bên ngoài
+        setTimeout(() => {
+          document.addEventListener('click', function closeDropdown(e) {
+            if (!targetMenu.contains(e.target) && !targetMenu.previousElementSibling.contains(e.target)) {
+              targetMenu.classList.remove('show');
+              document.removeEventListener('click', closeDropdown);
+            }
+          });
+        }, 100);
+      }
+      
+      // Function to handle logout
+      window.logout = function() {
+        // Đóng dropdown trước
+        const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+        dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
+        
+        // Chuyển đến trang logout
+        window.location.href = '/auth/customer/logout';
+      }
+    });
+  </script>
   
   <!-- Sticky Navbar Script -->
   <script>

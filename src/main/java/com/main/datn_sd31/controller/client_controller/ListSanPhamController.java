@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,6 +55,8 @@ public class ListSanPhamController {
         @RequestParam(value="kieuDangId", required=false) Integer kieuDangId,
         @RequestParam(value="thuongHieuId", required=false) Integer thuongHieuId,
         @RequestParam(value="xuatXuId", required=false) Integer xuatXuId,
+        @RequestParam(value="sortBy", required=false) String sortBy,
+        @RequestParam(value="sortDir", required=false) String sortDir,
 
             Model model
     ) {
@@ -63,7 +66,7 @@ public class ListSanPhamController {
         }
         // Sử dụng method search mới
         List<SanPham> danhSachSanPham = sanPhamService.searchAdvanced(
-            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange
+            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange, sortBy, sortDir
         );
         model.addAttribute("danhSachSanPham", danhSachSanPham);
 
@@ -86,24 +89,41 @@ public class ListSanPhamController {
         // Tính toán giá cho mỗi sản phẩm
         List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
         
-        // Map giá gốc và giá bán cho mỗi sản phẩm
-        Map<Integer, BigDecimal> giaGocMap = chiTiets.stream()
-            .collect(Collectors.groupingBy(
-                ct -> ct.getSanPham().getId(),
-                Collectors.collectingAndThen(
-                    Collectors.maxBy(Comparator.comparing(ChiTietSanPham::getGiaGoc)),
-                    opt -> opt.map(ChiTietSanPham::getGiaGoc).orElse(BigDecimal.ZERO)
-                )
-            ));
-
-        Map<Integer, BigDecimal> giaBanMap = chiTiets.stream()
-            .collect(Collectors.groupingBy(
-                ct -> ct.getSanPham().getId(),
-                Collectors.collectingAndThen(
-                    Collectors.minBy(Comparator.comparing(ChiTietSanPham::getGiaBan)),
-                    opt -> opt.map(ChiTietSanPham::getGiaBan).orElse(BigDecimal.ZERO)
-                )
-            ));
+        // Tính giá trước/sau giảm cho biến thể rẻ nhất
+        Map<Integer, BigDecimal> giaSauGiamMinMap = new HashMap<>();
+        Map<Integer, BigDecimal> giaGocCuaBienTheReNhatMap = new HashMap<>();
+        Map<Integer, String> tenDotGiamGiaMap = new HashMap<>();
+        for (SanPham sp : danhSachSanPham) {
+            List<ChiTietSanPham> list = chiTiets.stream().filter(ct -> ct.getSanPham().getId().equals(sp.getId())).toList();
+            ChiTietSanPham minCt = null;
+            BigDecimal minGia = null;
+            for (ChiTietSanPham ct : list) {
+                BigDecimal giaGoc = ct.getGiaGoc() == null ? BigDecimal.ZERO : ct.getGiaGoc();
+                BigDecimal giaBan = giaGoc;
+                if (ct.getDotGiamGia() != null && giaGoc != null) {
+                    DotGiamGia dgg = ct.getDotGiamGia();
+                    BigDecimal giaTri = dgg.getGiaTriDotGiamGia();
+                    if (giaTri != null) {
+                        if ("TIEN".equalsIgnoreCase(dgg.getLoai())) {
+                            giaBan = giaGoc.subtract(giaTri);
+                        } else {
+                            BigDecimal phanTram = giaTri.divide(new BigDecimal(100), 2, java.math.RoundingMode.HALF_UP);
+                            giaBan = giaGoc.subtract(giaGoc.multiply(phanTram));
+                        }
+                        if (giaBan.compareTo(BigDecimal.ZERO) < 0) giaBan = BigDecimal.ZERO;
+                    }
+                }
+                if (minGia == null || giaBan.compareTo(minGia) < 0) {
+                    minGia = giaBan;
+                    minCt = ct;
+                }
+            }
+            giaSauGiamMinMap.put(sp.getId(), minGia == null ? BigDecimal.ZERO : minGia);
+            if (minCt != null) {
+                giaGocCuaBienTheReNhatMap.put(sp.getId(), minCt.getGiaGoc() == null ? BigDecimal.ZERO : minCt.getGiaGoc());
+                tenDotGiamGiaMap.put(sp.getId(), minCt.getDotGiamGia() != null ? minCt.getDotGiamGia().getTen() : null);
+            }
+        }
 
         // Set thuộc tính dotGiamGia cho mỗi sản phẩm
         Map<Integer, DotGiamGia> dotGiamGiaMap = chiTiets.stream()
@@ -122,8 +142,25 @@ public class ListSanPhamController {
             sanPham.setDotGiamGia(dotGiamGiaMap.get(sanPham.getId()));
         });
 
-        model.addAttribute("giaGocMap", giaGocMap);
-        model.addAttribute("giaBanMap", giaBanMap);
+        model.addAttribute("giaGocMinVariantMap", giaGocCuaBienTheReNhatMap);
+        model.addAttribute("giaSauGiamMinMap", giaSauGiamMinMap);
+        model.addAttribute("tenDotGiamGiaMap", tenDotGiamGiaMap);
+
+        // Tính điểm trung bình và tổng số lượng tồn theo sản phẩm
+        Map<Integer, Double> avgRatingMap = danhSachSanPham.stream()
+                .collect(Collectors.toMap(
+                        SanPham::getId,
+                        sp -> {
+                            double avg = danhGiaService.tinhDiemTrungBinh(sp.getId());
+                            if (avg == 0 && (sp.getDanhGias() == null || sp.getDanhGias().isEmpty())) return 5.0;
+                            return avg;
+                        }
+                ));
+        Map<Integer, Integer> totalQuantityMap = chitietsanphamRepo.findAll().stream()
+                .collect(Collectors.groupingBy(ct -> ct.getSanPham().getId(),
+                        Collectors.summingInt(ct -> ct.getSoLuong() == null ? 0 : ct.getSoLuong())));
+        model.addAttribute("avgRatingMap", avgRatingMap);
+        model.addAttribute("totalQuantityMap", totalQuantityMap);
 
         // Thêm các tham số filter vào model để giữ trạng thái
         model.addAttribute("q", q);
@@ -135,6 +172,8 @@ public class ListSanPhamController {
         model.addAttribute("kieuDangId", kieuDangId);
         model.addAttribute("thuongHieuId", thuongHieuId);
         model.addAttribute("xuatXuId", xuatXuId);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
 
         return "client/pages/product";
     }
@@ -312,11 +351,13 @@ public class ListSanPhamController {
             @RequestParam(value="kieuDangId", required=false) Integer kieuDangId,
             @RequestParam(value="thuongHieuId", required=false) Integer thuongHieuId,
             @RequestParam(value="xuatXuId", required=false) Integer xuatXuId,
+            @RequestParam(value="sortBy", required=false) String sortBy,
+            @RequestParam(value="sortDir", required=false) String sortDir,
             Model model
     ) {
         // Sử dụng method search mới
         List<SanPham> danhSachSanPham = sanPhamService.searchAdvanced(
-            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange
+            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange, sortBy, sortDir
         );
 
         model.addAttribute("danhSachSanPham", danhSachSanPham);
@@ -324,24 +365,41 @@ public class ListSanPhamController {
         // Tính toán giá cho mỗi sản phẩm
         List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
         
-        // Map giá gốc và giá bán cho mỗi sản phẩm
-        Map<Integer, BigDecimal> giaGocMap = chiTiets.stream()
-            .collect(Collectors.groupingBy(
-                ct -> ct.getSanPham().getId(),
-                Collectors.collectingAndThen(
-                    Collectors.maxBy(Comparator.comparing(ChiTietSanPham::getGiaGoc)),
-                    opt -> opt.map(ChiTietSanPham::getGiaGoc).orElse(BigDecimal.ZERO)
-                )
-            ));
-
-        Map<Integer, BigDecimal> giaBanMap = chiTiets.stream()
-            .collect(Collectors.groupingBy(
-                ct -> ct.getSanPham().getId(),
-                Collectors.collectingAndThen(
-                    Collectors.minBy(Comparator.comparing(ChiTietSanPham::getGiaBan)),
-                    opt -> opt.map(ChiTietSanPham::getGiaBan).orElse(BigDecimal.ZERO)
-                )
-            ));
+        // Tính giá trước/sau giảm cho biến thể rẻ nhất
+        Map<Integer, BigDecimal> giaSauGiamMinMap = new HashMap<>();
+        Map<Integer, BigDecimal> giaGocCuaBienTheReNhatMap = new HashMap<>();
+        Map<Integer, String> tenDotGiamGiaMap = new HashMap<>();
+        for (SanPham sp : danhSachSanPham) {
+            List<ChiTietSanPham> list = chiTiets.stream().filter(ct -> ct.getSanPham().getId().equals(sp.getId())).toList();
+            ChiTietSanPham minCt = null;
+            BigDecimal minGia = null;
+            for (ChiTietSanPham ct : list) {
+                BigDecimal giaGoc = ct.getGiaGoc() == null ? BigDecimal.ZERO : ct.getGiaGoc();
+                BigDecimal giaBan = giaGoc;
+                if (ct.getDotGiamGia() != null && giaGoc != null) {
+                    DotGiamGia dgg = ct.getDotGiamGia();
+                    BigDecimal giaTri = dgg.getGiaTriDotGiamGia();
+                    if (giaTri != null) {
+                        if ("TIEN".equalsIgnoreCase(dgg.getLoai())) {
+                            giaBan = giaGoc.subtract(giaTri);
+                        } else {
+                            BigDecimal phanTram = giaTri.divide(new BigDecimal(100), 2, java.math.RoundingMode.HALF_UP);
+                            giaBan = giaGoc.subtract(giaGoc.multiply(phanTram));
+                        }
+                        if (giaBan.compareTo(BigDecimal.ZERO) < 0) giaBan = BigDecimal.ZERO;
+                    }
+                }
+                if (minGia == null || giaBan.compareTo(minGia) < 0) {
+                    minGia = giaBan;
+                    minCt = ct;
+                }
+            }
+            giaSauGiamMinMap.put(sp.getId(), minGia == null ? BigDecimal.ZERO : minGia);
+            if (minCt != null) {
+                giaGocCuaBienTheReNhatMap.put(sp.getId(), minCt.getGiaGoc() == null ? BigDecimal.ZERO : minCt.getGiaGoc());
+                tenDotGiamGiaMap.put(sp.getId(), minCt.getDotGiamGia() != null ? minCt.getDotGiamGia().getTen() : null);
+            }
+        }
 
         // Set thuộc tính dotGiamGia cho mỗi sản phẩm
         Map<Integer, DotGiamGia> dotGiamGiaMap = chiTiets.stream()
@@ -360,8 +418,55 @@ public class ListSanPhamController {
             sanPham.setDotGiamGia(dotGiamGiaMap.get(sanPham.getId()));
         });
 
-        model.addAttribute("giaGocMap", giaGocMap);
-        model.addAttribute("giaBanMap", giaBanMap);
+        model.addAttribute("giaGocMinVariantMap", giaGocCuaBienTheReNhatMap);
+        model.addAttribute("giaSauGiamMinMap", giaSauGiamMinMap);
+        model.addAttribute("tenDotGiamGiaMap", tenDotGiamGiaMap);
+
+        // Ảnh: ưu tiên loai_anh = 0, sau đó tên "ảnh chính", cuối cùng ảnh đầu
+        Map<Integer, String> firstImageUrlMap = new HashMap<>();
+        for (SanPham sp : danhSachSanPham) {
+            List<HinhAnh> images = hinhanhrepository.findByhinhanhid(sp.getId());
+            String url = null;
+            if (images != null) {
+                Optional<HinhAnh> mainFlag = images.stream()
+                        .filter(i -> i.getLoaiAnh() != null && i.getLoaiAnh() == 0)
+                        .findFirst();
+                if (mainFlag.isPresent()) {
+                    url = mainFlag.get().getUrl();
+                }
+            }
+            if (url != null && !url.isBlank()) {
+                url = url.replace("\\", "/");
+                if (!url.startsWith("http") && !url.startsWith("/")) {
+                    url = "/" + url;
+                }
+                firstImageUrlMap.put(sp.getId(), url);
+            }
+        }
+        model.addAttribute("firstImageUrlMap", firstImageUrlMap);
+
+        // Tính điểm trung bình và tổng số lượng tồn theo sản phẩm
+        Map<Integer, Double> avgRatingMap = danhSachSanPham.stream()
+                .collect(Collectors.toMap(
+                        SanPham::getId,
+                        sp -> danhGiaService.tinhDiemTrungBinh(sp.getId())
+                ));
+        Map<Integer, Integer> totalQuantityMap = chitietsanphamRepo.findAll().stream()
+                .collect(Collectors.groupingBy(ct -> ct.getSanPham().getId(),
+                        Collectors.summingInt(ct -> ct.getSoLuong() == null ? 0 : ct.getSoLuong())));
+        model.addAttribute("avgRatingMap", avgRatingMap);
+        model.addAttribute("totalQuantityMap", totalQuantityMap);
+
+        // Map sản phẩm đã yêu thích của khách hàng hiện tại
+        Map<Integer, Boolean> likedMap = new HashMap<>();
+        if (getKhachHang.getCurrentKhachHang() != null) {
+            Integer currentId = getKhachHang.getCurrentKhachHang().getId();
+            for (SanPham sp : danhSachSanPham) {
+                boolean liked = sp.getSpYeuThiches().stream().anyMatch(y -> y.getKhachHang().getId().equals(currentId));
+                likedMap.put(sp.getId(), liked);
+            }
+        }
+        model.addAttribute("likedMap", likedMap);
 
         return "client/pages/product :: productGrid";
     }
@@ -387,5 +492,11 @@ public class ListSanPhamController {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    private String normalize(String input) {
+        if (input == null) return "";
+        String temp = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return temp.replaceAll("\\p{M}+", "").toLowerCase(Locale.ROOT).trim();
     }
 }
