@@ -64,7 +64,7 @@ public class PhieuGiamGia {
 
     @NotNull
     @Column(name = "trang_thai", nullable = false)
-    private Boolean trangThai = false;
+    private Boolean trangThai;
 
     @NotNull(message = "Chọn loại phiếu giảm giá")
     @Column(name = "loai_phieu_giam_gia", nullable = false)

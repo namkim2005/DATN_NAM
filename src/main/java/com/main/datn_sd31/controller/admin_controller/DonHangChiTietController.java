@@ -147,7 +147,9 @@ public class DonHangChiTietController {
         document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG", boldFont));
         document.add(new Paragraph("Mã hóa đơn: " + hoaDon.getMa(), normalFont));
         document.add(new Paragraph("Khách hàng: " + hoaDon.getTenKH(), normalFont));
-        document.add(new Paragraph("Email: " + hoaDon.getEmail(), normalFont));
+        document.add(new Paragraph("Email: " + (hoaDon.getEmail() == null ? " " : hoaDon.getEmail() ), normalFont));
+        document.add(new Paragraph("Số điện thoại: " + (hoaDon.getSoDienThoai().equals("Khách lẻ") ? " " : hoaDon.getSoDienThoai() ), normalFont));
+        document.add(new Paragraph("Địa chỉ: " + (hoaDon.getDiaChi().equals("-- Chọn tỉnh ----") ? " " : hoaDon.getDiaChi()), normalFont));
         document.add(new Paragraph("Ngày tạo: " + hoaDon.getNgayTao(), normalFont));
         document.add(new Paragraph(" "));
 
@@ -175,7 +177,15 @@ public class DonHangChiTietController {
         document.add(table);
         document.add(new Paragraph(" ", normalFont));
 
-        document.add(new Paragraph("Tổng tiền: " + hoaDon.getThanhTien(), boldFont));
+        document.add(new Paragraph("Tổng tiền: " + hoaDon.getGiaGoc(), boldFont));
+        document.add(new Paragraph("Giá giảm: " + hoaDon.getGiaGiamGia(), boldFont));
+        document.add(new Paragraph("Phí vận chuyển: " + hoaDon.getPhiVanChuyen(), boldFont));
+        document.add(new Paragraph("Thành tiền: " + hoaDon.getThanhTien(), boldFont));
+
+        document.add(new Paragraph(" ", normalFont));
+
+        document.add(new Paragraph("Thanh toán: " + (hoaDon.getTrangThaiHoaDonString()), boldFont));
+
         document.close();
     }
 

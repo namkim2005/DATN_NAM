@@ -1,6 +1,7 @@
 package com.main.datn_sd31.repository;
 
 import com.main.datn_sd31.entity.KhachHang;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +29,9 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
 
     @Query("select n from KhachHang n where n.email=:email")
     KhachHang findByEmaill(String email);
+
+    @Query("select n from KhachHang n where n.soDienThoai=:sdt")
+    KhachHang findSoDienThoai(String sdt);
+
+    boolean existsBySoDienThoai(@Size(max = 20) String soDienThoai);
 }

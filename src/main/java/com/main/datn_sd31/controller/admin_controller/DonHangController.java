@@ -101,6 +101,33 @@ public class DonHangController {
         return "admin/pages/don-hang/don-hang";
     }
 
+    @GetMapping("/filter")
+    public String searchHoaDonByLoaiHoaDon(
+            Model model,
+            @RequestParam(value = "loaiHoaDon", required = false, defaultValue = "") String loaiHoaDon,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        if (loaiHoaDon == null || loaiHoaDon.trim().isEmpty()) {
+            return "redirect:/admin/don-hang";
+        }
+
+        Pagination<HoaDonDTO> hoaDonList = hoaDonService.searchByLoaiDonHang(loaiHoaDon, page, size);
+
+        model.addAttribute("hoaDonList", hoaDonList.getContent());
+        model.addAttribute("pageInfo", hoaDonList);
+        model.addAttribute("loaiHoaDon", loaiHoaDon);
+        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
+
+        Map<String, List<TrangThaiLichSuHoaDon>> trangThaiHopLeMap = new HashMap<>();
+        for (HoaDonDTO hd : hoaDonList.getContent()) {
+            trangThaiHopLeMap.put(hd.getMa(), lichSuHoaDonService.getTrangThaiTiepTheoHopLe(hd.getTrangThaiLichSuHoaDon(), hd));
+        }
+        model.addAttribute("trangThaiHopLeMap", trangThaiHopLeMap);
+
+        return "admin/pages/don-hang/don-hang";
+    }
+
 //    @GetMapping("/detail")
 //    public String getHoaDonDetail(
 //            @RequestParam("ma") String ma,

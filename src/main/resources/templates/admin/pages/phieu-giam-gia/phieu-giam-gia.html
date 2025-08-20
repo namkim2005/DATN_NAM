@@ -8,6 +8,7 @@
     <!--          integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">-->
 
     <!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .filter-section {
             background-color: #f8f9fa;
@@ -66,16 +67,16 @@
         }
 
         .disabled-custom {
-            pointer-events: none;      /* không cho click */
-            opacity: 0.5;              /* mờ đi */
-            cursor: not-allowed;       /* con trỏ chuột kiểu không được phép */
+            pointer-events: none; /* không cho click */
+            opacity: 0.5; /* mờ đi */
+            cursor: not-allowed; /* con trỏ chuột kiểu không được phép */
         }
     </style>
 </head>
 <body>
 
 <section layout:fragment="content">
-    <div class="container mt-4">
+    <div>
         <h2 class="mb-4 text-center">Quản Lý Phiếu giảm giá</h2>
         <a th:href="@{/admin/phieu-giam-gia/create}" class="btn btn-success mb-3">
             + Thêm mới
@@ -138,9 +139,9 @@
         </form>
 
         <!-- Table Section -->
-        <div class="table-section">
+        <div class="table-section table-responsive">
             <table
-                    class="table table-bordered"
+                    class="table table-bordered table-hover align-middle"
                     id="phieuGiamGiaTable"
                     style="width: 100%"
             >
@@ -148,7 +149,7 @@
                 <tr>
                     <th>STT</th>
                     <th>Thông tin chung</th>
-                    <th>Loại phiếu</th>
+                    <!--                    <th>Loại phiếu</th>-->
                     <th>Mức giảm</th>
                     <th>Giảm tối đa</th>
                     <th>Điều kiện</th>
@@ -166,189 +167,180 @@
                         <div class="text-sm text-gray-500" th:text="${item.ma}"></div>
                         <div class="text-sm text-gray-900" th:text="${item.ten}"></div>
                     </td>
-                    <td
-                            th:text="${item.loaiPhieuGiamGia == 1 ? 'Giảm %' : 'Giảm tiền'}"
-                    ></td>
-                    <td
-                            th:text="${item.loaiPhieuGiamGia == 1 ? item.mucDo.stripTrailingZeros().toPlainString() + '%' : item.mucDo.stripTrailingZeros().toPlainString() + ' đ'}"
-                    ></td>
-                    <td
-                            th:text="${item.giamToiDa.stripTrailingZeros().toPlainString() + ' đ'}"
-                    ></td>
-                    <td
-                            th:text="${'>= ' + item.dieuKien.stripTrailingZeros().toPlainString() + ' đ'}"
-                    ></td>
-                    <td
-                            th:text="${item.soLuongTon != null ? item.soLuongTon : 0}"
-                    ></td>
+                    <!--                    <td-->
+                    <!--                            th:text="${item.loaiPhieuGiamGia == 1 ? 'Giảm %' : 'Giảm tiền'}"-->
+                    <!--                    ></td>-->
+                    <td th:text="${item.loaiPhieuGiamGia == 1
+              ? item.mucDo.stripTrailingZeros().toPlainString() + '%'
+              : #numbers.formatInteger(item.mucDo, 0, 'POINT') + ' đ'}">
+                    </td>
+
+                    <td th:text="${#numbers.formatInteger(item.giamToiDa, 0, 'POINT') + ' đ'}"></td>
+
+                    <td th:text="${#numbers.formatInteger(item.dieuKien, 0, 'POINT') + ' đ'}"></td>
+
+                    <td th:text="${item.soLuongTon != null ? #numbers.formatInteger(item.soLuongTon, 0, 'POINT') : 0}">
+                    </td>
+
                     <td th:text="${item.ngayBatDau}"></td>
                     <td th:text="${item.ngayKetThuc}"></td>
-                    <td>
-                <span th:if="${item.soLuongTon == 0}" class="badge bg-secondary"
-                >Sử dụng hết</span
-                >
-                        <span
-                                th:if="${item.ngayBatDau > T(java.time.LocalDate).now() and item.soLuongTon > 0}"
-                                class="badge bg-warning text-dark"
-                        >Đang chờ</span
-                        >
-                        <span
-                                th:if="${item.ngayKetThuc < T(java.time.LocalDate).now() and item.soLuongTon > 0}"
-                                class="badge bg-danger"
-                        >Kết thúc</span
-                        >
-                        <span
-                                th:if="${item.ngayBatDau <= T(java.time.LocalDate).now() and item.ngayKetThuc >= T(java.time.LocalDate).now() and item.soLuongTon > 0}"
-                                class="badge bg-success"
-                        >Đang hoạt động</span
-                        >
+                    <td class="text-center align-middle">
+                        <span th:if="${item.soLuongTon == 0}" class="badge bg-secondary px-3 py-2">
+                            Sử dụng hết
+                        </span>
+                        <span th:if="${!item.trangThai and item.soLuongTon > 0}" class="badge bg-danger px-3 py-2">
+                            Ngừng hoạt động
+                        </span>
+                        <span th:if="${item.trangThai and item.soLuongTon > 0}" class="badge bg-success px-3 py-2">
+                            Đang hoạt động
+                        </span>
                     </td>
-                    <td>
-                        <a
-                                th:href="@{/admin/phieu-giam-gia/edit/{id}(id=${item.id})}"
-                                class="btn btn-primary btn-sm"
-                        >
-                            Sửa
-                        </a>
-                        <a th:href="@{'/admin/phieu-giam-gia/delete/' + ${item.id}}"
-                           th:classappend="${@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? ' disabled-custom' : ''}"
-                           th:attr="title=${@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? 'Không thể xóa' : null}"
-                           onclick="return !@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? confirm('Bạn có chắc muốn xóa phiếu này không?') : false"
-                           class="btn btn-danger btn-sm">
-                            Xóa
-                        </a>
 
+                    <td class="text-center align-middle">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a th:href="@{/admin/phieu-giam-gia/edit/{id}(id=${item.id})}"
+                               class="btn btn-primary btn-sm">
+                                Sửa
+                            </a>
+                            <a th:href="@{'/admin/phieu-giam-gia/delete/' + ${item.id}}"
+                               th:classappend="${@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? ' disabled-custom' : ''}"
+                               th:attr="title=${@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? 'Không thể xóa' : null}"
+                               onclick="return !@phieu_giam_gia_utils.khongChoPhepXoaPhieuGiamGia(item.id) ? confirm('Bạn có chắc muốn xóa phiếu này không?') : false"
+                               class="btn btn-danger btn-sm">
+                                Xóa
+                            </a>
+                        </div>
                     </td>
+
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
-
-    <!-- Nếu sử dụng Thymeleaf để mở modal khi có lỗi -->
-    <script th:if="${showCreateModal}" th:inline="javascript">
-        const createModal = new bootstrap.Modal(document.getElementById("createModal"));
-        createModal.show();
-    </script>
-
-    <script>
-        $(document).ready(function () {
-            $(".table").DataTable({
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
-                },
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
-            });
-        });
-    </script>
-
-    <script>
-        // ✅ Định nghĩa hàm resetForm là global để dùng được trong onclick
-        window.resetForm = function () {
-            const form = document.getElementById("phieuGiamGiaForm");
-            if (form) form.reset();
-
-            // Xóa giá trị hidden ID nếu có
-            const hiddenId = document.querySelector("input[name='id']");
-            if (hiddenId) hiddenId.value = "";
-
-            // Đặt lại placeholder và ẩn/hiện giảm tối đa
-            document.getElementById("mucDo").placeholder = "";
-            document.getElementById("giamToiDa").value = 0;
-            document.getElementById("divGiamToiDa").style.display = "block";
-
-            // Đổi action về create
-            document.getElementById("phieuGiamGiaForm").setAttribute("action", "/admin/phieu-giam-gia/create");
-
-            // Hiển thị modal
-            const modal = new bootstrap.Modal(document.getElementById("createModal"));
-            modal.show();
-        };
-
-        // ✅ Phần chạy sau khi DOM đã load
-        $(document).ready(function () {
-            // Kích hoạt datatables
-            $(".table").DataTable({
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
-                },
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
-            });
-
-            // Submit form ajax
-            $("#phieuGiamGiaForm").on("submit", function (e) {
-                e.preventDefault();
-                const form = $(this);
-                $.ajax({
-                    type: "POST",
-                    url: form.attr("action"),
-                    data: form.serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            alert("Lưu thành công!");
-                            location.reload();
-                        } else {
-                            alert("Có lỗi xảy ra: " + response.message);
-                        }
-                    },
-                    error: function () {
-                        alert("Có lỗi xảy ra khi lưu dữ liệu.");
-                    },
-                });
-            });
-
-            // Bắt sự kiện khi click nút sửa
-            $(".btn-edit").on("click", function (e) {
-                e.preventDefault();
-                const id = $(this).data("id");
-                $.ajax({
-                    url: "/admin/phieu-giam-gia/get/" + id,
-                    method: "GET",
-                    success: function (data) {
-                        const form = $("#phieuGiamGiaForm");
-
-                        // Gán action update
-                        form.attr("action", "/admin/phieu-giam-gia/update");
-
-                        // Gán dữ liệu từ response vào form
-                        for (let field in data) {
-                            form.find("[name='" + field + "']").val(data[field]);
-                        }
-
-                        // Trigger lại loại phiếu để xử lý hiển thị giảm tối đa
-                        $("#loaiPhieuGiamGia").trigger("change");
-
-                        const modal = new bootstrap.Modal(document.getElementById("createModal"));
-                        modal.show();
-                    },
-                    error: function () {
-                        alert("Không thể lấy dữ liệu phiếu giảm giá.");
-                    },
-                });
-            });
-
-            // Xử lý hiển thị giảm tối đa theo loại phiếu
-            $("#loaiPhieuGiamGia").on("change", function () {
-                const selectedValue = $(this).val();
-                if (selectedValue === "GIAM_PERCENT") {
-                    $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
-                    $("#divGiamToiDa").show();
-                    $("#giamToiDa").attr("required", true).val(0);
-                } else if (selectedValue === "GIAM_TIEN") {
-                    $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
-                    $("#divGiamToiDa").hide();
-                    $("#giamToiDa").removeAttr("required").val(0);
-                }
-            });
-        });
-
-        // ✅ Hiển thị modal tự động nếu có biến showCreateModal được set
-        // Ví dụ được dùng khi redirect lại với trạng thái lỗi
-    </script>
-
 </section>
+
+<script>
+    // ✅ Định nghĩa hàm resetForm là global để dùng được trong onclick
+    window.resetForm = function () {
+        const form = document.getElementById("phieuGiamGiaForm");
+        if (form) form.reset();
+
+        // Xóa giá trị hidden ID nếu có
+        const hiddenId = document.querySelector("input[name='id']");
+        if (hiddenId) hiddenId.value = "";
+
+        // Đặt lại placeholder và ẩn/hiện giảm tối đa
+        document.getElementById("mucDo").placeholder = "";
+        document.getElementById("giamToiDa").value = 0;
+        document.getElementById("divGiamToiDa").style.display = "block";
+
+        // Đổi action về create
+        document.getElementById("phieuGiamGiaForm").setAttribute("action", "/admin/phieu-giam-gia/create");
+
+        // Hiển thị modal
+        const modal = new bootstrap.Modal(document.getElementById("createModal"));
+        modal.show();
+    };
+
+    // ✅ Phần chạy sau khi DOM đã load
+    $(document).ready(function () {
+        // Kích hoạt datatables
+        $(".table").DataTable({
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
+            },
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
+        });
+
+        // Submit form ajax
+        $("#phieuGiamGiaForm").on("submit", function (e) {
+            e.preventDefault();
+            const form = $(this);
+            $.ajax({
+                type: "POST",
+                url: form.attr("action"),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        alert("Lưu thành công!");
+                        location.reload();
+                    } else {
+                        alert("Có lỗi xảy ra: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi lưu dữ liệu.");
+                },
+            });
+        });
+
+        // Bắt sự kiện khi click nút sửa
+        $(".btn-edit").on("click", function (e) {
+            e.preventDefault();
+            const id = $(this).data("id");
+            $.ajax({
+                url: "/admin/phieu-giam-gia/get/" + id,
+                method: "GET",
+                success: function (data) {
+                    const form = $("#phieuGiamGiaForm");
+
+                    // Gán action update
+                    form.attr("action", "/admin/phieu-giam-gia/update");
+
+                    // Gán dữ liệu từ response vào form
+                    for (let field in data) {
+                        form.find("[name='" + field + "']").val(data[field]);
+                    }
+
+                    // Trigger lại loại phiếu để xử lý hiển thị giảm tối đa
+                    $("#loaiPhieuGiamGia").trigger("change");
+
+                    const modal = new bootstrap.Modal(document.getElementById("createModal"));
+                    modal.show();
+                },
+                error: function () {
+                    alert("Không thể lấy dữ liệu phiếu giảm giá.");
+                },
+            });
+        });
+
+        // Xử lý hiển thị giảm tối đa theo loại phiếu
+        $("#loaiPhieuGiamGia").on("change", function () {
+            const selectedValue = $(this).val();
+            if (selectedValue === "GIAM_PERCENT") {
+                $("#mucDo").attr("placeholder", "Nhập phần trăm giảm giá");
+                $("#divGiamToiDa").show();
+                $("#giamToiDa").attr("required", true).val(0);
+            } else if (selectedValue === "GIAM_TIEN") {
+                $("#mucDo").attr("placeholder", "Nhập số tiền giảm");
+                $("#divGiamToiDa").hide();
+                $("#giamToiDa").removeAttr("required").val(0);
+            }
+        });
+    });
+
+    // ✅ Hiển thị modal tự động nếu có biến showCreateModal được set
+    // Ví dụ được dùng khi redirect lại với trạng thái lỗi
+</script>
+
+<!-- Nếu sử dụng Thymeleaf để mở modal khi có lỗi -->
+<script th:if="${showCreateModal}" th:inline="javascript">
+    const createModal = new bootstrap.Modal(document.getElementById("createModal"));
+    createModal.show();
+</script>
+
+<script>
+    $(document).ready(function () {
+        $(".table").DataTable({
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json",
+            },
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
+        });
+    });
+</script>
 
 </body>
 </html>

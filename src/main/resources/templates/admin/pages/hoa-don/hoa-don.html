@@ -153,9 +153,26 @@
                         <option value="100" th:selected="${pageInfo.size == 100}">100</option>
                     </select>
                 </div>
-                <div class="col-md-10 text-end">
+                <div class="col-md-3">
+                    <form th:action="@{/admin/hoa-don/filter}" method="get">
+                        <label class="radio-item">
+                            <input type="radio" name="loaiHoaDon" value="" th:checked="${loaiHoaDon == null}">
+                            Tất cả
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="loaiHoaDon" value="Online" th:checked="${loaiHoaDon == 'Online'}">
+                            Online
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="loaiHoaDon" value="Trực tiếp" th:checked="${loaiHoaDon == 'Trực tiếp'}">
+                            Tại quầy
+                        </label>
+                        <button class="btn btn-primary">Lọc</button>
+                    </form>
+                </div>
+                <div class="col-md-7">
                     <form th:action="@{/admin/hoa-don/search}" method="get">
-                        <div>
+                        <div class="mt-2">
                             <label for="keyword" class="form-label me-2">Tìm kiếm:</label>
                             <input type="text" name="keyword" id="keyword" class="form-control d-inline-block"
                                    style="width: 400px;"
@@ -164,6 +181,18 @@
                         </div>
                     </form>
                 </div>
+
+<!--                <div class="col-md-8 text-end">-->
+<!--                    <form th:action="@{/admin/hoa-don/search}" method="get">-->
+<!--                        <div>-->
+<!--                            <label for="keyword" class="form-label me-2">Tìm kiếm:</label>-->
+<!--                            <input type="text" name="keyword" id="keyword" class="form-control d-inline-block"-->
+<!--                                   style="width: 400px;"-->
+<!--                                   placeholder="Tìm theo mã, tên KH, SĐT">-->
+<!--                            <button class="btn btn-primary">Tìm</button>-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                </div>-->
             </div>
         </div>
 
@@ -177,7 +206,7 @@
                     </a>
                 </button>
                 <a th:each="status : ${T(com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon).values()}"
-                   th:if="${status.value == 5 or status.value == 8 or status.value == 9}"
+                   th:if="${status.value == 5 or status.value == 8 or status.value == 9 or status.value == 10}"
                    th:href="@{/admin/hoa-don(trang-thai=${status.name()})}"
                    class="btn btn-outline-primary position-relative"
                    th:classappend="${selectedStatus != null and selectedStatus.name() == status.name()} ? ' active' : ''"

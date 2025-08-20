@@ -2,7 +2,6 @@ package com.main.datn_sd31.service.impl;
 
 import com.main.datn_sd31.entity.NhanVien;
 import com.main.datn_sd31.entity.PhieuGiamGia;
-import com.main.datn_sd31.dto.phieu_giam_gia.PhieuGiamGiaDto;
 import com.main.datn_sd31.repository.PhieuGiamGiaRepository;
 import com.main.datn_sd31.service.PhieuGiamGiaService;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,7 +57,7 @@ public class PhieuGiamGiaServiceImpl implements PhieuGiamGiaService {
 
     @Override
     public void save(PhieuGiamGia pg, NhanVien nhanVien) {
-        pg.setTrangThai(true);
+//        pg.setTrangThai(true);
         pg.setNguoiTao(nhanVien.getId());
         repository.save(pg);
     }

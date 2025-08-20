@@ -7,7 +7,6 @@ import com.main.datn_sd31.service.PhieuGiamGiaService;
 import com.main.datn_sd31.service.impl.GHNService;
 import com.main.datn_sd31.service.impl.Giohangservice;
 import com.main.datn_sd31.service.impl.Sanphamservice;
-import com.main.datn_sd31.util.GetKhachHang;
 import com.main.datn_sd31.util.ThongBaoUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -50,14 +49,9 @@ public class GiohangController {
     private final LichSuHoaDonRepository lichSuHoaDonRepository;
 
     private final ChiTietSanPhamService chiTietSanPhamService;
-//    private final NotificationService notificationService;
-
-//    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private GHNService ghnService;
-    @Autowired
-    private GetKhachHang get_khach_hang;
 
     private KhachHang getCurrentKhachHang() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -138,6 +132,7 @@ public class GiohangController {
                            @RequestParam("mauSacId") Integer mauSacId,
                            @RequestParam("soLuong") Integer soLuong,
                            RedirectAttributes redirect) {
+
         KhachHang kh = getCurrentKhachHang();
 
         // Lấy chi tiết sản phẩm
@@ -233,6 +228,28 @@ public class GiohangController {
         return "redirect:/gio-hang/hien_thi";
     }
 
+    public PhieuGiamGia timPhieuTotNhat(List<PhieuGiamGia> dsPhieu, BigDecimal tongTien) {
+        return dsPhieu.stream()
+                .filter(p -> p.getNgayKetThuc().isAfter(LocalDate.now())) // còn hạn
+                .filter(p -> tongTien.compareTo(p.getDieuKien()) >= 0)    // đủ điều kiện
+                .max(Comparator.comparing(p -> {
+                    BigDecimal soTienGiamThucTe = BigDecimal.ZERO; // giá trị mặc định
+
+                    if (p.getLoaiPhieuGiamGia() == 1) {
+                        // Giảm theo %
+                        BigDecimal giamTheoPhanTram = tongTien.multiply(p.getMucDo())
+                                .divide(BigDecimal.valueOf(100));
+                        soTienGiamThucTe = giamTheoPhanTram.min(p.getGiamToiDa());
+                    } else if (p.getLoaiPhieuGiamGia() == 2) {
+                        // Giảm theo số tiền cố định
+                        soTienGiamThucTe = p.getMucDo();
+                    }
+
+                    return soTienGiamThucTe;
+                }))
+                .orElse(null);
+    }
+
     @GetMapping("/thanh-toan")
     public String hienThiTrangThanhToan(
             @RequestParam(value = "selectedId", required = false) List<Integer> selectedIds,
@@ -256,19 +273,14 @@ public class GiohangController {
 //        model.addAttribute("danhSachPhieuGiamGia", phieugiamgiarepository.findAll());
 
         LocalDate today = LocalDate.now();
-
-        List<PhieuGiamGia> dsPhieuHopLe = phieugiamgiarepository.findAll().stream()
-                // Lọc trạng thái true
-                .filter(p -> Boolean.TRUE.equals(p.getTrangThai()))
-                // Lọc ngày hiệu lực: ngày hiện tại >= ngày bắt đầu (nếu có) và <= ngày kết thúc (nếu có)
-                .filter(p -> {
-                    boolean afterStart = p.getNgayBatDau() == null || !today.isBefore(p.getNgayBatDau());
-                    boolean beforeEnd = p.getNgayKetThuc() == null || !today.isAfter(p.getNgayKetThuc());
-                    return afterStart && beforeEnd;
-                })
+        List<PhieuGiamGia> dsPhieuGiamGia = phieugiamgiarepository.findAll().stream()
+                .filter(phieu -> Boolean.TRUE.equals(phieu.getTrangThai()))
+                .filter(phieu -> phieu.getSoLuongTon() != null && phieu.getSoLuongTon() > 0)
+                .filter(phieu -> (phieu.getNgayBatDau() == null || !today.isBefore(phieu.getNgayBatDau())))
+                .filter(phieu -> (phieu.getNgayKetThuc() == null || !today.isAfter(phieu.getNgayKetThuc())))
                 .collect(Collectors.toList());
 
-        model.addAttribute("danhSachPhieuGiamGia", dsPhieuHopLe);
+        model.addAttribute("danhSachPhieuGiamGia", dsPhieuGiamGia);
 
         model.addAttribute("selectedItems", selectedItems);
         model.addAttribute("tongTien", tongTien);
@@ -286,22 +298,12 @@ public class GiohangController {
             List<Map<String, Object>> wards = ghnService.getWards(districtId);
             model.addAttribute("wards", wards);
         }
-        List<PhieuGiamGia> danhSachPhieuGiamGia = phieugiamgiarepository.findAll();
-        model.addAttribute("danhSachPhieuGiamGia", danhSachPhieuGiamGia);
+
 
         // Xử lý chọn mã giảm tốt nhất
-        String selectedVoucherCode = null;
-        BigDecimal maxDiscount = BigDecimal.ZERO;
+        PhieuGiamGia phieuTotNhat = timPhieuTotNhat(dsPhieuGiamGia, tongTien);
+        model.addAttribute("phieuTotNhat", phieuTotNhat);
 
-        for (PhieuGiamGia phieu : danhSachPhieuGiamGia) {
-            BigDecimal discount = phieuGiamGiaService.tinhTienGiam(phieu.getMa(), tongTien); // <-- Gọi đến service bạn đang dùng
-            if (discount.compareTo(maxDiscount) > 0) {
-                maxDiscount = discount;
-                selectedVoucherCode = phieu.getMa();
-            }
-        }
-
-        model.addAttribute("selectedVoucherCode", selectedVoucherCode);
         return "/view/giohang/thanh-toan";
     }
 
@@ -315,11 +317,28 @@ public class GiohangController {
                                    RedirectAttributes redirectAttributes,
                                    Model model) {
 
+        // Lấy địa chỉ chi tiết và các thành phần
         String diaChiChiTiet = formData.get("diaChi");
-        String fullAddress = diaChiChiTiet + ", " + formData.get("tenXa") + ", " +
-                formData.get("tenHuyen") + ", " + formData.get("tenTinh");
+        String tenXa = formData.get("tenXa");
+        String tenHuyen = formData.get("tenHuyen");
+        String tenTinh = formData.get("tenTinh");
 
-        KhachHang khachHang = get_khach_hang.getCurrentKhachHang();
+        // Check địa chỉ rỗng hoặc thiếu
+        if (diaChiChiTiet == null || diaChiChiTiet.isBlank()
+                || tenXa == null || tenXa.isBlank()
+                || tenHuyen == null || tenHuyen.isBlank()
+                || tenTinh == null || tenTinh.isBlank()) {
+
+            ThongBaoUtils.addError(redirectAttributes, "Vui lòng nhập đầy đủ địa chỉ giao hàng.");
+            String joinedIds = selectedItemIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining("&selectedId="));
+            return "redirect:/gio-hang/thanh-toan?selectedId=" + joinedIds;
+        }
+
+        String fullAddress = diaChiChiTiet + ", " + tenXa + ", " + tenHuyen + ", " + tenTinh;
+
+        KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
         if (khachHang == null) {
             return "redirect:/dang-nhap";
         }
@@ -398,23 +417,8 @@ public class GiohangController {
             return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa()+ "&ids=" + ids;
         }
         model.addAttribute("maHoaDon", hoaDon.getMa());
-
-        //Đẩy WebSocket
-//        Map<String, Object> notification = new HashMap<>();
-//        notification.put("maHoaDon", hoaDon.getMa());
-//        notification.put("tenKhachHang", khachHang.getTen());
-//        notification.put("tongTien", thanhTien);
-//        notification.put("timestamp", System.currentTimeMillis());
-//        notification.put("type", "NEW_ORDER");
-
-//        messagingTemplate.convertAndSend("/topic/donhangmoi", notification);
-
-        // Log để debug
-//        System.out.println("✅ Đã gửi thông báo WebSocket cho đơn hàng: " + hoaDon.getMa());
-
         return "khachhang/thanhcong";
     }
-
     public void xuLySauKhiDatHang(HoaDon hoaDon, List<GioHangChiTiet> gioHangChiTiets, BigDecimal tienGiam, int trangThai) {
         for (GioHangChiTiet item : gioHangChiTiets) {
             ChiTietSanPham ctsp = item.getChiTietSp();

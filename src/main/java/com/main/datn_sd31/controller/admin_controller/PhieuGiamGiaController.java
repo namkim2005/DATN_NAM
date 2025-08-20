@@ -1,6 +1,7 @@
 package com.main.datn_sd31.controller.admin_controller;
 
 import com.main.datn_sd31.entity.PhieuGiamGia;
+import com.main.datn_sd31.repository.PhieuGiamGiaRepository;
 import com.main.datn_sd31.service.HoaDonService;
 import com.main.datn_sd31.service.PhieuGiamGiaService;
 import com.main.datn_sd31.util.GetNhanVien;
@@ -27,8 +28,8 @@ public class PhieuGiamGiaController {
     private final HoaDonService hoaDonService;
 
     private final PhieuGiamGiaService phieuGiamGiaService;
-
     private final GetNhanVien get_nhan_vien;
+    private final PhieuGiamGiaRepository phieuGiamGiaRepository;
 
     @GetMapping
     public String index(
@@ -60,12 +61,19 @@ public class PhieuGiamGiaController {
     }
 
     @PostMapping("/create")
-    public String create(@Valid @ModelAttribute("phieuGiamGia") PhieuGiamGia phieuGiamGia,
-                         BindingResult bindingResult,
-                         RedirectAttributes redirectAttributes,
-                         Model model) {
+    public String create(
+            @Valid @ModelAttribute("phieuGiamGia") PhieuGiamGia phieuGiamGia,
+             BindingResult bindingResult,
+             RedirectAttributes redirectAttributes,
+             Model model)
+    {
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Thêm thất bại");
+            return "admin/pages/phieu-giam-gia/create";
+        }
+
+        if (phieuGiamGiaRepository.existsByMa(phieuGiamGia.getMa())) {
+            model.addAttribute("error", "Mã trùng");
             return "admin/pages/phieu-giam-gia/create";
         }
 
@@ -95,13 +103,12 @@ public class PhieuGiamGiaController {
         model.addAttribute("phieuGiamGia", entity);
         return "admin/pages/phieu-giam-gia/edit";
     }
-
     @PostMapping("/update")
     public String update(
             @Valid @ModelAttribute("phieuGiamGia") PhieuGiamGia pg,
-             BindingResult result,
-             Model model,
-             RedirectAttributes redirectAttributes
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
         if (result.hasErrors()) {
             model.addAttribute("error", "Cập nhật thất bại");
@@ -110,6 +117,21 @@ public class PhieuGiamGiaController {
         }
 
         pg.setNgaySua(LocalDate.now());
+        LocalDate today = LocalDate.now();
+
+        // ✅ Nếu đã hết hạn -> luôn false
+        if (pg.getNgayKetThuc() != null && today.isAfter(pg.getNgayKetThuc())) {
+            pg.setTrangThai(false);
+        }
+        // ✅ Nếu chưa tới ngày bắt đầu -> luôn false
+        else if (pg.getNgayBatDau() != null && today.isBefore(pg.getNgayBatDau())) {
+            pg.setTrangThai(false);
+        }
+        // ✅ Trong khoảng hợp lệ -> GIỮ THEO USER (radio button)
+        // Không cần gán lại, vì giá trị đã được bind từ form
+        // else { giữ nguyên pg.getTrangThai() }
+
+//        phieuGiamGiaRepository.save(pg);
         phieuGiamGiaService.save(pg, get_nhan_vien.getCurrentNhanVien());
         ThongBaoUtils.addSuccess(redirectAttributes, "Cập nhật thành công");
         return "redirect:/admin/phieu-giam-gia";

@@ -114,13 +114,13 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 
             case DA_GIAO -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG);
 
-            case GIAO_KHONG_THANH_CONG -> List.of(TrangThaiLichSuHoaDon.DON_CHUYEN_HOAN,
-                    TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG,
-                    TrangThaiLichSuHoaDon.HUY);
+//            case GIAO_KHONG_THANH_CONG -> List.of(TrangThaiLichSuHoaDon.DON_CHUYEN_HOAN,
+//                    TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG,
+//                    TrangThaiLichSuHoaDon.HUY);
 
-            case YEU_CAU_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG);
+            case YEU_CAU_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG, TrangThaiLichSuHoaDon.HOAN_THANH);
 
-            case DON_CHUYEN_HOAN, XAC_NHAN_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.DA_HOAN);
+            case XAC_NHAN_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.DA_HOAN);
             default -> List.of(); // HOAN_THANH, DA_HOAN, HUY không được chuyển tiếp
         };
     }
@@ -144,13 +144,13 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 
             case DA_GIAO -> List.of(TrangThaiLichSuHoaDon.YEU_CAU_HOAN_HANG);
 
-            case GIAO_KHONG_THANH_CONG -> List.of(TrangThaiLichSuHoaDon.DON_CHUYEN_HOAN,
-                    TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG,
-                    TrangThaiLichSuHoaDon.HUY);
+//            case GIAO_KHONG_THANH_CONG -> List.of(TrangThaiLichSuHoaDon.DON_CHUYEN_HOAN,
+//                    TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG,
+//                    TrangThaiLichSuHoaDon.HUY);
 
             case YEU_CAU_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG);
 
-            case DON_CHUYEN_HOAN, XAC_NHAN_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.DA_HOAN);
+            case XAC_NHAN_HOAN_HANG -> List.of(TrangThaiLichSuHoaDon.DA_HOAN);
             default -> List.of(); // HOAN_THANH, DA_HOAN, HUY không được chuyển tiếp
         };
     }
@@ -249,9 +249,9 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 //                    yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.DON_CHUYEN_HOAN;
 //                } yield trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
 //            }
-            case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
-            case XAC_NHAN_HOAN_HANG, DON_CHUYEN_HOAN -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
-            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG -> false;
+            case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG || trangThaiMoiEnum == TrangThaiLichSuHoaDon.HOAN_THANH;
+            case XAC_NHAN_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
+            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG  -> false;
         };
 
         if (!hopLe) {
@@ -341,16 +341,16 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 
         }
 
-        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DON_CHUYEN_HOAN) {
-
-            //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
-            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
-            hoaDon.setTrangThai(2);
-            hoaDon.setNgaySua(LocalDateTime.now());
-//            hoaDon.setThanhTien(BigDecimal.valueOf(0));
-            hoaDonRepository.save(hoaDon);
-
-        }
+//        if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.DON_CHUYEN_HOAN) {
+//
+//            //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
+//            HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
+//            hoaDon.setTrangThai(2);
+//            hoaDon.setNgaySua(LocalDateTime.now());
+////            hoaDon.setThanhTien(BigDecimal.valueOf(0));
+//            hoaDonRepository.save(hoaDon);
+//
+//        }
 
         if (trangThaiMoiEnum == TrangThaiLichSuHoaDon.HUY &&
                 HoaDonUtils.choPhepHuyDonKhachHang(trangThaiMoiEnum)) {
@@ -429,7 +429,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             }
             case YEU_CAU_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.XAC_NHAN_HOAN_HANG;
             case XAC_NHAN_HOAN_HANG -> trangThaiMoiEnum == TrangThaiLichSuHoaDon.DA_HOAN;
-            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG,DON_CHUYEN_HOAN -> false;
+            case HOAN_THANH, HUY, DA_HOAN, GIAO_KHONG_THANH_CONG -> false;
         };
 
         if (!hopLe) {

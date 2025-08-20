@@ -202,6 +202,20 @@ public class HoaDonServiceIpml implements HoaDonService {
         return new Pagination<>(hoaDonPage.map(this::mapToDTO));
     }
 
+//    @Override
+//    public Pagination<HoaDonDTO> searchByKeyword(String keyword, String loaiHoaDon, int pageNo, int pageSize) {
+//        keyword = SearchUtils.normalizeKeyword(keyword);
+//        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("ngayTao").descending());
+//        Page<HoaDon> hoaDonPage = hoaDonRepository.searchByKeyword(keyword, loaiHoaDon, pageable);
+//
+//        List<HoaDonDTO> content = hoaDonPage.getContent()
+//                .stream()
+//                .map(this::mapToDTO)
+//                .toList();
+//
+//        return new Pagination<>(hoaDonPage.map(this::mapToDTO));
+//    }
+
     @Override
     public HoaDonDTO getHoaDonByMa(String ma) {
         List<HoaDon> hoaDon = hoaDonRepository.findByMaContainingIgnoreCase(ma);
@@ -307,6 +321,94 @@ public class HoaDonServiceIpml implements HoaDonService {
     @Override
     public boolean existsByPhieuGiamGia(PhieuGiamGia phieuGiamGia) {
         return hoaDonRepository.existsByPhieuGiamGia(phieuGiamGia);
+    }
+
+    @Override
+    public Pagination<HoaDonDTO> searchByLoaiHoaDon(String loaiHoaDon, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("ngayTao").descending());
+        Page<HoaDon> hoaDonPage = hoaDonRepository.searchHoaDonByLoai(loaiHoaDon, pageable);
+
+        List<HoaDonDTO> content = hoaDonPage.getContent()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+
+        return new Pagination<>(hoaDonPage.map(this::mapToDTO));
+    }
+
+    @Override
+    public Pagination<HoaDonDTO> searchByLoaiDonHang(String loaiHoaDon, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("ngayTao").descending());
+        Page<HoaDon> hoaDonPage = hoaDonRepository.searchDonHangByLoai(loaiHoaDon, pageable);
+
+        List<HoaDonDTO> content = hoaDonPage.getContent()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+
+        return new Pagination<>(hoaDonPage.map(this::mapToDTO));
+    }
+
+    //    @Override
+    public Pagination<HoaDonDTO> getAllHoaDonByStatusAndLoai(TrangThaiLichSuHoaDon trangThai, String loaiHoaDon, int page, int size) {
+        List<HoaDonDTO> all = getAll(
+                0,
+                Integer.MAX_VALUE,
+                LocalDate.of(2020, 1, 1),
+                LocalDate.of(2030, 1, 1)
+        ).getContent();
+
+        List<HoaDonDTO> filtered = all.stream()
+                .filter(hd -> Objects.equals(hd.getTrangThaiLichSuHoaDon(), trangThai))
+                .filter(hd -> Objects.equals(hd.getLoaihoadon(), loaiHoaDon))
+                .toList();
+
+        int total = filtered.size();
+        int fromIndex = Math.min(page * size, total);
+        int toIndex = Math.min(fromIndex + size, total);
+
+        List<HoaDonDTO> pageContent = filtered.subList(fromIndex, toIndex);
+
+        Pagination<HoaDonDTO> result = new Pagination<>();
+        result.setContent(pageContent);
+        result.setCurrentPage(page);
+        result.setPageSize(size);
+        result.setTotalElements(total);
+        result.setTotalPages((int) Math.ceil((double) total / size));
+        result.setLast(toIndex == total);
+
+        return result;
+    }
+
+//    @Override
+    public Pagination<HoaDonDTO> getAllByLoaiAndDate(String loaiHoaDon, LocalDate startDate, LocalDate endDate, int page, int size) {
+        List<HoaDonDTO> all = getAll(
+                0,
+                Integer.MAX_VALUE,
+                LocalDate.of(2020, 1, 1),
+                LocalDate.of(2030, 1, 1)
+        ).getContent();
+
+        List<HoaDonDTO> filtered = all.stream()
+//                .filter(hd -> Objects.equals(hd.getTrangThaiLichSuHoaDon(), trangThai))
+                .filter(hd -> Objects.equals(hd.getLoaihoadon(), loaiHoaDon))
+                .toList();
+
+        int total = filtered.size();
+        int fromIndex = Math.min(page * size, total);
+        int toIndex = Math.min(fromIndex + size, total);
+
+        List<HoaDonDTO> pageContent = filtered.subList(fromIndex, toIndex);
+
+        Pagination<HoaDonDTO> result = new Pagination<>();
+        result.setContent(pageContent);
+        result.setCurrentPage(page);
+        result.setPageSize(size);
+        result.setTotalElements(total);
+        result.setTotalPages((int) Math.ceil((double) total / size));
+        result.setLast(toIndex == total);
+
+        return result;
     }
 
 

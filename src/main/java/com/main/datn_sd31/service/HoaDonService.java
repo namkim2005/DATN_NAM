@@ -24,6 +24,8 @@ public interface HoaDonService {
 
     Pagination<HoaDonDTO> getAllHoaDonByStatus(TrangThaiLichSuHoaDon status, int pageNo, int pageSize);
 
+//    Pagination<HoaDonDTO> searchByKeyword(String keyword, String loaiHoaDon, int pageNo, int pageSize);
+
     Pagination<HoaDonDTO> searchByKeyword(String keyword, int pageNo, int pageSize);
 
     HoaDonDTO getHoaDonByMa(String ma);
@@ -39,5 +41,9 @@ public interface HoaDonService {
     Pagination<HoaDonDTO> getAllHoaDonKhachHangByStatus(KhachHang khachHang, TrangThaiLichSuHoaDon status, int pageNo, int pageSize);
 
     boolean existsByPhieuGiamGia(PhieuGiamGia phieuGiamGia);
+
+    Pagination<HoaDonDTO> searchByLoaiHoaDon(String loaiHoaDon, int pageNo, int pageSize);
+
+    Pagination<HoaDonDTO> searchByLoaiDonHang(String loaiHoaDon, int pageNo, int pageSize);
 
 }

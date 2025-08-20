@@ -145,7 +145,24 @@
             <option value="100" th:selected="${pageInfo.size == 100}">100</option>
           </select>
         </div>
-        <div class="col-md-10 text-end">
+        <div class="col-md-3">
+          <form th:action="@{/admin/don-hang/filter}" method="get">
+            <label class="radio-item">
+              <input type="radio" name="loaiHoaDon" value="" th:checked="${loaiHoaDon == null}">
+              Tất cả
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="loaiHoaDon" value="Online" th:checked="${loaiHoaDon == 'Online'}">
+              Online
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="loaiHoaDon" value="Trực tiếp" th:checked="${loaiHoaDon == 'Trực tiếp'}">
+              Tại quầy
+            </label>
+            <button class="btn btn-primary">Lọc</button>
+          </form>
+        </div>
+        <div class="col-md-7 text-end">
           <form th:action="@{/admin/don-hang/search}" method="get">
             <div>
               <label for="keyword" class="form-label me-2">Tìm kiếm:</label>
@@ -166,7 +183,7 @@
           <a th:href="@{/admin/don-hang}">Tất cả</a>
         </button>
         <button th:each="status : ${T(com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon).values()}"
-                th:if="${status.value != 5 and status.value != 8 and status.value != 9}"
+                th:if="${status.value != 5 and status.value != 8 and status.value != 9 and status.value != 10}"
                 class="btn btn-outline-primary position-relative">
           <a th:href="@{/admin/don-hang(trang-thai=${status.name()})}" th:text="${status.moTa}"></a>
           <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -261,17 +278,7 @@
                           th:id="'trangThaiMoi_' + ${hoaDon.ma}">
                     <option th:each="tt : ${trangThaiHopLeMap[hoaDon.ma]}"
                             th:value="${tt.value}"
-                            th:text="${tt.getValue() == 11 ? tt.moTa + ' (Shop chịu phí ship)' :
-                                      (tt.getValue() == 7 ? tt.moTa + ' (Khách chịu phí ship)' :
-                                      tt.moTa)}"
-                            th:selected="${hoaDon.lyDoGiaoKhongThanhCongEnum != null ?
-                                      (#lists.contains({2,4,7}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
-                                        (tt.getValue() == 11) :
-                                        (#lists.contains({1,5,6}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
-                                          (tt.getValue() == 9) :
-                                          (tt.getValue() == 7))
-                                      )
-                                    : (tt.getValue() == 7)}">
+                            th:text="${tt.moTa}">
                     </option>
                   </select>
                 </div>

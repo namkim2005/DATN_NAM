@@ -394,17 +394,7 @@
                                     th:id="'trangThaiMoi_' + ${hoaDon.ma}">
                                 <option th:each="tt : ${trangThaiHopLe}"
                                         th:value="${tt.value}"
-                                        th:text="${tt.getValue() == 11 ? tt.moTa + ' (Shop chịu phí ship)' :
-                                      (tt.getValue() == 7 ? tt.moTa + ' (Khách chịu phí ship)' :
-                                      tt.moTa)}"
-                                        th:selected="${hoaDon.lyDoGiaoKhongThanhCongEnum != null ?
-                                      (#lists.contains({2,4,7}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
-                                        (tt.getValue() == 11) :
-                                        (#lists.contains({1,5,6}, hoaDon.lyDoGiaoKhongThanhCongEnum) ?
-                                          (tt.getValue() == 9) :
-                                          (tt.getValue() == 7))
-                                      )
-                                    : (tt.getValue() == 7)}">
+                                        th:text="${hoaDon.trangThaiLichSuHoaDon.name() == 'YEU_CAU_HOAN_HANG' ? (tt.value == 5 ? 'Từ chối - Hoàn thành đơn' : tt.moTa) : tt.moTa}">
                                 </option>
                             </select>
                         </div>
@@ -463,7 +453,7 @@
                 <p><strong>Nhân viên:</strong> <span th:text="${hoaDon.tenNhanVien}"></span></p>
             </div>
         </div>
-        <p><strong>Cập nhật lần cuối bởi:</strong> <span th:text="${lichSuMoiNhat.tenNguoiTao}"></span></p>
+<!--        <p><strong>Cập nhật lần cuối bởi:</strong> <span th:text="${lichSuMoiNhat.tenNguoiTao}"></span></p>-->
         <p><strong>Trạng thái:</strong> <span th:text="${hoaDon.getTrangThaiLichSuHoaDonMoTa()}"></span></p>
         <p >
             <strong>Ghi chú:</strong>
@@ -491,16 +481,17 @@
                 <thead class="text-center">
                 <tr>
                     <th>STT</th>
+                    <th>Id sản phẩm</th>
                     <th>Tên sản phẩm</th>
                     <th>Giá bán</th>
                     <th>Số lượng</th>
                     <th>Tổng tiền</th>
-                    <th>Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="hdct, index : ${hdctList}">
                     <td th:text="${index.count}" class="text-center"></td>
+                    <td th:text="${hdct.maSp}" class="text-center"></td>
                     <td th:text="${hdct.tenCTSP}" class="text-center"></td>
                     <td th:text="${@utils.formatCurrency(hdct.giaSauGiam)}" class="text-end"></td>
                     <td th:text="${hdct.soLuong}" class="text-center"></td>
@@ -530,10 +521,13 @@
         <hr>
         <div class="row">
             <div class="col-md-6">
-                <p><strong>Phiếu giảm giá:</strong> <span th:text="${hoaDon.maGiamGia}"></span></p>
+                <p>
+                    <strong>Phiếu giảm giá:</strong>
+                    <span th:text="${hoaDon.maGiamGia != null ? hoaDon.maGiamGia + ' - ' + hoaDon.giamGia : 'Không'}"></span>
+                </p>
             </div>
             <div class="col-md-6">
-                <p><strong>Giảm giá:</strong> <span th:text="${hoaDon.giamGia}"></span></p>
+<!--                <p><strong>Giảm giá:</strong> <span th:text="${hoaDon.giamGia}"></span></p>-->
             </div>
             <div class="col-md-6">
                 <p><strong>Giá gốc:</strong> <span th:text="${@utils.formatCurrency(hoaDon.giaGoc)}" style="color: green"></span></p>
