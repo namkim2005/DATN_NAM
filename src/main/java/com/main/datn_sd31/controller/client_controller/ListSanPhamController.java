@@ -295,7 +295,7 @@ public class ListSanPhamController {
         model.addAttribute("currentPage",  page);
         model.addAttribute("totalPages",   totalPages);
 
-        return "khachhang/xemchitiet";
+        return "client/pages/product/detail";
     }
 
     @GetMapping("/search")
@@ -335,7 +335,7 @@ public class ListSanPhamController {
         model.addAttribute("q", q);
         model.addAttribute("isSearch", true);
 
-        return "khachhang/LISTSANPHAM";
+        return "client/pages/product/list";
     }
 
 

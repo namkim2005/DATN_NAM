@@ -173,7 +173,7 @@ public class SanPhamkhachhangController {
 
         KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
         model.addAttribute("khachHangLogin", khachHang);
-        return "khachhang/dssanpham";
+        return "client/pages/product/search";
     }
 
 
@@ -229,7 +229,7 @@ public class SanPhamkhachhangController {
                 })
                 .collect(Collectors.toList()));
 
-        return "khachhang/xemchitiet";
+        return "client/pages/product/detail";
     }
 
 }

@@ -82,7 +82,7 @@ public class VnpayController {
 
         if (hoaDon == null) {
             model.addAttribute("error", "Hóa đơn không tồn tại.");
-            return "khachhang/thanhcong";
+            return "client/pages/payment/success";
         }
         List<GioHangChiTiet> gioHangChiTiets = new ArrayList<>();
         if (ids != null && !ids.isEmpty()) {
@@ -126,13 +126,13 @@ public class VnpayController {
 
             model.addAttribute("ma", maHoaDon);
             model.addAttribute("message", "Thanh toán VNPay thành công!");
-            return "/khachhang/thanhcong";
+            return "/client/pages/payment/success";
         } else {
             hoaDon.setTrangThai(5);
             hoaDonRepository.save(hoaDon);
             model.addAttribute("message", "Thanh toán thất bại hoặc bị hủy.");
         }
 
-        return "/khachhang/thanhcong";
+        return "/client/pages/payment/success";
     }
 }

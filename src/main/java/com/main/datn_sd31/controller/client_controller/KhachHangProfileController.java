@@ -14,24 +14,24 @@ public class KhachHangProfileController {
     @GetMapping("/thong-tin")
     public String thongTinTaiKhoan(Model model) {
         model.addAttribute("activePage", "profile");
-        return "client/pages/profile"; // Sẽ tạo sau
+        return "client/pages/profile/profile";
     }
 
     @GetMapping("/don-hang")
     public String donHangCuaToi(Model model) {
         model.addAttribute("activePage", "orders");
-        return "client/pages/orders"; // Sẽ tạo sau
+        return "client/pages/profile/orders";
     }
 
     @GetMapping("/yeu-thich")
     public String sanPhamYeuThich(Model model) {
         model.addAttribute("activePage", "wishlist");
-        return "client/pages/wishlist"; // Sẽ tạo sau
+        return "client/pages/profile/wishlist";
     }
 
     @GetMapping("/dia-chi")
     public String diaChiGiaoHang(Model model) {
         model.addAttribute("activePage", "address");
-        return "client/pages/address"; // Sẽ tạo sau
+        return "client/pages/profile/address";
     }
 } 

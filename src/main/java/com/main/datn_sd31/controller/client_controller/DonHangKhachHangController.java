@@ -74,7 +74,7 @@ public class DonHangKhachHangController {
         }
         model.addAttribute("trangThaiHopLeMap", trangThaiHopLeMap);
 
-        return "khachhang/lich-su-mua-hang";
+        return "client/pages/order/history";
     }
 
     @GetMapping("/search")
@@ -102,7 +102,7 @@ public class DonHangKhachHangController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
 
-        return "khachhang/lich-su-mua-hang";
+        return "client/pages/order/history";
     }
 
 //    @GetMapping("/detail")

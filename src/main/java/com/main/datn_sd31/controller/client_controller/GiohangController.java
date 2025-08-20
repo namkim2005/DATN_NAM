@@ -104,7 +104,7 @@ public class GiohangController {
         model.addAttribute("list", newList);
         model.addAttribute("tongTien", tongTien);
 
-        return "view/giohang/list";
+        return "client/pages/cart/list";
     }
 
     @PostMapping("/them")
@@ -243,7 +243,7 @@ public class GiohangController {
         }
 
         model.addAttribute("selectedVoucherCode", selectedVoucherCode);
-        return "/view/giohang/thanh-toan";
+        return "/client/pages/cart/checkout";
     }
 
     @PostMapping("/thanh-toan/xac-nhan")
@@ -339,7 +339,7 @@ public class GiohangController {
             return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa()+ "&ids=" + ids;
         }
         model.addAttribute("maHoaDon", hoaDon.getMa());
-        return "khachhang/thanhcong";
+        return "client/pages/cart/success";
     }
     public void xuLySauKhiDatHang(HoaDon hoaDon, List<GioHangChiTiet> gioHangChiTiets, BigDecimal tienGiam, int trangThai) {
         for (GioHangChiTiet item : gioHangChiTiets) {
