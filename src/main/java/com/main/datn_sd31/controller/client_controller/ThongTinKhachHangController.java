@@ -29,7 +29,7 @@ public class ThongTinKhachHangController {
         String email = userDetails.getUsername();
         KhachHang khachHang = khachHangService.findByEmail(email);
         model.addAttribute("khachHang", khachHang);
-        return "khachhang/thongtin"; // Giao diện hiển thị
+        return "client/pages/profile/profile"; // Giao diện hiển thị
     }
 
     /**

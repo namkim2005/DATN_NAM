@@ -11,14 +11,14 @@
         <h3 class="text-center mb-4">Kết quả thanh toán</h3>
         <div class="alert alert-info text-center">
             <h5>Mã đơn hàng: <span th:text="${ma}"></span></h5>
-            <h5>Ngày thanh toán: <span th:text="${#temporals.format(ngay, 'dd/MM/yyyy HH:mm')}"></span></h5>
-            <h5>Thành tiền: <span th:text="${#numbers.formatDecimal(tien, 0, 'POINT', '.', ',')}"></span> đ</h5>
+            <h5>Ngày thanh toán: <span th:text="${#temporals.format(ngayThanhToan, 'dd/MM/yyyy HH:mm')}"></span></h5>
+            <h5>Thành tiền: <span th:text="${#numbers.formatDecimal(tienThanhToanThanhCong, 0, 'COMMA', 0, 'POINT')} + '₫'"></span></h5>
             <div th:text="${message}"></div>
         </div>
 
 
         <div class="text-center mt-3">
-            <a th:href="@{khach-hang/danh-sach}" class="btn btn-primary">Quay về trang chủ</a>
+            <a th:href="@{/san-pham/danh-sach}" class="btn btn-primary">Quay về trang chủ</a>
         </div>
     </div>
 </div>

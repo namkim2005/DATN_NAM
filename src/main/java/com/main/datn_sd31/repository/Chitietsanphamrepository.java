@@ -118,6 +118,19 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
             var sp = root.join("sanPham");
             var ms = root.join("mauSac");
             var sz = root.join("size");
+
+
+            var concat = cb.concat(cb.concat(sp.get("ten"), " "), cb.concat(ms.get("ten"), " "));
+            var finalConcat = cb.lower(cb.concat(concat, sz.get("ten")));
+
+            Predicate[] predicates = Arrays.stream(words)
+                    .map(w -> cb.like(finalConcat, "%" + w + "%"))
+                    .toArray(Predicate[]::new);
+
+            return cb.and(predicates);
+        });
+    }
+
     List<ChiTietSanPham> findBySanPham_TenContainingIgnoreCase(String keyword);
 
     // Kiểm tra biến thể có được sử dụng trong đơn hàng không
@@ -130,22 +143,12 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
 
     // Tìm biến thể theo ID với đầy đủ thông tin
     @Query("SELECT ctsp FROM ChiTietSanPham ctsp " +
-           "JOIN FETCH ctsp.sanPham " +
-           "JOIN FETCH ctsp.mauSac " +
-           "JOIN FETCH ctsp.size " +
-           "WHERE ctsp.id = :id")
+            "JOIN FETCH ctsp.sanPham " +
+            "JOIN FETCH ctsp.mauSac " +
+            "JOIN FETCH ctsp.size " +
+            "WHERE ctsp.id = :id")
     Optional<ChiTietSanPham> findByIdWithDetails(@Param("id") Integer id);
 
-            var concat = cb.concat(cb.concat(sp.get("ten"), " "), cb.concat(ms.get("ten"), " "));
-            var finalConcat = cb.lower(cb.concat(concat, sz.get("ten")));
-
-            Predicate[] predicates = Arrays.stream(words)
-                    .map(w -> cb.like(finalConcat, "%" + w + "%"))
-                    .toArray(Predicate[]::new);
-
-            return cb.and(predicates);
-        });
-    }
     // --- Bổ sung cho Đợt giảm giá ---
     boolean existsByDotGiamGia_Id(Integer dotId);
     long countByDotGiamGia_Id(Integer dotId);

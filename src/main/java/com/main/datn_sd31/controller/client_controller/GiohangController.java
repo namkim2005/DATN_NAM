@@ -127,38 +127,32 @@ public class GiohangController {
 
 
     @PostMapping("/them")
-    public String xuLyThem(@RequestParam("sanPhamId") Integer sanphamId,
-                           @RequestParam("sizeId") Integer sizeId,
-                           @RequestParam("mauSacId") Integer mauSacId,
+    public String xuLyThem(@RequestParam("chiTietId") Integer chiTietId,
                            @RequestParam("soLuong") Integer soLuong,
                            RedirectAttributes redirect) {
 
         KhachHang kh = getCurrentKhachHang();
 
-        // Lấy chi tiết sản phẩm
-        ChiTietSanPham chiTiet = chitietsanphamRepo.findBySanPhamIdAndSizeIdAndMauSacId(sanphamId, sizeId, mauSacId);
+        ChiTietSanPham chiTiet = chitietsanphamRepo.findById(chiTietId).orElseThrow();
         int soLuongTon = chiTiet.getSoLuong();
 
-        // Tìm trong giỏ hàng xem có sản phẩm này chưa
         GioHangChiTiet gioHangHienCo = giohangreposiroty
                 .findByKhachHangIdAndChiTietSpId(kh.getId(), chiTiet.getId());
 
         if (gioHangHienCo != null) {
-            // Đã có sản phẩm trong giỏ → cộng thêm
             int tongSoLuong = gioHangHienCo.getSoLuong() + soLuong;
             if (tongSoLuong > soLuongTon) {
                 tongSoLuong = soLuongTon;
-                redirect.addFlashAttribute("messa", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
+                redirect.addFlashAttribute("error", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
             }
             gioHangHienCo.setSoLuong(tongSoLuong);
             gioHangHienCo.setThanhTien(chiTiet.getGiaBan().multiply(BigDecimal.valueOf(tongSoLuong)));
             giohangreposiroty.save(gioHangHienCo);
 
         } else {
-            // Chưa có → thêm mới
             if (soLuong > soLuongTon) {
                 soLuong = soLuongTon;
-                redirect.addFlashAttribute("messa", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
+                redirect.addFlashAttribute("error", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
             }
             GioHangChiTiet gh = new GioHangChiTiet();
             gh.setKhachHang(kh);
@@ -171,6 +165,7 @@ public class GiohangController {
 
         return "redirect:/gio-hang/hien_thi";
     }
+
 
     @GetMapping("/xoa/{id}")
     public String xoaSanPhamKhoiGio(@PathVariable("id") Integer id,
@@ -304,15 +299,15 @@ public class GiohangController {
         PhieuGiamGia phieuTotNhat = timPhieuTotNhat(dsPhieuGiamGia, tongTien);
         model.addAttribute("phieuTotNhat", phieuTotNhat);
 
-        for (PhieuGiamGia phieu : danhSachPhieuGiamGia) {
-            BigDecimal discount = phieuGiamGiaService.tinhTienGiam(phieu.getMa(), tongTien); // <-- Gọi đến service bạn đang dùng
-            if (discount.compareTo(maxDiscount) > 0) {
-                maxDiscount = discount;
-                selectedVoucherCode = phieu.getMa();
-            }
-        }
+//        for (PhieuGiamGia phieu : danhSachPhieuGiamGia) {
+//            BigDecimal discount = phieuGiamGiaService.tinhTienGiam(phieu.getMa(), tongTien); // <-- Gọi đến service bạn đang dùng
+//            if (discount.compareTo(maxDiscount) > 0) {
+//                maxDiscount = discount;
+//                selectedVoucherCode = phieu.getMa();
+//            }
+//        }
 
-        model.addAttribute("selectedVoucherCode", selectedVoucherCode);
+//        model.addAttribute("selectedVoucherCode", selectedVoucherCode);
         return "/client/pages/cart/checkout";
     }
 
@@ -426,6 +421,9 @@ public class GiohangController {
             return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa()+ "&ids=" + ids;
         }
         model.addAttribute("maHoaDon", hoaDon.getMa());
+        System.out.println("tien:" +thanhTien);
+        model.addAttribute("tienThanhToanThanhCong", thanhTien);
+        model.addAttribute("ngayThanhToan", LocalDateTime.now());
         return "client/pages/cart/success";
     }
     public void xuLySauKhiDatHang(HoaDon hoaDon, List<GioHangChiTiet> gioHangChiTiets, BigDecimal tienGiam, int trangThai) {

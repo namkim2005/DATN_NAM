@@ -198,6 +198,10 @@
                     <option th:each="ward : ${wards}" th:value="${ward.get('WardCode')}" th:text="${ward.get('WardName')}"></option>
                 </select>
             </div>
+            <div class="col-md-3">
+                <label class="form-label">Địa chỉ chi tiết</label>
+                <input type="text" name="diaChi" class="form-control"/>
+            </div>
         </div>
 
         <!-- Phương thức thanh toán -->
