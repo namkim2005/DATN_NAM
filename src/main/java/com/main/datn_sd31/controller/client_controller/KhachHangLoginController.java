@@ -19,7 +19,7 @@ public class KhachHangLoginController {
 
     @GetMapping("/dang-nhap")
     public String hienThiFormLogin() {
-        return "khachhang/login";  // trỏ tới file login.html trong templates/khachhang/
+        return "client/pages/auth/login";  // trỏ tới file login.html trong templates/client/pages/auth/
     }
 
 }

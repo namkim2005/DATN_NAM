@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static com.main.datn_sd31.config.SecurityConstants.*;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -31,22 +33,25 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain adminSecurity(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/admin/**")
+            .securityMatcher(ADMIN_PATTERNS)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin/dang-nhap", "/admin/logout").permitAll()
+                .requestMatchers(ADMIN_PERMIT_ALL).permitAll()
                 .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
             )
             .formLogin(form -> form
-                .loginPage("/admin/dang-nhap")
-                .loginProcessingUrl("/admin/dang-nhap")
-                .defaultSuccessUrl("/admin/thong-ke", true)
+                .loginPage(ADMIN_LOGIN)
+                .loginProcessingUrl(ADMIN_LOGIN)
+                .defaultSuccessUrl(ADMIN_DASHBOARD, true)
                 .failureHandler(customAuthenticationFailureHandler)
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutUrl("/admin/logout")
-                .logoutSuccessUrl("/admin/dang-nhap?logout=true")
+                .logoutUrl(ADMIN_LOGOUT)
+                .logoutSuccessUrl(ADMIN_LOGIN + "?logout=true")
                 .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers(CSRF_EXEMPTIONS)
             );
         return http.build();
     }
@@ -55,27 +60,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain customerSecurity(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/khach-hang/**", "/gio-hang/**")
+                .securityMatcher(CUSTOMER_PATTERNS)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/khach-hang/dang-nhap",
-                                "/khach-hang/dang-ky",
-                                "/khach-hang/danh-sach",
-                                "/khach-hang/chi-tiet/**",
-                                "/khach-hang/quen-mat-khau",
-                                "/khach-hang/public/**"
-                        ).permitAll()
+                        .requestMatchers(CUSTOMER_PERMIT_ALL).permitAll()
+                        .requestMatchers(CUSTOMER_PROTECTED).hasRole("KHACHHANG")
                         .anyRequest().hasRole("KHACHHANG")
                 )
                 .formLogin(form -> form
-                        .loginPage("/khach-hang/dang-nhap")
-                        .loginProcessingUrl("/khach-hang/dang-nhap")
-                        .defaultSuccessUrl("/san-pham/danh-sach", true)
+                        .loginPage(CUSTOMER_LOGIN)
+                        .loginProcessingUrl(CUSTOMER_LOGIN)
+                        .defaultSuccessUrl(PRODUCTS + "/danh-sach", true)
                         .permitAll()
                 )
                 .logout(lg -> lg
-                        .logoutUrl("/khach-hang/dang-xuat")
-                        .logoutSuccessUrl("/san-pham/danh-sach")
+                        .logoutUrl(CUSTOMER_LOGOUT)
+                        .logoutSuccessUrl(PRODUCTS + "/danh-sach")
                         .invalidateHttpSession(true)                  // ✅ XÓA SESSION
                         .deleteCookies("JSESSIONID")                  // ✅ XÓA COOKIE phiên
                         .clearAuthentication(true)                    // ✅ XÓA thông tin xác thực
@@ -89,17 +88,7 @@ public class SecurityConfig {
     public SecurityFilterChain publicSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/login",
-                                "/uploads/**",
-                                "/css/**", "/js/**", "/images/**",
-                                "/vendors/**", "/webjars/**",
-                                "/static/**", "/favicon.ico",
-                                "/san-pham/**",
-                                "/client-static/**", // Cho phép truy cập công khai thư mục client-static
-                                "/bootstrap-5.3.7-dist/**",
-                                "/uploads/**" // Added this line
-                        ).permitAll()
+                        .requestMatchers(PUBLIC_PATTERNS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -107,7 +96,7 @@ public class SecurityConfig {
                             response.sendRedirect("/error"); // 👉 Trang tự tạo
                         })
                 )
-                .logout(lg -> lg.logoutSuccessUrl("/"))
+                .logout(lg -> lg.logoutSuccessUrl(HOME))
                 .formLogin(AbstractHttpConfigurer::disable); // Vô hiệu hóa login mặc định
         return http.build();
     }

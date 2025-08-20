@@ -86,7 +86,7 @@ public class ChiTietDonHangKhachHangController {
 
         var trangThaiHopLe = lichSuHoaDonService.getTrangThaiTiepTheoHopLeKhachHang(hoaDon.getTrangThaiLichSuHoaDon(), hoaDon);
         model.addAttribute("trangThaiHopLe", trangThaiHopLe);
-        return "khachhang/detail-lich-su-mua-hang";
+        return "client/pages/order/detail";
     }
 
     @PostMapping("/cap-nhat-ghi-chu")

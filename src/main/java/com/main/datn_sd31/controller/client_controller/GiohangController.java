@@ -122,7 +122,7 @@ public class GiohangController {
 
         System.out.println("▶ Đã vào controller: /gio-hang/hien_thi");
         model.addAttribute("messa", messa);
-        return "view/giohang/list";
+        return "client/pages/cart/list";
     }
 
 
@@ -304,7 +304,16 @@ public class GiohangController {
         PhieuGiamGia phieuTotNhat = timPhieuTotNhat(dsPhieuGiamGia, tongTien);
         model.addAttribute("phieuTotNhat", phieuTotNhat);
 
-        return "/view/giohang/thanh-toan";
+        for (PhieuGiamGia phieu : danhSachPhieuGiamGia) {
+            BigDecimal discount = phieuGiamGiaService.tinhTienGiam(phieu.getMa(), tongTien); // <-- Gọi đến service bạn đang dùng
+            if (discount.compareTo(maxDiscount) > 0) {
+                maxDiscount = discount;
+                selectedVoucherCode = phieu.getMa();
+            }
+        }
+
+        model.addAttribute("selectedVoucherCode", selectedVoucherCode);
+        return "/client/pages/cart/checkout";
     }
 
     @PostMapping("/thanh-toan/xac-nhan")
@@ -417,7 +426,7 @@ public class GiohangController {
             return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa()+ "&ids=" + ids;
         }
         model.addAttribute("maHoaDon", hoaDon.getMa());
-        return "khachhang/thanhcong";
+        return "client/pages/cart/success";
     }
     public void xuLySauKhiDatHang(HoaDon hoaDon, List<GioHangChiTiet> gioHangChiTiets, BigDecimal tienGiam, int trangThai) {
         for (GioHangChiTiet item : gioHangChiTiets) {

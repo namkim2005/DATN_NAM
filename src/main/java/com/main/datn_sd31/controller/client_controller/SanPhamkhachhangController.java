@@ -1,5 +1,6 @@
 package com.main.datn_sd31.controller.client_controller;
 import com.main.datn_sd31.entity.ChiTietSanPham;
+import com.main.datn_sd31.entity.DotGiamGia;
 import com.main.datn_sd31.entity.KhachHang;
 import com.main.datn_sd31.entity.MauSac;
 import com.main.datn_sd31.entity.SanPham;
@@ -145,6 +146,23 @@ public class SanPhamkhachhangController {
         model.addAttribute("giaBanMaxMap", giaBanMaxMap);
         model.addAttribute("giaBanMinMap", giaBanMinMap);
         model.addAttribute("giaGocMinMap", giaGocMinMap);
+        // Set thuộc tính dotGiamGia cho mỗi sản phẩm
+        Map<Integer, DotGiamGia> dotGiamGiaMap = chiTiets.stream()
+            .filter(ct -> ct.getDotGiamGia() != null)
+            .collect(Collectors.groupingBy(
+                ct -> ct.getSanPham().getId(),
+                Collectors.collectingAndThen(
+                    Collectors.maxBy(Comparator.comparing(
+                        ct -> ct.getDotGiamGia().getGiaTriDotGiamGia())),
+                    opt -> opt.map(ChiTietSanPham::getDotGiamGia).orElse(null)
+                )
+            ));
+
+        // Set dotGiamGia cho mỗi sản phẩm
+        danhSachSanPham.forEach(sanPham -> {
+            sanPham.setDotGiamGia(dotGiamGiaMap.get(sanPham.getId()));
+        });
+
         model.addAttribute("phanTramGiamMap", phanTramGiamMap);
         model.addAttribute("danhSachSanPham", danhSachSanPham);
         model.addAttribute("giagoc", giaGocThapNhatMap);
@@ -155,7 +173,7 @@ public class SanPhamkhachhangController {
 
         KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
         model.addAttribute("khachHangLogin", khachHang);
-        return "khachhang/dssanpham";
+        return "client/pages/product/search";
     }
 
 
@@ -211,7 +229,7 @@ public class SanPhamkhachhangController {
                 })
                 .collect(Collectors.toList()));
 
-        return "khachhang/xemchitiet";
+        return "client/pages/product/detail";
     }
 
 }

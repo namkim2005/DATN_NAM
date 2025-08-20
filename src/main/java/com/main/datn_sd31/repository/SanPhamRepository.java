@@ -42,4 +42,6 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
             @Param("maxPrice") BigDecimal maxPrice
     );
 
+    // Kiểm tra mã sản phẩm có tồn tại không
+    boolean existsByMa(String ma);
 }

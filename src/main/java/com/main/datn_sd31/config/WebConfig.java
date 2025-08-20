@@ -19,6 +19,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/images/")
                 .setCachePeriod(3600);
 
+        // Cấu hình cho client-static (thêm mới)
+        registry.addResourceHandler("/client-static/**")
+                .addResourceLocations("classpath:/static/client-static/")
+                .setCachePeriod(0); // Tắt cache cho development
+
         // Cấu hình cho static resources khác
         registry.addResourceHandler("/css/**")
                 .addResourceLocations("classpath:/static/css/");
