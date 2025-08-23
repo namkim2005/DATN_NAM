@@ -237,6 +237,10 @@
                         <input type="hidden" name="diaChiXa" id="hiddenXa">
                         <input type="hidden" id="cartKey" th:value="${cartKey}" />
                         <input type="hidden" id="phiShip" name="phiShip" value="0" />
+                        <input type="hidden" id="tongTienHidden" th:value="${tongTien}" />
+                        <input type="hidden" id="giamGiaHidden" th:value="${giamGia}" />
+                        <input type="hidden" id="tongTienSauGiamHidden" name="tongTienSauGiam" th:value="${tongTienSauGiam}" />
+
                         <!-- Checkbox để bật/tắt tính năng vận chuyển -->
 
                         <div class="mb-3">
@@ -302,7 +306,8 @@
                             <p th:if="${giamGia != null and giamGia > 0}">
                                 Giảm giá: <span class="total" th:text="${#numbers.formatDecimal(giamGia, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span>
                             </p>
-                            <p>Thành tiền sau giảm: <span class="total" id="tongTien" th:text="${tongTienSauGiam != null ? #numbers.formatDecimal(tongTienSauGiam, 0, 'POINT', 0, 'COMMA') + ' ₫': '0 ₫'}"></span></p>
+                            <p>Thành tiền sau giảm: <span class="total" id="tongTienSauGiamDisplay"
+                                                          th:text="${tongTienSauGiam != null ? #numbers.formatDecimal(tongTienSauGiam, 0, 'POINT', 0, 'COMMA') + ' ₫': '0 ₫'}"></span></p>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap">
@@ -445,7 +450,21 @@
                 try {
                     const response = await fetch(`/admin/ban-hang/phi-ship?toDistrictId=${districtId}&wardCode=${wardCode}&cartKey=${cartKey}`);
                     const fee = await response.json();
+
+                    // Hiển thị phí ship
                     shippingFeeElement.innerText = fee.toLocaleString("vi-VN") + " ₫";
+
+                    // Lấy tổng tiền & giảm giá từ hidden input
+                    const tongTien = parseFloat(document.getElementById("tongTienHidden").value);
+                    const giamGia = parseFloat(document.getElementById("giamGiaHidden").value);
+
+                    // Tính tổng sau giảm
+                    const tongSauGiam = tongTien - giamGia + fee;
+
+                    // Cập nhật hiển thị
+                    document.getElementById("tongTienSauGiamDisplay").innerText = tongSauGiam.toLocaleString("vi-VN") + " ₫";
+                    document.getElementById("tongTienSauGiamHidden").value = tongSauGiam;
+
                 } catch (error) {
                     shippingFeeElement.innerText = "Không thể tính phí";
                     console.error("Lỗi khi tính phí vận chuyển:", error);
@@ -587,7 +606,7 @@
                 .then(res => res.json())
                 .then(dsSp => {
                     // Lọc bỏ sản phẩm có số lượng = 0
-                    const spHienThi = dsSp.filter(sp => sp.soLuong > 0);
+                    const spHienThi = dsSp;
 
                     if (!spHienThi || spHienThi.length === 0) {
                         ketQuaBang.innerHTML = `
@@ -597,24 +616,27 @@
                         return;
                     }
 
-                    ketQuaBang.innerHTML = spHienThi.map((sp, index) => `
+                    ketQuaBang.innerHTML = dsSp.map((sp, index) => `
                     <tr onclick="chonSanPham('${sp.id}', '${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc} - SL: ${sp.soLuong}')">
                         <td class="p-3">${index + 1}</td>
                         <td class="p-3">${sp.ma || ''}</td>
                         <td class="p-3">
                             <img src="${sp.hinhAnh}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
                         </td>
-                        <td class="p-3">${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc} </td>
+                        <td class="p-3">${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc}</td>
                         <td class="p-3">${sp.soLuong}</td>
                         <td class="p-3">${sp.giaBan}</td>
                         <td class="p-3">
-                            <button class="btn btn-primary btn-them-gio"
-                                    onclick="themVaoGioHang('${sp.id}')">
-                                Thêm vào giỏ
-                            </button>
+                            ${
+                        (sp.trangThaiHoatDong && sp.soLuong > 0)
+                            ? `<button class="btn btn-primary btn-them-gio" onclick="themVaoGioHang('${sp.id}')">Thêm vào giỏ</button>`
+                            : (sp.trangThaiHoatDong && sp.soLuong === 0
+                                ? `<span class="text-warning">Hết hàng</span>`
+                                : `<span class="text-danger">Ngừng bán</span>`)
+                    }
                         </td>
                     </tr>
-                `).join('');
+                    `).join('');
                 })
                 .catch(err => {
                     console.error(err);
@@ -651,13 +673,15 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
+                    ...(csrfToken && {'X-CSRF-TOKEN': csrfToken})
                 },
                 body: JSON.stringify(payload)
             })
                 .then(res => {
                     if (res.ok) return res.text();
-                    return res.text().then(text => { throw new Error(text); });
+                    return res.text().then(text => {
+                        throw new Error(text);
+                    });
                 })
                 .then(data => {
                     alert("✅ Đã thêm vào giỏ hàng");
@@ -681,6 +705,7 @@
             }
             return true;
         }
+
         function toggleQrImage() {
             const ckRadio = document.getElementById('pttt_ck');
             const qrDiv = document.getElementById('qrChuyenKhoan');
@@ -786,21 +811,6 @@
         }
 
     </script>
-
-<!--    &lt;!&ndash; In hoa don   &ndash;&gt;-->
-<!--    <script>-->
-
-<!--        // Mở PDF hiển thị-->
-<!--        // window.open("/admin/ban-hang/" + maHoaDon + "/pdf/view", "_blank");-->
-<!--        //-->
-<!--        // // Đồng thời tải PDF-->
-<!--        // let a = document.createElement("a");-->
-<!--        // a.href = "/" + maHoaDon + "/pdf/download";-->
-<!--        // a.download = "hoa-don-" + maHoaDon + ".pdf";-->
-<!--        // document.body.appendChild(a);-->
-<!--        // a.click();-->
-<!--        // document.body.removeChild(a);-->
-<!--    </script>-->
 
 </section>
 </body>

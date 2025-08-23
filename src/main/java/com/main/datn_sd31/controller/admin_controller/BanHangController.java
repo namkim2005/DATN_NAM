@@ -396,6 +396,8 @@ public class BanHangController {
             map.put("kichThuoc", ctsp.getSize().getTen());
             map.put("soLuong", ctsp.getSoLuong());
             map.put("giaBan", ctsp.getGiaBan());
+            map.put("trangThaiHoatDong", ctsp.getSanPham().getTrangThai());
+//            System.out.println(ctsp.getTrangThai());
 
             ketQua.add(map);
         }
@@ -682,11 +684,13 @@ public class BanHangController {
         String diachi= diaChiTinh + "-" + diaChiHuyen + "-" + diaChiXa;
 
         String tenn=ten+"/"+sdtvc;
-        if (diachi != null && tenn != null) {
+        System.out.println(phiShip);
+        System.out.println(BigDecimal.ZERO.equals(phiShip));
+        if (!BigDecimal.ZERO.equals(phiShip)) {
             hd.setDiaChi(diachi);
             hd.setTenNguoiNhan(tenn);
 
-            String ghiChuFull = "Đơn hàng vận chuyển \nSố điện thoại người nhận:" + sdtvc;
+            String ghiChuFull = "Đơn hàng vận chuyển. \nSố điện thoại người nhận:" + sdtvc;
             if (ghichu != null && !ghichu.trim().isEmpty()) {
                 ghiChuFull += "\n" + ghichu;
             }

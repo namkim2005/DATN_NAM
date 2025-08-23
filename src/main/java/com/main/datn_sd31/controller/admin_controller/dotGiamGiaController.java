@@ -332,6 +332,12 @@ public class dotGiamGiaController {
                 && dotGiamGia.getNgayBatDau().isAfter(dotGiamGia.getNgayKetThuc())) {
             result.rejectValue("ngayBatDau", null, "Ngày bắt đầu phải trước ngày kết thúc");
         }
+//        // 1.1) Validate mã trùng
+//        if (dotGiamGia.getMa() != null && !dotGiamGia.getMa().trim().isEmpty()
+//                && dotGiamGiaRepository.existsByMa(dotGiamGia.getMa())
+//                ) {
+//            result.rejectValue("ma", null, "Mã đã tồn tại");
+//        }
         // 2) Validate tên bắt buộc
         if (dotGiamGia.getTen() == null || dotGiamGia.getTen().trim().isEmpty()) {
             result.rejectValue("ten", null, "Tên đợt giảm giá là bắt buộc");
@@ -347,8 +353,8 @@ public class dotGiamGiaController {
                 }
             } else if ("tien_mat".equalsIgnoreCase(loai)) {
                 // tiền mặt >= 0
-                if (val.signum() < 0) {
-                    result.rejectValue("giaTriDotGiamGia", null, "Số tiền giảm phải >= 0");
+                if (val.signum() <= 0) {
+                    result.rejectValue("giaTriDotGiamGia", null, "Số tiền giảm phải > 0");
                 }
             }
         }
