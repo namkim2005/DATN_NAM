@@ -242,7 +242,6 @@
                         <input type="hidden" id="tongTienSauGiamHidden" name="tongTienSauGiam" th:value="${tongTienSauGiam}" />
 
                         <!-- Checkbox để bật/tắt tính năng vận chuyển -->
-
                         <div class="mb-3">
                             <label for="soDienThoai" class="form-label">Số điện thoại khách hàng:</label>
                             <div class="input-group">
@@ -723,12 +722,27 @@
             const checkbox = document.getElementById("muonVanChuyen");
             const diaChiDiv = document.getElementById("diaChiVanChuyen");
 
+            // Lấy tất cả input cần set required
+            const inputs = diaChiDiv.querySelectorAll("input, select");
+
+            function setRequiredForInputs(isRequired) {
+                inputs.forEach(input => {
+                    if (isRequired) {
+                        input.setAttribute("required", "required");
+                    } else {
+                        input.removeAttribute("required");
+                    }
+                });
+            }
+
             checkbox.addEventListener("change", function () {
                 if (this.checked) {
                     diaChiDiv.style.display = "block";
+                    setRequiredForInputs(true);
                     calculateShipping();
                 } else {
                     diaChiDiv.style.display = "none";
+                    setRequiredForInputs(false);
                 }
             });
 
@@ -811,6 +825,26 @@
         }
 
     </script>
+
+<!--    <script>-->
+<!--        // Lấy danh sách khách từ Thymeleaf-->
+
+<!--        const sdtInput = document.getElementById('soDienThoai');-->
+<!--        const tenInput = document.getElementById('ten');-->
+<!--        const sdtVcInput = document.getElementById('soDienThoaivc');-->
+
+<!--        sdtInput.addEventListener('input', function() {-->
+<!--            // Tìm khách hàng trùng số điện thoại-->
+<!--            const kh = dsKhachHang.find(k => k.soDienThoai === sdtInput.value);-->
+<!--            if (kh) {-->
+<!--                tenInput.value = kh.ten;-->
+<!--                sdtVcInput.value = kh.soDienThoai;-->
+<!--            } else {-->
+<!--                tenInput.value = '';-->
+<!--                sdtVcInput.value = '';-->
+<!--            }-->
+<!--        });-->
+<!--    </script>-->
 
 </section>
 </body>
