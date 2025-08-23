@@ -17,8 +17,9 @@ public class TuDongCapNhatTrangThaiHoaDon {
 
 //    private final HoaDonRepository hoaDonRepository;
 
-    @Scheduled(cron = "0 0 2 * * ?") // chạy lúc 2 giờ sáng mỗi ngày
+//    @Scheduled(cron = "0 0 2 * * ?") // chạy lúc 2 giờ sáng mỗi ngày
 //    @Transactional
+    @Scheduled(fixedRate = 100000) // 100 giây
     public void updateStatusAfter3Days() {
         lichSuHoaDonService.updateStatusAfter3Days();
     }

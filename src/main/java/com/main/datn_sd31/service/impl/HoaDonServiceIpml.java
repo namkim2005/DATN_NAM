@@ -76,7 +76,15 @@ public class HoaDonServiceIpml implements HoaDonService {
             dto.setLyDoGiaoKhongThanhCongEnum(null);
         }
 
-        dto.setPhuongThuc(hoaDon.getPhuongThuc());
+        String phuongThucDb = hoaDon.getPhuongThuc();
+        String phuongThucVn = switch (phuongThucDb) {
+            case "chuyen_khoan" -> "Chuyển khoản";
+            case "tien_mat" -> "Tiền mặt";
+            default -> " "; // fallback
+        };
+
+        dto.setPhuongThuc(phuongThucVn);
+
         dto.setLoaihoadon(hoaDon.getLoaihoadon());
         dto.setGiaGoc(hoaDon.getGiaGoc());
 

@@ -79,6 +79,7 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
     @Query("""
     SELECT
         ctsp.id,
+        ctsp.sanPham.ma,
         ctsp.tenCt,
         MAX(hdct.tenCtsp),
         COALESCE(SUM(hdct.soLuong), 0),
@@ -87,7 +88,7 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
     LEFT JOIN HoaDonChiTiet hdct
       ON hdct.chiTietSanPham = ctsp
       AND hdct.ngayTao BETWEEN :startDate AND :endDate
-    GROUP BY ctsp.id, ctsp.tenCt, ctsp.soLuong
+    GROUP BY ctsp.id, ctsp.tenCt, ctsp.soLuong, ctsp.sanPham.ma
     HAVING MAX(hdct.tenCtsp) IS NOT NULL AND MAX(hdct.tenCtsp) <> ''
     ORDER BY ctsp.id
     """)

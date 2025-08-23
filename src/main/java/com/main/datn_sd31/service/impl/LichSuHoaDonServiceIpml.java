@@ -101,9 +101,10 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
             case CHO_XAC_NHAN -> List.of(TrangThaiLichSuHoaDon.XAC_NHAN,
                     TrangThaiLichSuHoaDon.HUY);
             case XAC_NHAN -> {
-                if (hoaDonDTO.getDiaChi().isEmpty()) {
-                    yield List.of(TrangThaiLichSuHoaDon.CHO_GIAO_HANG);
+                if (hoaDonDTO.getPhiVanChuyen().compareTo(BigDecimal.ZERO) == 0) {
+                    yield List.of(TrangThaiLichSuHoaDon.CHO_GIAO_HANG, TrangThaiLichSuHoaDon.HUY);
                 }
+
                 yield List.of(TrangThaiLichSuHoaDon.CHO_GIAO_HANG,
                         TrangThaiLichSuHoaDon.HOAN_THANH,
                         TrangThaiLichSuHoaDon.HUY);
@@ -334,10 +335,27 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 
             //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
-            hoaDon.setTrangThai(2);
+            hoaDon.setTrangThai(5);
             hoaDon.setNgaySua(LocalDateTime.now());
 //            hoaDon.setThanhTien(BigDecimal.valueOf(0));
             hoaDonRepository.save(hoaDon);
+
+//            System.out.println("cap nhat hoa don");
+
+            for (HoaDonChiTietDTO ct : hdctList) {
+//                System.out.println("Xem list sp");
+                ChiTietSanPham spct = chitietsanphamrepository.findById(ct.getIdCTSP()).orElse(null);
+//                System.out.println("Da tim thay sp");
+                if (spct == null) {
+//                    System.out.println("K thay sp");
+                    return new KetQuaCapNhatTrangThai(false, "Không tìm thấy sản phẩm có ID: " + ct.getIdCTSP());
+                }
+
+                spct.setSoLuong(spct.getSoLuong() + ct.getSoLuong());
+//                System.out.println("tru sl");
+                chitietsanphamrepository.save(spct);
+//                System.out.println("da tru");
+            }
 
         }
 
@@ -508,10 +526,11 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 
             //Đổi trạng thái thành đã thanh toán cho hóa đơn đã giao
             HoaDon hoaDon = hoaDonRepository.getHoaDonByMa(maHoaDon);
-            hoaDon.setTrangThai(2);
+            hoaDon.setTrangThai(5);
             hoaDon.setNgaySua(LocalDateTime.now());
 //            hoaDon.setThanhTien(BigDecimal.valueOf(0));
             hoaDonRepository.save(hoaDon);
+
 
         }
 
@@ -521,19 +540,25 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
 
     @Override
     public void updateStatusAfter3Days() {
+
         List<LichSuHoaDon> listLshd = lichSuHoaDonRepository.findAll();
 
         for (LichSuHoaDon lshd : listLshd) {
+//            System.out.println("1");
             if (lshd.getTrangThai() == TrangThaiLichSuHoaDon.DA_GIAO.getValue()) {
+//                System.out.println("Tìm thấy Da_Giao");
                 long daysBetween = ChronoUnit.DAYS.between(lshd.getNgayTao(), java.time.LocalDateTime.now());
                 if (daysBetween >= 3) {
+//                    System.out.println("ngayTao >= 3");
                     HoaDon hoaDon = lshd.getHoaDon();
 
                     // Kiểm tra đã có trạng thái HOAN_THANH chưa
                     boolean daHoanThanh = lichSuHoaDonRepository
                             .existsByHoaDonAndTrangThai(hoaDon, TrangThaiLichSuHoaDon.HOAN_THANH.getValue());
                     if (daHoanThanh) {
-                        continue; // Bỏ qua nếu đã hoàn thành rồi
+//                        System.out.println("Bo qua");
+                        continue; //Bỏ qua nếu đã hoàn thành rồi
+
                     }
 
                     // Tạo bản ghi mới trong LichSuHoaDon
@@ -544,6 +569,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                     moi.setNguoiTao(0);
                     moi.setGhiChu("Tự động cập nhật trạng thái");
                     lichSuHoaDonRepository.save(moi);
+                    System.out.println("Tự động cập nhật trạng thái Đã giao > Hoàn thành");
                 }
             }
         }

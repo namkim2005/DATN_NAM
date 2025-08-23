@@ -1,12 +1,22 @@
 package com.main.datn_sd31.controller.admin_controller;
 
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import com.main.datn_sd31.dto.hoa_don_dto.HoaDonChiTietDTO;
+import com.main.datn_sd31.dto.hoa_don_dto.HoaDonDTO;
 import com.main.datn_sd31.entity.*;
 import com.main.datn_sd31.repository.*;
+import com.main.datn_sd31.service.HoaDonChiTietService;
+import com.main.datn_sd31.service.HoaDonService;
 import com.main.datn_sd31.service.PhieuGiamGiaService;
 import com.main.datn_sd31.service.impl.GHNService;
 import com.main.datn_sd31.util.GetNhanVien;
 import com.main.datn_sd31.util.ThongBaoUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
@@ -41,6 +52,8 @@ public class BanHangController {
     private final Mausacrepository mausacrepository;
     private final Sizerepository sizerepository;
     private final PhieuGiamGiaService phieuGiamGiaService;
+    private final HoaDonService hoaDonService;
+    private final HoaDonChiTietService hoaDonChiTietService;
 
 
     //    private List<HoaDonChiTiet> getCart(String cartKey, HttpSession session) {
@@ -137,7 +150,31 @@ public class BanHangController {
         Object maGiamGia = session.getAttribute("maGiamGia_" + cartKey);
 
         // Nếu tổng tiền <= 0 thì reset riêng giỏ này
-        if (tongTien.compareTo(BigDecimal.ZERO) <= 0) {
+        // Nếu có mã giảm giá thì kiểm tra lại điều kiện
+        if (maGiamGia != null) {
+            PhieuGiamGia phieu = phieugiamgiarepository.findByMa(maGiamGia.toString());
+
+            boolean hopLe = true;
+            if (phieu == null) {
+                hopLe = false; // không tồn tại
+            } else {
+                // Nếu giỏ rỗng hoặc tổng tiền < điều kiện tối thiểu
+                if (gio.isEmpty() || tongTien.compareTo(phieu.getDieuKien()) < 0) {
+                    hopLe = false;
+                }
+            }
+
+            // Nếu mã không hợp lệ thì xóa
+            if (!hopLe) {
+                giamGia = BigDecimal.ZERO;
+                maGiamGia = null;
+
+                session.setAttribute("giamGia_" + cartKey, giamGia);
+                session.removeAttribute("maGiamGia_" + cartKey);
+            }
+        }
+
+        if (gio.isEmpty()) {
             giamGia = BigDecimal.ZERO;
             phiShip = BigDecimal.ZERO;
             maGiamGia = null;
@@ -146,6 +183,7 @@ public class BanHangController {
             session.setAttribute("phiVanChuyen_" + cartKey, phiShip);
             session.removeAttribute("maGiamGia_" + cartKey);
         }
+
 
         // Tính tổng sau giảm
         BigDecimal tongSauGiam = tongTien.subtract(giamGia).add(phiShip);
@@ -264,13 +302,19 @@ public class BanHangController {
         return "redirect:/admin/ban-hang?cartKey=" + cartKey;
     }
 
+    @PostMapping("/xoa-ma")
+    public String xoaMa(@RequestParam("cartKey") String cartKey,
+                        HttpSession session,
+                        RedirectAttributes redirectAttributes) {
 
-    @GetMapping("/xoa-ma")
-    public String xoaMa(@RequestParam("cartKey") String cartKey, HttpSession session) {
-        session.removeAttribute("giamGia");
-        session.removeAttribute("maGiamGia");
+        session.removeAttribute("maGiamGia_" + cartKey);
+        session.setAttribute("giamGia_" + cartKey, BigDecimal.ZERO);
+
+        ThongBaoUtils.addSuccess(redirectAttributes, "Đã xóa mã giảm giá khỏi giỏ hàng.");
+
         return "redirect:/admin/ban-hang?cartKey=" + cartKey;
     }
+
 
 
     @PostMapping("/xoa-gio")
@@ -301,7 +345,12 @@ public class BanHangController {
                                      RedirectAttributes redirectAttributes) {
         // Check số điện thoại trùng
         if (khachHangRepository.existsBySoDienThoai(kh.getSoDienThoai())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Số điện thoại đã tồn tại!");
+            ThongBaoUtils.addError(redirectAttributes, "Số điện thoại đã tồn tại!");
+            redirectAttributes.addFlashAttribute("soDienThoaiMoi", kh.getSoDienThoai());
+            return "redirect:/admin/ban-hang?cartKey=" + cartKey;
+        }
+        if (kh.getSoDienThoai().length()!=10 && !kh.getSoDienThoai().matches("0\\d{9}")) {
+            ThongBaoUtils.addError(redirectAttributes, "Số điện thoại không hợp lệ! Phải đúng 10 chữ số và bắt đầu bằng 0.");
             return "redirect:/admin/ban-hang?cartKey=" + cartKey;
         }
 
@@ -317,7 +366,7 @@ public class BanHangController {
         khachHangRepository.save(kh);
 
         redirectAttributes.addFlashAttribute("soDienThoaiMoi", kh.getSoDienThoai());
-        redirectAttributes.addFlashAttribute("successMessage", "Thêm khách hàng thành công!");
+        ThongBaoUtils.addSuccess(redirectAttributes, "Thêm khách hàng thành công!");
         return "redirect:/admin/ban-hang?cartKey=" + cartKey;
     }
 
@@ -336,7 +385,7 @@ public class BanHangController {
             map.put("tenSanPham", ctsp.getSanPham().getTen());
 
             // Hình ảnh đại diện (lấy cái đầu tiên nếu có)
-            String hinhAnh = "/uploads/" + ctsp.getSanPham().getHinhAnhs().stream()
+            String hinhAnh = ctsp.getSanPham().getHinhAnhs().stream()
                     .findFirst()
                     .map(HinhAnh::getUrl)
                     .orElse("/images/no-image.png");
@@ -513,11 +562,63 @@ public class BanHangController {
     @PostMapping("/xoa-san-pham")
     public String xoaSanPhamTrongGio(@RequestParam("cartKey") String cartKey,
                                      @RequestParam("idChiTietSp") Integer idChiTietSp,
+                                     RedirectAttributes redirectAttributes,
                                      HttpSession session) {
+        // Lấy giỏ hàng từ session
         List<HoaDonChiTiet> gio = getCart(cartKey, session);
         gio.removeIf(item -> item.getChiTietSanPham().getId().equals(idChiTietSp));
+
+        ThongBaoUtils.addSuccess(redirectAttributes, "Xóa sản phẩm thành công");
+
+        // Kiểm tra lại mã giảm giá
+        Map<String, Object> cartInfo = (Map<String, Object>) session.getAttribute("cartInfo_" + cartKey);
+        if (cartInfo != null && cartInfo.containsKey("maGiamGia")) {
+            String maGiamGia = (String) cartInfo.get("maGiamGia");
+            PhieuGiamGia phieu = phieuGiamGiaService.findByMa(maGiamGia);
+
+            boolean hopLe = true;
+
+            if (phieu != null) {
+                // Nếu giỏ rỗng => không hợp lệ
+                if (gio.isEmpty()) {
+                    hopLe = false;
+                } else {
+                    // Tính lại tổng tiền giỏ hàng
+                    BigDecimal tongTien = gio.stream()
+                            .map(item -> item.getGiaSauGiam().multiply(BigDecimal.valueOf(item.getSoLuong())))
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    // Điều kiện: tổng tiền >= giá trị tối thiểu
+                    if (tongTien.compareTo(phieu.getDieuKien()) < 0) {
+                        hopLe = false;
+                    }
+
+                    // TODO: check thêm các điều kiện khác (danh mục, số lượng sp, ngày hết hạn, ...)
+                }
+            } else {
+                hopLe = false; // mã không tồn tại
+            }
+
+            // Nếu không hợp lệ thì xóa mã đã add
+            // Nếu không hợp lệ thì xóa mã đã add
+            if (!hopLe) {
+                cartInfo.remove("maGiamGia");
+                cartInfo.remove("giaTriGiam");
+                session.setAttribute("cartInfo_" + cartKey, cartInfo);
+
+                // Xóa đúng attribute của giỏ hiện tại
+                session.removeAttribute("maGiamGia_" + cartKey);
+                session.setAttribute("giamGia_" + cartKey, BigDecimal.ZERO);
+
+                ThongBaoUtils.addError(redirectAttributes,
+                        "Mã giảm giá đã bị hủy do giỏ hàng không còn đủ điều kiện.");
+            }
+
+        }
+
         return "redirect:/admin/ban-hang?cartKey=" + cartKey;
     }
+
 
 
     @PostMapping("/thanh-toan")
@@ -630,11 +731,11 @@ public class BanHangController {
         KhachHang kh = khachHangRepository.findSoDienThoai(sdt);
         String tenn=ten+"/"+sdtvc;
 
-        if (BigDecimal.ZERO.equals(phiShip)) {
+        if (!BigDecimal.ZERO.equals(phiShip)) {
             hd.setDiaChi(diachi);
             hd.setTenNguoiNhan(tenn);
 
-            String ghiChuFull = "Đơn hàng vận chuyển \nSố điện thoại người nhận:" + sdtvc;
+            String ghiChuFull = "Đơn hàng vận chuyển. \nSố điện thoại người nhận:" + sdtvc;
             if (ghichu != null && !ghichu.trim().isEmpty()) {
                 ghiChuFull += "\n" + ghichu;
             }
@@ -741,7 +842,9 @@ public class BanHangController {
         ThongBaoUtils.addSuccess(redirectAttributes, "Thanh toán thành công");
 
         return "redirect:/admin/ban-hang";
+//        return "redirect:/admin/ban-hang/" + hd.getMa() + "/pdf";
     }
+
     @GetMapping("/dia-chi/tinh")
     @ResponseBody
     public List<Map<String, Object>> getTinh() {
@@ -820,5 +923,100 @@ public class BanHangController {
 
         return ResponseEntity.ok(Map.of("phiShip", fee));
     }
+
+//    @GetMapping("/{maHoaDon}/pdf")
+//    public void xuatHoaDonPDF(@PathVariable("maHoaDon") String maHoaDon,
+//                              HttpServletResponse response) throws Exception {
+//        HoaDonDTO hoaDon = hoaDonService.getHoaDonByMa(maHoaDon);
+//        List<HoaDonChiTietDTO> chiTietList = hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(maHoaDon);
+//
+//        response.setContentType("application/pdf");
+//        response.setHeader("Content-Disposition", "attachment; filename=hoa-don-" + maHoaDon + ".pdf");
+//
+//        Document document = new Document(PageSize.A4, 36, 36, 36, 36);
+//        PdfWriter.getInstance(document, response.getOutputStream());
+//        document.open();
+//
+//
+//        document.close();
+//    }
+
+//    @GetMapping("/{maHoaDon}/pdf/view")
+//    public void xemHoaDonPDF(@PathVariable("maHoaDon") String maHoaDon,
+//                             HttpServletResponse response) throws Exception {
+//        xuatHoaDonPdfCommon(maHoaDon, response, false);
+//    }
+//
+//    @GetMapping("/{maHoaDon}/pdf/download")
+//    public void taiHoaDonPDF(@PathVariable("maHoaDon") String maHoaDon,
+//                             HttpServletResponse response) throws Exception {
+//        xuatHoaDonPdfCommon(maHoaDon, response, true);
+//    }
+//
+//    private void xuatHoaDonPdfCommon(String maHoaDon, HttpServletResponse response, boolean download) throws Exception {
+//        HoaDonDTO hoaDon = hoaDonService.getHoaDonByMa(maHoaDon);
+//        List<HoaDonChiTietDTO> chiTietList = hoaDonChiTietService.getHoaDonChiTietByMaHoaDon(maHoaDon);
+//
+//        response.setContentType("application/pdf");
+//        if (download) {
+//            response.setHeader("Content-Disposition", "attachment; filename=hoa-don-" + maHoaDon + ".pdf");
+//        } else {
+//            response.setHeader("Content-Disposition", "inline; filename=hoa-don-" + maHoaDon + ".pdf");
+//        }
+//
+//        Document document = new Document(PageSize.A4, 36, 36, 36, 36);
+//        PdfWriter.getInstance(document, response.getOutputStream());
+//        document.open();
+//
+//        // Font cơ bản hỗ trợ tiếng Việt
+//        BaseFont baseFont = BaseFont.createFont("fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+//        Font normalFont = new Font(baseFont, 12);
+//        Font boldFont = new Font(baseFont, 14, Font.BOLD);
+//
+//        document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG", boldFont));
+//        document.add(new Paragraph("Mã hóa đơn: " + hoaDon.getMa(), normalFont));
+//        document.add(new Paragraph("Khách hàng: " + hoaDon.getTenKH(), normalFont));
+//        document.add(new Paragraph("Email: " + (hoaDon.getEmail() == null ? " " : hoaDon.getEmail() ), normalFont));
+//        document.add(new Paragraph("Số điện thoại: " + (hoaDon.getSoDienThoai().equals("Khách lẻ") ? " " : hoaDon.getSoDienThoai() ), normalFont));
+//        document.add(new Paragraph("Địa chỉ: " + (hoaDon.getDiaChi().equals("-- Chọn tỉnh ----") ? " " : hoaDon.getDiaChi()), normalFont));
+//        document.add(new Paragraph("Ngày tạo: " + hoaDon.getNgayTao(), normalFont));
+//        document.add(new Paragraph(" "));
+//
+//        PdfPTable table = new PdfPTable(5);
+//        table.setWidthPercentage(100);
+//        table.setSpacingBefore(10);
+//        table.setWidths(new float[]{1f, 3f, 2f, 1f, 2f});
+//
+//        // Tiêu đề bảng
+//        String[] headers = {"STT", "Tên sản phẩm", "Đơn giá", "SL", "Tổng"};
+//        for (String h : headers) {
+//            PdfPCell cell = new PdfPCell(new Phrase(h, boldFont));
+//            table.addCell(cell);
+//        }
+//
+//        int stt = 1;
+//        for (HoaDonChiTietDTO ct : chiTietList) {
+//            table.addCell(new Phrase(String.valueOf(stt++), normalFont));
+//            table.addCell(new Phrase(ct.getTenCTSP(), normalFont));
+//            table.addCell(new Phrase(String.valueOf(ct.getGiaSauGiam()), normalFont));
+//            table.addCell(new Phrase(String.valueOf(ct.getSoLuong()), normalFont));
+//            table.addCell(new Phrase(String.valueOf(ct.getTongTien()), normalFont));
+//        }
+//
+//        document.add(table);
+//        document.add(new Paragraph(" ", normalFont));
+//
+//        document.add(new Paragraph("Tổng tiền: " + hoaDon.getGiaGoc(), boldFont));
+//        document.add(new Paragraph("Giá giảm: " + hoaDon.getGiaGiamGia(), boldFont));
+//        document.add(new Paragraph("Phí vận chuyển: " + hoaDon.getPhiVanChuyen(), boldFont));
+//        document.add(new Paragraph("Thành tiền: " + hoaDon.getThanhTien(), boldFont));
+//
+//        document.add(new Paragraph(" ", normalFont));
+//
+//        document.add(new Paragraph("Thanh toán: " + (hoaDon.getTrangThaiHoaDonString()), boldFont));
+//
+//
+//        document.close();
+//    }
 
 }

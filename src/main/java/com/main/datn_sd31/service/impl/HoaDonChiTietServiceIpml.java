@@ -28,7 +28,7 @@ public class HoaDonChiTietServiceIpml implements HoaDonChiTietService {
                 .maHD(hoaDonChiTiet.getHoaDon().getMa())
                 .idCTSP(hoaDonChiTiet.getChiTietSanPham().getId())
                 .tenCTSP(hoaDonChiTiet.getTenCtsp())
-                .maSp(hoaDonChiTiet.getChiTietSanPham().getId().toString())
+                .maSp(hoaDonChiTiet.getChiTietSanPham().getSanPham().getMa())
                 .soLuong(hoaDonChiTiet.getSoLuong())
                 .giaSauGiam(hoaDonChiTiet.getGiaSauGiam())
                 .giaGiam(hoaDonChiTiet.getGiaGiam())

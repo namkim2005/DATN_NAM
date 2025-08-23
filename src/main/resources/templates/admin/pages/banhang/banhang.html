@@ -36,7 +36,7 @@
                             </div>
                             <!-- Nhập số lượng -->
                             <div class="col-md-2">
-                                <input type="number" name="soLuong" class="form-control" value="1" min="1" required />
+                                <input type="hidden" name="soLuong" class="form-control" value="1" min="1"  />
                             </div>
                             <!-- Modal Quét Mã -->
                             <div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
@@ -77,6 +77,7 @@
                         <th class="p-3">Mã</th>
                         <th class="p-3">Ảnh</th>
                         <th class="p-3">Tên Sản phẩm</th>
+                        <th class="p-3">Số lượng</th>
                         <th class="p-3">Giá</th>
                         <th class="p-3">Thao tác</th>
                     </tr>
@@ -184,34 +185,46 @@
 
                 <!-- Mã giảm giá -->
                 <div class="card p-3">
-                    <form method="post" th:action="@{/admin/ban-hang/ap-dung-ma}">
-                        <input type="hidden" name="cartKey" th:value="${cartKey}" />
-                        <div class="row g-2 mb-2">
-                            <div class="col-md-6">
+                    <div class="row g-2 align-items-center">
+                        <!-- Form áp dụng mã giảm giá -->
+                        <div class="col-md-6">
+                            <form method="post" th:action="@{/admin/ban-hang/ap-dung-ma}">
+                                <input type="hidden" name="cartKey" th:value="${cartKey}" />
                                 <select class="form-select" name="maGiamGia">
                                     <option value="">-- Mã giảm giá --</option>
                                     <option th:each="p : ${dsPhieuGiamGia}"
                                             th:value="${p.ma}"
                                             th:selected="${phieuTotNhat != null and p.ma == phieuTotNhat.ma}"
                                             th:text="${p.ma + ' - '
-                                            + (#numbers.formatDecimal(p.mucDo, 0, 'COMMA', 0, 'POINT'))
-                                            + (p.loaiPhieuGiamGia == 1 ? '%' : 'đ')
-                                            + (p.loaiPhieuGiamGia == 1
-                                                ? ' - giảm tối đa: ' + #numbers.formatDecimal(p.giamToiDa, 0, 'COMMA', 0, 'POINT')
-                                                : '')
-                                            + ' - SL: ' + #numbers.formatDecimal(p.soLuongTon, 0, 'COMMA', 0, 'POINT')
-                                            +' - Điều kiện: ' + #numbers.formatDecimal(p.dieuKien, 0, 'COMMA', 0, 'POINT')}"
+                                + (#numbers.formatDecimal(p.mucDo, 0, 'COMMA', 0, 'POINT'))
+                                + (p.loaiPhieuGiamGia == 1 ? '%' : 'đ')
+                                + (p.loaiPhieuGiamGia == 1
+                                    ? ' - giảm tối đa: ' + #numbers.formatDecimal(p.giamToiDa, 0, 'COMMA', 0, 'POINT')
+                                    : '')
+                                + ' - SL: ' + #numbers.formatDecimal(p.soLuongTon, 0, 'COMMA', 0, 'POINT')
+                                + ' - Điều kiện: ' + #numbers.formatDecimal(p.dieuKien, 0, 'COMMA', 0, 'POINT')}"
                                             th:disabled="${tongTien < p.dieuKien}">
                                     </option>
                                 </select>
-
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-secondary" type="submit">Áp dụng mã</button>
-                            </div>
                         </div>
-                    </form>
+                        <div class="col-md-3">
+                            <button class="btn btn-secondary w-100" type="submit">Áp dụng mã</button>
+                        </div>
+                        </form>
+
+                        <!-- Form xóa mã giảm giá -->
+                        <div class="col-md-3">
+                            <form th:action="@{/admin/ban-hang/xoa-ma(cartKey=${cartKey})}" method="post">
+                                <button class="btn btn-danger w-100"
+                                        type="submit"
+                                        th:disabled="${maGiamGia == null}">
+                                    Xóa mã
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
+
 
 
                 <!-- Thanh toán -->
@@ -326,16 +339,16 @@
             </div>
         </div>
         <div class="modal fade" id="modalThemKhachHang" tabindex="-1">
-<!--            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mt-2" role="alert">-->
-<!--                <span th:text="${successMessage}"></span>-->
-<!--                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
-<!--            </div>-->
+            <!--            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mt-2" role="alert">-->
+            <!--                <span th:text="${successMessage}"></span>-->
+            <!--                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
+            <!--            </div>-->
 
-<!--            &lt;!&ndash; Hiển thị thông báo lỗi &ndash;&gt;-->
-<!--            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mt-2" role="alert">-->
-<!--                <span th:text="${errorMessage}"></span>-->
-<!--                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
-<!--            </div>-->
+            <!--            &lt;!&ndash; Hiển thị thông báo lỗi &ndash;&gt;-->
+            <!--            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mt-2" role="alert">-->
+            <!--                <span th:text="${errorMessage}"></span>-->
+            <!--                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>-->
+            <!--            </div>-->
 
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -348,7 +361,13 @@
                         <div class="modal-body">
                             <div class="mb-2">
                                 <label class="form-label">Số điện thoại</label>
-                                <input type="text" name="soDienThoai" class="form-control" required>
+                                <input type="text"
+                                       name="soDienThoai"
+                                       class="form-control"
+                                       required
+                                       pattern="0\d{9}"
+                                       title="Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0" >
+
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Tên khách hàng</label>
@@ -585,7 +604,8 @@
                         <td class="p-3">
                             <img src="${sp.hinhAnh}" alt="Ảnh" class="w-12 h-12 object-cover rounded">
                         </td>
-                        <td class="p-3">${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc} - SL: ${sp.soLuong}</td>
+                        <td class="p-3">${sp.tenSanPham} - ${sp.mauSac} / ${sp.kichThuoc} </td>
+                        <td class="p-3">${sp.soLuong}</td>
                         <td class="p-3">${sp.giaBan}</td>
                         <td class="p-3">
                             <button class="btn btn-primary btn-them-gio"
@@ -766,6 +786,21 @@
         }
 
     </script>
+
+<!--    &lt;!&ndash; In hoa don   &ndash;&gt;-->
+<!--    <script>-->
+
+<!--        // Mở PDF hiển thị-->
+<!--        // window.open("/admin/ban-hang/" + maHoaDon + "/pdf/view", "_blank");-->
+<!--        //-->
+<!--        // // Đồng thời tải PDF-->
+<!--        // let a = document.createElement("a");-->
+<!--        // a.href = "/" + maHoaDon + "/pdf/download";-->
+<!--        // a.download = "hoa-don-" + maHoaDon + ".pdf";-->
+<!--        // document.body.appendChild(a);-->
+<!--        // a.click();-->
+<!--        // document.body.removeChild(a);-->
+<!--    </script>-->
 
 </section>
 </body>

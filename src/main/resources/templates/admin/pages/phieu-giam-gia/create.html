@@ -219,7 +219,9 @@
                                th:field="*{trangThai}"
                                value="true"
                                id="trangThaiHoatDong"
-                               th:disabled="${phieuGiamGia.ngayKetThuc != null and phieuGiamGia.ngayKetThuc.isBefore(T(java.time.LocalDate).now())}">
+                               th:disabled="${phieuGiamGia.ngayKetThuc != null and phieuGiamGia.ngayKetThuc.isBefore(T(java.time.LocalDate).now())}"
+                               checked>
+
                         <label class="form-check-label" for="trangThaiHoatDong">Hoạt động</label>
                     </div>
                     <div class="form-check form-check-inline">

@@ -58,6 +58,8 @@ public class HoaDonDTO {
 
     private Integer lyDoGiaoKhongThanhCongEnum;
 
+//    private String phuongThucThanhToan;
+
     public String getTrangThaiLichSuHoaDonMoTa() {
         return trangThaiLichSuHoaDon != null ? trangThaiLichSuHoaDon.getMoTa() : "Không rõ";
     }

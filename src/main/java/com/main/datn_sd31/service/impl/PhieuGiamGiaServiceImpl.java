@@ -93,4 +93,9 @@ public class PhieuGiamGiaServiceImpl implements PhieuGiamGiaService {
         List<PhieuGiamGia> entities = repository.findAllStatusTrue();
         return entities.isEmpty() ? List.of() : entities;
     }
+
+    @Override
+    public PhieuGiamGia findByMa(String maGiamGia) {
+        return repository.findByMa(maGiamGia);
+    }
 }
