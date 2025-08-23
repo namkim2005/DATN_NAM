@@ -339,6 +339,27 @@ public class BanHangController {
         return "redirect:/admin/ban-hang?cartKey=gio-1";
     }
 
+    // Generate mã khách hàng tự động
+    private String generateMaKhachHang() {
+        String prefix = "KH";
+        List<KhachHang> allKhachHang = khachHangRepository.findAll();
+
+        int maxNumber = 0;
+        for (KhachHang kh : allKhachHang) {
+            String ma = kh.getMa();
+            if (ma != null && ma.startsWith(prefix)) {
+                try {
+                    int number = Integer.parseInt(ma.substring(prefix.length()));
+                    maxNumber = Math.max(maxNumber, number);
+                } catch (NumberFormatException e) {
+                    // Ignore invalid format
+                }
+            }
+        }
+
+        return prefix + String.format("%03d", maxNumber + 1);
+    }
+
     @PostMapping("/them-khach-hang-nhanh")
     public String themNhanhKhachHang(@ModelAttribute KhachHang kh,
                                      @RequestParam("cartKey") String cartKey,
@@ -355,7 +376,7 @@ public class BanHangController {
         }
 
         // Tạo mã KH tự động
-        kh.setMa("KH" + System.currentTimeMillis());
+        kh.setMa(generateMaKhachHang());
         kh.setNgayThamGia(LocalDateTime.now());
         kh.setNgayTao(LocalDateTime.now());
         kh.setTrangThai(true);
@@ -453,6 +474,7 @@ public class BanHangController {
         model.addAttribute("cartKey", cartKey);
         return "admin/banhang"; // trang bán hàng hiển thị luôn kết quả tìm
     }
+
     @GetMapping("/tim-kiem-theo-ma-vach")
     @ResponseBody
     public Map<String, Object> timKiemSanPhamJson(@RequestParam("maVach") String maVach) {
