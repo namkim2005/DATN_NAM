@@ -100,7 +100,7 @@
                         <td class="tw-text-right tw-px-6 tw-py-4" th:text="${#numbers.formatDecimal(ct.giaGoc,0,'COMMA',0,'POINT')} + ' ₫'"></td>
                         <td class="tw-text-right tw-px-6 tw-py-4" th:text="${#numbers.formatDecimal(ct.giaNhap,0,'COMMA',0,'POINT')} + ' ₫'"></td>
                         <td class="tw-text-right tw-px-6 tw-py-4" th:text="${ct.giaBan != null ? #numbers.formatDecimal(ct.giaBan,0,'COMMA',0,'POINT') + ' ₫' : '—'}"></td>
-                        <td class="tw-px-6 tw-py-4" th:text="${ct.dotGiamGia != null ? ct.dotGiamGia.ten : 'Không'}"></td>
+                        <td class="tw-px-6 tw-py-4" th:text="${ct.dotGiamGia != null ? ct.dotGiamGia.ma : 'Không'}"></td>
                         <td class="tw-text-center tw-px-6 tw-py-4">
                             <button type="button" 
                                     th:onclick="'openDeleteConfirm(' + ${ct.id} + ', this)'"

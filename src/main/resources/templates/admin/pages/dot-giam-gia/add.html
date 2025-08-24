@@ -55,16 +55,16 @@
                                 <div class="tw-flex">
                                     <input type="text" th:field="*{ma}"
                                            class="form-input-custom tw-flex-1 tw-rounded-l-lg"
-                                           placeholder="Để trống để tự sinh mã (GG******)">
-                                    <button type="button" id="btnGenMa"
-                                            class="btn-primary-custom tw-rounded-r-lg tw-flex tw-items-center">
-                                        <i class="fas fa-dice tw-mr-2"></i>
-                                        Sinh mã
-                                    </button>
+                                           placeholder="Để trống để tự sinh mã (GG******)" readonly>
+<!--                                    <button type="button" id="btnGenMa"-->
+<!--                                            class="btn-primary-custom tw-rounded-r-lg tw-flex tw-items-center">-->
+<!--                                        <i class="fas fa-dice tw-mr-2"></i>-->
+<!--                                        Sinh mã-->
+<!--                                    </button>-->
                                 </div>
                                 <div class="tw-mt-2 tw-text-sm" id="maMessage"></div>
                                 <div class="error-message" th:if="${#fields.hasErrors('ma')}" th:errors="*{ma}"></div>
-                                <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Nếu để trống, hệ thống sẽ tự tạo mã theo định dạng GG + 6 chữ số</p>
+                                <p class="tw-text-sm tw-text-gray-500 tw-mt-1">Hệ thống sẽ tự tạo mã theo định dạng GG + 6 chữ số</p>
                             </div>
 
                             <!-- Tên -->

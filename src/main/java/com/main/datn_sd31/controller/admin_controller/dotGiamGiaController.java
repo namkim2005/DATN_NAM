@@ -151,16 +151,18 @@ public class dotGiamGiaController {
                     if (keyword == null || keyword.isBlank()) return true;
                     String k = keyword.toLowerCase();
                     String ten = Optional.ofNullable(ct.getTenCt()).orElse("");
-                    String ma = Optional.ofNullable(ct.getMaVach()).orElse("");
+                    String ma = Optional.ofNullable(ct.getSanPham().getMa()).orElse("");
                     String tenSp = ct.getSanPham() != null ? Optional.ofNullable(ct.getSanPham().getTen()).orElse("") : "";
                     return ten.toLowerCase().contains(k) || ma.toLowerCase().contains(k) || tenSp.toLowerCase().contains(k);
                 })
                 .filter(ct -> {
-                    // Lọc theo trạng thái áp dụng
-                    boolean isAppliedToThis = ct.getDotGiamGia() != null && Objects.equals(ct.getDotGiamGia().getId(), dotId);
+                    boolean isAppliedToThis = ct.getDotGiamGia() != null;
+//                    boolean isAppliedOther = ct.getDotGiamGia() != null && !Objects.equals(ct.getDotGiamGia().getId(), dotId);
+
                     if ("APPLIED".equalsIgnoreCase(applied)) return isAppliedToThis;
+//                    if ("APPLIED_OTHER".equalsIgnoreCase(applied)) return isAppliedOther;
                     if ("NOT_APPLIED".equalsIgnoreCase(applied)) return ct.getDotGiamGia() == null;
-                    return true;
+                    return true; // ALL
                 })
                 .collect(Collectors.toList());
 
@@ -175,7 +177,17 @@ public class dotGiamGiaController {
             item.put("sanPham", ct.getSanPham() != null ? ct.getSanPham().getTen() : "");
             item.put("giaGoc", base);
             item.put("discountedPrice", discounted);
-            item.put("applied", ct.getDotGiamGia() != null && Objects.equals(ct.getDotGiamGia().getId(), dotId));
+            int appliedStatus = 0; // 0 = chưa áp dụng, 1 = đã áp dụng đợt hiện tại, 2 = đã áp dụng đợt khác
+            if (ct.getDotGiamGia() != null) {
+                if (Objects.equals(ct.getDotGiamGia().getId(), dotId)) {
+                    appliedStatus = 1;
+                } else {
+                    appliedStatus = 2;
+                }
+            }
+            item.put("applied", appliedStatus);
+//            item.put("applied", ct.getDotGiamGia() != null && Objects.equals(ct.getDotGiamGia().getId(), dotId));
+//            System.out.println("SP " + ct.getId() + " -> dot=" + (ct.getDotGiamGia() != null ? ct.getDotGiamGia().getId() : null) + " applied=" + appliedStatus);
             content.add(item);
         }
 
@@ -332,12 +344,20 @@ public class dotGiamGiaController {
                 && dotGiamGia.getNgayBatDau().isAfter(dotGiamGia.getNgayKetThuc())) {
             result.rejectValue("ngayBatDau", null, "Ngày bắt đầu phải trước ngày kết thúc");
         }
-//        // 1.1) Validate mã trùng
-//        if (dotGiamGia.getMa() != null && !dotGiamGia.getMa().trim().isEmpty()
-//                && dotGiamGiaRepository.existsByMa(dotGiamGia.getMa())
-//                ) {
-//            result.rejectValue("ma", null, "Mã đã tồn tại");
-//        }
+        // 1.1) Validate mã trùng
+        if (dotGiamGia.getMa() != null && !dotGiamGia.getMa().trim().isEmpty()) {
+            boolean duplicate;
+            if (dotGiamGia.getId() == null) {
+                // Thêm mới → chỉ cần check tồn tại mã
+                duplicate = dotGiamGiaRepository.existsByMa(dotGiamGia.getMa());
+            } else {
+                // Cập nhật → check trùng với record khác
+                duplicate = dotGiamGiaRepository.existsByMaAndIdNot(dotGiamGia.getMa(), dotGiamGia.getId());
+            }
+            if (duplicate) {
+                result.rejectValue("ma", null, "Mã đã tồn tại");
+            }
+        }
         // 2) Validate tên bắt buộc
         if (dotGiamGia.getTen() == null || dotGiamGia.getTen().trim().isEmpty()) {
             result.rejectValue("ten", null, "Tên đợt giảm giá là bắt buộc");

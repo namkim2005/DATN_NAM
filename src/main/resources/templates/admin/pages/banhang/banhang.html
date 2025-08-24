@@ -225,8 +225,6 @@
                     </div>
                 </div>
 
-
-
                 <!-- Thanh toán -->
                 <div class="card p-3">
                     <form method="post" th:action="@{/admin/ban-hang/thanh-toan}" onsubmit="updateDiaChiHienThi()">
@@ -760,7 +758,7 @@
             let xa = document.getElementById("ward").selectedOptions[0]?.text || "";
 
             let diaChi = `${xa}, ${huyen}, ${tinh}`;
-            let tongTien = document.getElementById("tongTien")?.innerText || "0";
+            let tongTien = document.getElementById("tongTienSauGiamDisplay")?.innerText || "0";
 
             let xacNhan = confirm(`Xác nhận thanh toán\nTổng tiền: ${tongTien}`);
             if (!xacNhan) {

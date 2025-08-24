@@ -353,7 +353,7 @@
 
             async function loadProducts() {
                 tbody.innerHTML = '<tr><td class="tw-px-4 tw-py-3" colspan="5">Đang tải...</td></tr>';
-                const params = new URLSearchParams({ dotId, page: 0, size: 20, keyword: keywordEl.value || '', applied: appliedEl.value });
+                const params = new URLSearchParams({ dotId, page: 0, size: 20, keyword: keywordEl.value || '', applied: 'ALL' });
                 const res = await fetch('/admin/dot-giam-gia/api/products?' + params.toString());
                 const data = await res.json();
                 if (!data.success) { tbody.innerHTML = '<tr><td class="tw-px-4 tw-py-3" colspan="5">' + (data.message || 'Lỗi tải dữ liệu') + '</td></tr>'; return; }
@@ -361,12 +361,21 @@
                 tbody.innerHTML = '';
                 data.content.forEach(item => {
                     const tr = document.createElement('tr');
+                    const applied = item.applied; // Bỏ Number() vì backend đã trả về int
                     tr.innerHTML = `
                         <td class="tw-px-4 tw-py-3"><input type="checkbox" data-id="${item.id}"></td>
                         <td class="tw-px-4 tw-py-3">${item.tenCt} <span class="tw-text-xs tw-text-gray-500">(${item.sanPham})</span></td>
                         <td class="tw-px-4 tw-py-3">${currency(item.giaGoc || 0)}</td>
                         <td class="tw-px-4 tw-py-3 tw-font-semibold">${currency(item.discountedPrice || 0)}</td>
-                        <td class="tw-px-4 tw-py-3">${item.applied ? '<span class="tw-text-green-700 tw-text-xs">Đã áp dụng</span>' : '<span class="tw-text-gray-400 tw-text-xs">Chưa áp dụng</span>'}</td>
+                        <td class="tw-px-4 tw-py-3">
+                            ${
+                                        applied === 1
+                                            ? '<span class="tw-text-green-700 tw-text-xs">Đã áp dụng</span>'
+                                            : applied === 2
+                                                ? '<span class="tw-text-orange-600 tw-text-xs">Đã áp dụng bởi đợt khác</span>'
+                                                : '<span class="tw-text-gray-400 tw-text-xs">Chưa áp dụng</span>'
+                                    }
+                        </td>
                     `;
                     const cb = tr.querySelector('input[type="checkbox"]');
                     cb.addEventListener('change', (e) => {
