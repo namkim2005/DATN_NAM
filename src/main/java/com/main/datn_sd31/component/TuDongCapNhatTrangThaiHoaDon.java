@@ -1,6 +1,7 @@
 package com.main.datn_sd31.component;
 
 import com.main.datn_sd31.service.LichSuHoaDonService;
+import com.main.datn_sd31.service.PhieuGiamGiaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Component;
 public class TuDongCapNhatTrangThaiHoaDon {
 
     private final LichSuHoaDonService lichSuHoaDonService;
+
+    private final PhieuGiamGiaService phieuGiamGiaService;
 
 //    private final LichSuHoaDonRepository lichSuHoaDonRepository;
 
@@ -22,6 +25,7 @@ public class TuDongCapNhatTrangThaiHoaDon {
     @Scheduled(fixedRate = 100000) // 100 giây
     public void updateStatusAfter3Days() {
         lichSuHoaDonService.updateStatusAfter3Days();
+        phieuGiamGiaService.autoUpdateStatus();
     }
 
 }

@@ -188,8 +188,7 @@
                         <span th:if="${item.soLuongTon == 0}" class="badge bg-secondary px-3 py-2">
                             Sử dụng hết
                         </span>
-                        <span th:if="${!item.trangThai and item.soLuongTon > 0}"
-                              class="badge bg-danger px-3 py-2">
+                        <span th:if="${!item.trangThai and item.soLuongTon > 0}" class="badge bg-danger px-3 py-2">
                             Ngừng hoạt động
                         </span>
                         <span th:if="${item.trangThai and item.soLuongTon > 0}" class="badge bg-success px-3 py-2">

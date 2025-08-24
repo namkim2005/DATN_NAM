@@ -282,8 +282,9 @@
                                 <input type="text" name="ten" class="form-control" id="ten" placeholder="Nhập tên người nhận">
                             </div>
                             <div class="mb-3">
-                                <label for="soDienThoaivc" class="form-label">Số điện thoại vận :</label>
-                                <input type="text" name="soDienThoaivc" class="form-control" id="soDienThoaivc" placeholder="Nhập số điện thoại vận chuyển">
+                                <label for="soDienThoaivc" class="form-label">Số điện thoại người nhận :</label>
+                                <input type="text" name="soDienThoaivc" class="form-control" id="soDienThoaivc" placeholder="Nhập số điện thoại người nhận" pattern="0\d{9}"
+                                       title="Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0">
                             </div>
 
                             <div class="mb-3">
@@ -299,11 +300,11 @@
 
                         <div>
                             <p>Phí vận chuyển: <strong id="shippingFee" th:text="${phiVanChuyen != null ? #numbers.formatDecimal(phiVanChuyen, 0, 'POINT', 0, 'COMMA') + ' ₫' : 'Chưa tính'}">Chưa tính</strong></p>
-                            <p>Tổng tiền: <span class="total" th:text="${#numbers.formatDecimal(tongTien, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
+                            <p>Tổng tiền hàng: <span class="total" th:text="${#numbers.formatDecimal(tongTien, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span></p>
                             <p th:if="${giamGia != null and giamGia > 0}">
                                 Giảm giá: <span class="total" th:text="${#numbers.formatDecimal(giamGia, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></span>
                             </p>
-                            <p>Thành tiền sau giảm: <span class="total" id="tongTienSauGiamDisplay"
+                            <p>Thành tiền: <span class="total" id="tongTienSauGiamDisplay"
                                                           th:text="${tongTienSauGiam != null ? #numbers.formatDecimal(tongTienSauGiam, 0, 'POINT', 0, 'COMMA') + ' ₫': '0 ₫'}"></span></p>
                         </div>
 

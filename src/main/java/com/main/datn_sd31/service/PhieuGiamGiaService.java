@@ -22,4 +22,6 @@ public interface PhieuGiamGiaService {
     List<PhieuGiamGia> findAllStatusTrue();
 
     PhieuGiamGia findByMa(String maGiamGia);
+
+    void autoUpdateStatus();
 }

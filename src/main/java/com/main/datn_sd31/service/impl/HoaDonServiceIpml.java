@@ -51,6 +51,7 @@ public class HoaDonServiceIpml implements HoaDonService {
         dto.setDiaChi(hoaDon.getDiaChi());
         dto.setEmail(hoaDon.getEmail());
         dto.setSoDienThoai(hoaDon.getSoDienThoai());
+        dto.setTenNguoiNhan(hoaDon.getTenNguoiNhan());
 
         if (hoaDon.getNhanVien() != null) {
             dto.setMaNV(hoaDon.getNhanVien().getMa());
