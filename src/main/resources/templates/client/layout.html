@@ -18,9 +18,13 @@
   <link rel="stylesheet" type="text/css" th:href="@{/client-static/css/vendor.css}">
   <link rel="stylesheet" type="text/css" th:href="@{/client-static/style.css}">
   <link rel="stylesheet" type="text/css" th:href="@{/client-static/product-page.css}">
+  <link rel="stylesheet" type="text/css" th:href="@{/client-static/css/mini-cart.css}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:ital,wght@0,100..900;1,100..900&family=Patrick+Hand&display=swap" rel="stylesheet">
+  
+  <!-- Page-specific CSS -->
+  <th:block layout:fragment="css"></th:block>
 </head>
 
 <body>
@@ -94,48 +98,8 @@
     </div>
   </div>
 
-  <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart" aria-labelledby="My Cart">
-    <div class="offcanvas-header justify-content-center">
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="order-md-last">
-        <h4 class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-primary">Your cart</span>
-<!--          <span class="badge bg-primary rounded-circle pt-2">3</span>-->
-        </h4>
-<!--        <ul class="list-group mb-3">-->
-<!--          <li class="list-group-item d-flex justify-content-between lh-sm">-->
-<!--            <div>-->
-<!--              <h6 class="my-0">Grey Hoodie</h6>-->
-<!--              <small class="text-body-secondary">Brief description</small>-->
-<!--            </div>-->
-<!--            <span class="text-body-secondary">$12</span>-->
-<!--          </li>-->
-<!--          <li class="list-group-item d-flex justify-content-between lh-sm">-->
-<!--            <div>-->
-<!--              <h6 class="my-0">Dog Food</h6>-->
-<!--              <small class="text-body-secondary">Brief description</small>-->
-<!--            </div>-->
-<!--            <span class="text-body-secondary">$8</span>-->
-<!--          </li>-->
-<!--          <li class="list-group-item d-flex justify-content-between lh-sm">-->
-<!--            <div>-->
-<!--              <h6 class="my-0">Soft Toy</h6>-->
-<!--              <small class="text-body-secondary">Brief description</small>-->
-<!--            </div>-->
-<!--            <span class="text-body-secondary">$5</span>-->
-<!--          </li>-->
-<!--          <li class="list-group-item d-flex justify-content-between">-->
-<!--            <span class="fw-bold">Total (USD)</span>-->
-<!--            <strong>$20</strong>-->
-<!--          </li>-->
-<!--        </ul>-->
-
-        <button class="w-100 btn btn-primary btn-lg" type="submit"><a th:href="@{/gio-hang/hien_thi}">Continue to checkout</a></button>
-      </div>
-    </div>
-  </div>
+  <!-- Include Mini Cart Fragment -->
+  <div th:replace="~{client/fragments/mini-cart-fragment :: mini-cart}"></div>
 
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasSearch"
     aria-labelledby="Search">
@@ -225,9 +189,7 @@
               <a href="#" class="mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart"
                 aria-controls="offcanvasCart">
                 <iconify-icon icon="mdi:cart" class="fs-4 position-relative"></iconify-icon>
-                <span class="position-absolute translate-middle badge rounded-circle bg-primary pt-2">
-                  03
-                </span>
+                <span th:replace="~{client/fragments/mini-cart-fragment :: mobile-cart-count}"></span>
               </a>
             </li>
 
@@ -305,9 +267,7 @@
                   <a href="#" class="mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart"
                     aria-controls="offcanvasCart">
                     <iconify-icon icon="mdi:cart" class="fs-4 position-relative"></iconify-icon>
-                    <span class="position-absolute translate-middle badge rounded-circle bg-primary pt-2">
-                      03
-                    </span>
+                                    <span th:replace="~{client/fragments/mini-cart-fragment :: header-cart-count}"></span>
                   </a>
                 </li>
               </ul>
@@ -437,6 +397,12 @@
   <script th:src="@{/client-static/js/plugins.js}"></script>
   <script th:src="@{/client-static/js/script.js}"></script>
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  
+  <!-- Page-specific scripts -->
+  <th:block layout:fragment="scripts"></th:block>
+  
+  <!-- Mini Cart Script -->
+  <script th:src="@{/client-static/js/mini-cart.js}"></script>
   
   <!-- Custom CSS for User Dropdown -->
   <style>

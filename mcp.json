@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "."],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-sequential-thinking"],
+      "env": {}
+    },
+    "browser": {
+      "command": "npx",
+      "args": ["@agent-infra/mcp-server-browser"],
+      "env": {}
+    },
+    "hello-world": {
+      "command": "npx",
+      "args": ["mcp-hello-world"],
+      "env": {}
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["figma-developer-mcp"],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "figd_Xya3iXjGuGZYJq95xTKSaezxe9HitGxU15pePZ3d"
+      }
+    }
+  }
+} 

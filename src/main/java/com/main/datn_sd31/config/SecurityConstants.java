@@ -30,6 +30,7 @@ public final class SecurityConstants {
     public static final String HOME = "/";
     public static final String PRODUCTS = "/san-pham";
     public static final String CART = "/gio-hang";
+    public static final String PRODUCT_DETAIL = "/san-pham/chi-tiet/**";
     
     // ==================== ROLES ====================
     
@@ -45,7 +46,7 @@ public final class SecurityConstants {
         "/", "/home", "/login",
         "/uploads/**", "/css/**", "/js/**", "/images/**",
         "/vendors/**", "/webjars/**", "/static/**", "/favicon.ico",
-        "/san-pham/**", "/client-static/**", "/bootstrap-5.3.7-dist/**",
+        "/san-pham/**", "/san-pham/chi-tiet/**", "/client-static/**", "/bootstrap-5.3.7-dist/**",
         "/api/auth/**"
     };
     

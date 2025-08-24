@@ -8,7 +8,6 @@ import com.main.datn_sd31.service.impl.GHNService;
 import com.main.datn_sd31.service.impl.Giohangservice;
 import com.main.datn_sd31.service.impl.Sanphamservice;
 import com.main.datn_sd31.util.ThongBaoUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +62,7 @@ public class GiohangController {
 
     @Transactional
     @GetMapping("/hien_thi")
-    public String hienthi(Model model,@ModelAttribute("messa") String messa) {
+    public String hienthi(Model model, @ModelAttribute("messa") String messa) {
         List<GioHangChiTiet> giohangList = giohangreposiroty.findAll();
 
         Map<String, GioHangChiTiet> gopMap = new LinkedHashMap<>();
@@ -131,10 +130,27 @@ public class GiohangController {
                            @RequestParam("soLuong") Integer soLuong,
                            RedirectAttributes redirect) {
 
+        // Validation đầu vào
+        if (soLuong == null || soLuong <= 0) {
+            redirect.addFlashAttribute("error", "Số lượng phải lớn hơn 0");
+            return "redirect:/gio-hang/hien_thi";
+        }
+
         KhachHang kh = getCurrentKhachHang();
 
-        ChiTietSanPham chiTiet = chitietsanphamRepo.findById(chiTietId).orElseThrow();
+        ChiTietSanPham chiTiet = chitietsanphamRepo.findById(chiTietId)
+                .orElse(null);
+        if (chiTiet == null) {
+            redirect.addFlashAttribute("error", "Không tìm thấy sản phẩm");
+            return "redirect:/gio-hang/hien_thi";
+        }
         int soLuongTon = chiTiet.getSoLuong();
+
+        // Kiểm tra sản phẩm còn hàng không
+        if (soLuongTon <= 0) {
+            redirect.addFlashAttribute("error", "Sản phẩm đã hết hàng");
+            return "redirect:/gio-hang/hien_thi";
+        }
 
         GioHangChiTiet gioHangHienCo = giohangreposiroty
                 .findByKhachHangIdAndChiTietSpId(kh.getId(), chiTiet.getId());
@@ -144,6 +160,8 @@ public class GiohangController {
             if (tongSoLuong > soLuongTon) {
                 tongSoLuong = soLuongTon;
                 redirect.addFlashAttribute("error", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
+            } else {
+                redirect.addFlashAttribute("success", "Đã cập nhật số lượng sản phẩm trong giỏ hàng");
             }
             gioHangHienCo.setSoLuong(tongSoLuong);
             gioHangHienCo.setThanhTien(chiTiet.getGiaBan().multiply(BigDecimal.valueOf(tongSoLuong)));
@@ -153,6 +171,8 @@ public class GiohangController {
             if (soLuong > soLuongTon) {
                 soLuong = soLuongTon;
                 redirect.addFlashAttribute("error", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
+            } else {
+                redirect.addFlashAttribute("success", "Đã thêm sản phẩm vào giỏ hàng thành công");
             }
             GioHangChiTiet gh = new GioHangChiTiet();
             gh.setKhachHang(kh);
@@ -163,7 +183,8 @@ public class GiohangController {
             giohangreposiroty.save(gh);
         }
 
-        return "redirect:/gio-hang/hien_thi";
+        // Redirect về home page với success message để hiển thị mini-cart đầy đủ
+        return "redirect:/home?added=true&product=" + chiTiet.getSanPham().getId();
     }
 
 
@@ -182,6 +203,7 @@ public class GiohangController {
         }
         return "redirect:/gio-hang/hien_thi";
     }
+
     @GetMapping("/cap-nhat/{id}")
     public String capNhatSoLuong(
             @PathVariable("id") Integer id,
@@ -251,7 +273,6 @@ public class GiohangController {
             @RequestParam(required = false) Integer provinceId,
             @RequestParam(required = false) Integer districtId,
             @RequestParam(required = false) String wardCode,
-            HttpServletRequest request,
             Model model) {
 
         if (selectedIds == null) {
@@ -317,7 +338,6 @@ public class GiohangController {
                                    @RequestParam("selectedId") List<Integer> selectedItemIds,
                                    @RequestParam Map<String, String> formData,
                                    HttpSession session,
-                                   HttpServletRequest request,
                                    RedirectAttributes redirectAttributes,
                                    Model model) {
 
@@ -409,8 +429,8 @@ public class GiohangController {
         lichSuHoaDonRepository.save(lichSuHoaDon);
 
         if (phuongThuc.equalsIgnoreCase("tien_mat")) {
-            xuLySauKhiDatHang(hoaDon, gioHangChiTiets, tienGiam,2);
-            model.addAttribute("ma",  hoaDon.getMa());
+            xuLySauKhiDatHang(hoaDon, gioHangChiTiets, tienGiam, 2);
+            model.addAttribute("ma", hoaDon.getMa());
             model.addAttribute("message", "Đặt hàng tiền mặt thành công!");
         }
         if ("chuyen_khoan".equalsIgnoreCase(phuongThuc)) {
@@ -418,14 +438,15 @@ public class GiohangController {
                     .map(ct -> String.valueOf(ct.getId()))
                     .collect(Collectors.joining(","));
 
-            return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa()+ "&ids=" + ids;
+            return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa() + "&ids=" + ids;
         }
         model.addAttribute("maHoaDon", hoaDon.getMa());
-        System.out.println("tien:" +thanhTien);
+        System.out.println("tien:" + thanhTien);
         model.addAttribute("tienThanhToanThanhCong", thanhTien);
         model.addAttribute("ngayThanhToan", LocalDateTime.now());
         return "client/pages/cart/success";
     }
+
     public void xuLySauKhiDatHang(HoaDon hoaDon, List<GioHangChiTiet> gioHangChiTiets, BigDecimal tienGiam, int trangThai) {
         for (GioHangChiTiet item : gioHangChiTiets) {
             ChiTietSanPham ctsp = item.getChiTietSp();
@@ -452,9 +473,9 @@ public class GiohangController {
         }
 
         // Xóa khỏi giỏ hàng
-        System.out.println("id san pham gio hang"+gioHangChiTiets);
+        System.out.println("id san pham gio hang" + gioHangChiTiets);
         giohangreposiroty.deleteAll(gioHangChiTiets);
-        System.out.println("hoa don id"+hoaDon.getId());
+        System.out.println("hoa don id" + hoaDon.getId());
 
         //Thêm hóa đơn mới
         HoaDon hd = hoadonreposiroty.findById(hoaDon.getId()).orElse(null);
@@ -478,6 +499,7 @@ public class GiohangController {
         }
         return List.of();
     }
+
     @GetMapping("/thanh-toan/shipping-fee")
     @ResponseBody
     public ResponseEntity<?> getShippingFee(@RequestParam("districtId") int districtId,
@@ -503,6 +525,7 @@ public class GiohangController {
 
         return ResponseEntity.ok(fee);
     }
+
     @GetMapping("/phieu-giam-gia/tien-giam")
     @ResponseBody
     public ResponseEntity<BigDecimal> tinhTienGiam(
@@ -540,4 +563,6 @@ public class GiohangController {
 
         return ResponseEntity.ok(tienGiam);
     }
+
+
 }

@@ -779,21 +779,7 @@ function showErrorMessage(message) {
     }, 5000);
 }
 
-// Add to cart function
-function addToCart(productId) {
-    // Show success message
-    const toast = document.createElement('div');
-    toast.className = 'tw-fixed tw-top-4 tw-right-4 tw-bg-green-500 tw-text-white tw-px-6 tw-py-3 tw-rounded-lg tw-shadow-lg tw-z-50';
-    toast.textContent = 'Đã thêm sản phẩm vào giỏ hàng!';
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-        }
-    }, 3000);
-}
+// Add to cart function - removed duplicate, using miniCart instead
 
 // Add to wishlist function
 function addToWishlist(productId) {

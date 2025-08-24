@@ -40,7 +40,7 @@ public class AuthController {
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-        return "redirect:/san-pham/danh-sach?logout=true";
+        return "redirect:/home";
     }
 
     // ==================== AUTH STATUS ENDPOINT ====================
