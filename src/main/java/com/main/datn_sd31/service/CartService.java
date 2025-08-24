@@ -94,7 +94,8 @@ public class CartService {
                 // Lấy hình ảnh đầu tiên của sản phẩm
                 List<HinhAnh> hinhAnhs = hinhanhrepository.findByhinhanhid(item.getChiTietSp().getSanPham().getId());
                 if (!hinhAnhs.isEmpty()) {
-                    itemData.put("imageUrl", "/uploads/" + hinhAnhs.get(0).getTen());
+                    // Sử dụng URL từ entity thay vì tự tạo đường dẫn
+                    itemData.put("imageUrl", hinhAnhs.get(0).getUrl());
                 } else {
                     itemData.put("imageUrl", "/client-static/images/item1.jpg");
                 }
