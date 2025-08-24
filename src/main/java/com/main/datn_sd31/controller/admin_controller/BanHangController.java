@@ -751,17 +751,15 @@ public class BanHangController {
         if (nv == null) nv = nhanVienRepository.findById(1).orElse(null); // fallback nếu cần
         hd.setNhanVien(nv);
 
-        hd.setTrangThai(3);
-
         hd.setDiaChi(diachi);
         KhachHang kh = khachHangRepository.findSoDienThoai(sdt);
-        String tenn=ten+"/"+sdtvc;
-
+        String tenn = ten + "/" + sdtvc;
+//        System.out.println(!BigDecimal.ZERO.equals(phiShip));
         if (!BigDecimal.ZERO.equals(phiShip)) {
             hd.setDiaChi(diachi);
             hd.setTenNguoiNhan(tenn);
 
-            String ghiChuFull = "Đơn hàng vận chuyển. \nSố điện thoại người nhận:" + sdtvc;
+            String ghiChuFull = "Số điện thoại người nhận:" + sdtvc;
             if (ghichu != null && !ghichu.trim().isEmpty()) {
                 ghiChuFull += "\n" + ghichu;
             }
@@ -781,7 +779,14 @@ public class BanHangController {
             hd.setKhachHang(khachLe);
             hd.setSoDienThoai("Khách lẻ");
         }
+
         hd.setPhuongThuc(phuongThuc);
+//        System.out.println(phuongThuc.equals("tien_mat") && !BigDecimal.ZERO.equals(phiShip));
+        if (phuongThuc.equals("tien_mat") && !BigDecimal.ZERO.equals(phiShip)) {
+            hd.setTrangThai(2);
+        } else {
+            hd.setTrangThai(3);
+        }
         hd.setGiaGoc(tongTien);
         hd.setGiaGiamGia(giagiam);
         hd.setPhiVanChuyen(phiShip);

@@ -98,4 +98,17 @@ public class PhieuGiamGiaServiceImpl implements PhieuGiamGiaService {
     public PhieuGiamGia findByMa(String maGiamGia) {
         return repository.findByMa(maGiamGia);
     }
+
+    @Override
+    public void autoUpdateStatus() {
+        List<PhieuGiamGia> list = repository.findAll();
+
+        for (PhieuGiamGia pgg : list) {
+            if (!pgg.getNgayKetThuc().isAfter(LocalDate.now())) {
+                pgg.setTrangThai(false);
+                repository.save(pgg);
+                System.out.println("Cap nhat thanh cong");
+            }
+        }
+    }
 }

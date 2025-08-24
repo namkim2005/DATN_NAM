@@ -156,11 +156,11 @@ public class dotGiamGiaController {
                     return ten.toLowerCase().contains(k) || ma.toLowerCase().contains(k) || tenSp.toLowerCase().contains(k);
                 })
                 .filter(ct -> {
-                    boolean isAppliedToThis = ct.getDotGiamGia() != null;
-//                    boolean isAppliedOther = ct.getDotGiamGia() != null && !Objects.equals(ct.getDotGiamGia().getId(), dotId);
+                    boolean isAppliedToThis = ct.getDotGiamGia() != null && Objects.equals(ct.getDotGiamGia().getId(), dotId);
+                    boolean isAppliedOther = ct.getDotGiamGia() != null && !Objects.equals(ct.getDotGiamGia().getId(), dotId);
 
                     if ("APPLIED".equalsIgnoreCase(applied)) return isAppliedToThis;
-//                    if ("APPLIED_OTHER".equalsIgnoreCase(applied)) return isAppliedOther;
+                    if ("APPLIED_OTHER".equalsIgnoreCase(applied)) return isAppliedOther;
                     if ("NOT_APPLIED".equalsIgnoreCase(applied)) return ct.getDotGiamGia() == null;
                     return true; // ALL
                 })

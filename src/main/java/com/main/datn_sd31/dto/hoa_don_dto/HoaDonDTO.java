@@ -18,6 +18,8 @@ public class HoaDonDTO {
 
     private String tenKH;
 
+    private String tenNguoiNhan;
+
     private String diaChi;
 
     private String email;
