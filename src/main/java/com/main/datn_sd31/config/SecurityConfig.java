@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+
+
 import static com.main.datn_sd31.config.SecurityConstants.*;
 
 @Configuration
@@ -93,7 +95,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/error"); // 👉 Trang tự tạo
+                            response.sendRedirect("/error");
                         })
                 )
                 .logout(lg -> lg.logoutSuccessUrl(HOME))

@@ -178,58 +178,7 @@ public class SanPhamkhachhangController {
 
 
 
-    @GetMapping("/chi-tiet/{id}")
-    public String xemChiTietSanPham(@PathVariable("id") Integer id, Model model) {
-        List<ChiTietSanPham> danhSachChiTiet = chitietsanphamRepo.findBySanPhamId(id);
-        model.addAttribute("sanPham", sanPhamService.findbyid(id));
-        model.addAttribute("dsSanPham", sanPhamService.getAll());
-        model.addAttribute("hinhanh", hinhanhrepository.findByhinhanhid(id));
-
-        // Gửi danh sách màu sắc duy nhất
-        List<MauSac> dsMauSac = danhSachChiTiet.stream()
-                .map(ChiTietSanPham::getMauSac)
-                .filter(ms -> ms != null && ms.getId() != null)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(MauSac::getId, Function.identity(), (a, b) -> a),
-                        map -> new ArrayList<>(map.values())
-                ));
-        model.addAttribute("dsMauSac", dsMauSac);
-        model.addAttribute("mauSacCount", dsMauSac.size());
-
-        // Gửi danh sách size duy nhất
-        List<Size> dsSize = danhSachChiTiet.stream()
-                .map(ChiTietSanPham::getSize)
-                .filter(sz -> sz != null && sz.getId() != null)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(Size::getId, Function.identity(), (a, b) -> a),
-                        map -> new ArrayList<>(map.values())
-                ));
-        model.addAttribute("dsSize", dsSize);
-        model.addAttribute("sizeCount", dsSize.size());
-
-        // ✅ Gửi danh sách chi tiết với tồn kho - SỬA LỖI ở đây
-        // ✅ Gửi danh sách chi tiết với tồn kho - đã fix null
-        model.addAttribute("dsChiTietSanPham", danhSachChiTiet.stream()
-                .filter(ct -> ct.getSize() != null && ct.getMauSac() != null &&
-                        ct.getSize().getId() != null && ct.getMauSac().getId() != null)
-                .map(ct -> {
-                    Map<String, Object> chiTietMap = new HashMap<>();
-                    chiTietMap.put("id", ct.getId());
-                    chiTietMap.put("giaBan", ct.getGiaBan());
-                    Map<String, Object> sizeMap = new HashMap<>();
-                    sizeMap.put("id", ct.getSize().getId());
-                    chiTietMap.put("size", sizeMap);
-
-                    Map<String, Object> mauMap = new HashMap<>();
-                    mauMap.put("id", ct.getMauSac().getId());
-                    chiTietMap.put("mauSac", mauMap);
-
-                    chiTietMap.put("soLuongTon", ct.getSoLuong());
-                    return chiTietMap;
-                })
-                .collect(Collectors.toList()));
-
-        return "client/pages/product/detail";
-    }
+    // Endpoint này đã được di chuyển sang ListSanPhamController để tránh conflict
+    // @GetMapping("/chi-tiet/{id}") - REMOVED
 
 }

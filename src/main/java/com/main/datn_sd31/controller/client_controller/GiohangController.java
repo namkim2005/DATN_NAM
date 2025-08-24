@@ -8,7 +8,6 @@ import com.main.datn_sd31.service.impl.GHNService;
 import com.main.datn_sd31.service.impl.Giohangservice;
 import com.main.datn_sd31.service.impl.Sanphamservice;
 import com.main.datn_sd31.util.ThongBaoUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -63,8 +62,20 @@ public class GiohangController {
 
     @Transactional
     @GetMapping("/hien_thi")
-    public String hienthi(Model model,@ModelAttribute("messa") String messa) {
-        List<GioHangChiTiet> giohangList = giohangreposiroty.findAll();
+    public String hienthi(Model model, @ModelAttribute("messa") String messa) {
+        // Lấy khách hàng hiện tại trước
+        KhachHang kh = getCurrentKhachHang();
+        
+        // ✅ CHỈ lấy giỏ hàng của khách hàng đã đăng nhập
+        List<GioHangChiTiet> giohangList = giohangreposiroty.findByKhachHangId(kh.getId());
+
+        if (giohangList.isEmpty()) {
+            // Nếu giỏ hàng trống, trả về danh sách rỗng
+            model.addAttribute("list", new ArrayList<>());
+            model.addAttribute("tongTien", BigDecimal.ZERO);
+            model.addAttribute("messa", messa);
+            return "client/pages/cart/list";
+        }
 
         Map<String, GioHangChiTiet> gopMap = new LinkedHashMap<>();
         for (GioHangChiTiet item : giohangList) {
@@ -97,10 +108,11 @@ public class GiohangController {
             }
         }
 
-        giohangreposiroty.deleteAll();
+        // Xóa các bản ghi cũ của khách hàng này
+        giohangreposiroty.deleteByKhachHangId(kh.getId());
         giohangreposiroty.flush();
 
-        KhachHang kh = getCurrentKhachHang();
+        // Tạo lại danh sách mới với khách hàng đúng
         List<GioHangChiTiet> newList = new ArrayList<>();
         for (GioHangChiTiet item : gopMap.values()) {
             GioHangChiTiet newItem = new GioHangChiTiet();
@@ -120,7 +132,6 @@ public class GiohangController {
         model.addAttribute("list", newList);
         model.addAttribute("tongTien", tongTien);
 
-        System.out.println("▶ Đã vào controller: /gio-hang/hien_thi");
         model.addAttribute("messa", messa);
         return "client/pages/cart/list";
     }
@@ -131,10 +142,27 @@ public class GiohangController {
                            @RequestParam("soLuong") Integer soLuong,
                            RedirectAttributes redirect) {
 
+        // Validation đầu vào
+        if (soLuong == null || soLuong <= 0) {
+            redirect.addFlashAttribute("error", "Số lượng phải lớn hơn 0");
+            return "redirect:/gio-hang/hien_thi";
+        }
+
         KhachHang kh = getCurrentKhachHang();
 
-        ChiTietSanPham chiTiet = chitietsanphamRepo.findById(chiTietId).orElseThrow();
+        ChiTietSanPham chiTiet = chitietsanphamRepo.findById(chiTietId)
+                .orElse(null);
+        if (chiTiet == null) {
+            redirect.addFlashAttribute("error", "Không tìm thấy sản phẩm");
+            return "redirect:/gio-hang/hien_thi";
+        }
         int soLuongTon = chiTiet.getSoLuong();
+
+        // Kiểm tra sản phẩm còn hàng không
+        if (soLuongTon <= 0) {
+            redirect.addFlashAttribute("error", "Sản phẩm đã hết hàng");
+            return "redirect:/gio-hang/hien_thi";
+        }
 
         GioHangChiTiet gioHangHienCo = giohangreposiroty
                 .findByKhachHangIdAndChiTietSpId(kh.getId(), chiTiet.getId());
@@ -144,6 +172,8 @@ public class GiohangController {
             if (tongSoLuong > soLuongTon) {
                 tongSoLuong = soLuongTon;
                 redirect.addFlashAttribute("error", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
+            } else {
+                redirect.addFlashAttribute("success", "Đã cập nhật số lượng sản phẩm trong giỏ hàng");
             }
             gioHangHienCo.setSoLuong(tongSoLuong);
             gioHangHienCo.setThanhTien(chiTiet.getGiaBan().multiply(BigDecimal.valueOf(tongSoLuong)));
@@ -153,6 +183,8 @@ public class GiohangController {
             if (soLuong > soLuongTon) {
                 soLuong = soLuongTon;
                 redirect.addFlashAttribute("error", "Số lượng vượt quá tồn kho, đã chỉnh về tối đa");
+            } else {
+                redirect.addFlashAttribute("success", "Đã thêm sản phẩm vào giỏ hàng thành công");
             }
             GioHangChiTiet gh = new GioHangChiTiet();
             gh.setKhachHang(kh);
@@ -163,6 +195,7 @@ public class GiohangController {
             giohangreposiroty.save(gh);
         }
 
+        // Redirect về trang giỏ hàng thay vì home
         return "redirect:/gio-hang/hien_thi";
     }
 
@@ -182,6 +215,7 @@ public class GiohangController {
         }
         return "redirect:/gio-hang/hien_thi";
     }
+
     @GetMapping("/cap-nhat/{id}")
     public String capNhatSoLuong(
             @PathVariable("id") Integer id,
@@ -190,35 +224,62 @@ public class GiohangController {
             @RequestParam(value = "soluong", required = false) Integer soluong,
             RedirectAttributes redirectAttributes
     ) {
-        Optional<GioHangChiTiet> optionalItem = giohangreposiroty.findById(id);
-        if (!optionalItem.isPresent()) {
-            return "redirect:/gio-hang/hien_thi";
+        try {
+            Optional<GioHangChiTiet> optionalItem = giohangreposiroty.findById(id);
+            if (!optionalItem.isPresent()) {
+                ThongBaoUtils.addError(redirectAttributes, "Không tìm thấy sản phẩm trong giỏ hàng");
+                return "redirect:/gio-hang/hien_thi";
+            }
+            
+            GioHangChiTiet item = optionalItem.get();
+            
+            // Kiểm tra xem item có thuộc về khách hàng hiện tại không
+            KhachHang currentKh = getCurrentKhachHang();
+            if (!item.getKhachHang().getId().equals(currentKh.getId())) {
+                ThongBaoUtils.addError(redirectAttributes, "Bạn không có quyền cập nhật sản phẩm này");
+                return "redirect:/gio-hang/hien_thi";
+            }
+            
+            int soLuongTonKho = item.getChiTietSp().getSoLuong();
+
+            int soLuongMoi;
+            if ("update".equals(action) && newSoluong != null && newSoluong > 0) {
+                // Cập nhật trực tiếp từ JavaScript
+                soLuongMoi = newSoluong;
+            } else if (newSoluong != null && newSoluong > 0 && !"increase".equals(action) && !"decrease".equals(action)) {
+                // Nếu nhập tay (không phải bấm + hoặc -)
+                soLuongMoi = newSoluong;
+            } else if ("increase".equals(action)) {
+                soLuongMoi = item.getSoLuong() + 1;
+            } else if ("decrease".equals(action)) {
+                soLuongMoi = Math.max(item.getSoLuong() - 1, 1);
+            } else {
+                soLuongMoi = item.getSoLuong();
+            }
+
+            // Kiểm tra số lượng hợp lệ
+            if (soLuongMoi < 1) {
+                ThongBaoUtils.addError(redirectAttributes, "Số lượng không hợp lệ");
+                return "redirect:/gio-hang/hien_thi";
+            }
+
+            if (soLuongMoi > soLuongTonKho) {
+                ThongBaoUtils.addError(redirectAttributes, "Số lượng vượt quá tồn kho (còn " + soLuongTonKho + " sản phẩm)");
+                return "redirect:/gio-hang/hien_thi";
+            }
+
+            // Cập nhật số lượng và thành tiền
+            item.setSoLuong(soLuongMoi);
+            BigDecimal giaBan = item.getChiTietSp().getGiaBan();
+            item.setThanhTien(giaBan.multiply(BigDecimal.valueOf(soLuongMoi)));
+
+            giohangreposiroty.save(item);
+
+            ThongBaoUtils.addSuccess(redirectAttributes, "Cập nhật số lượng thành công");
+            
+        } catch (Exception e) {
+            ThongBaoUtils.addError(redirectAttributes, "Có lỗi xảy ra khi cập nhật số lượng: " + e.getMessage());
         }
-        GioHangChiTiet item = optionalItem.get();
-        int soLuongTonKho = item.getChiTietSp().getSoLuong();
-
-        int soLuongMoi;
-        if (newSoluong != null && newSoluong > 0 && !"increase".equals(action) && !"decrease".equals(action)) {
-            // Nếu nhập tay (không phải bấm + hoặc -)
-            soLuongMoi = newSoluong;
-        } else if ("increase".equals(action)) {
-            soLuongMoi = item.getSoLuong() + 1;
-        } else if ("decrease".equals(action)) {
-            soLuongMoi = Math.max(item.getSoLuong() - 1, 1);
-        } else {
-            soLuongMoi = item.getSoLuong();
-        }
-
-        if (soLuongMoi > soLuongTonKho) {
-            ThongBaoUtils.addError(redirectAttributes, "Số lượng vượt quá tồn kho");
-            return "redirect:/gio-hang/hien_thi";
-        }
-
-        item.setSoLuong(soLuongMoi);
-        BigDecimal giaBan = item.getChiTietSp().getGiaBan();
-        item.setThanhTien(giaBan.multiply(BigDecimal.valueOf(soLuongMoi)));
-
-        giohangreposiroty.save(item);
 
         return "redirect:/gio-hang/hien_thi";
     }
@@ -251,7 +312,6 @@ public class GiohangController {
             @RequestParam(required = false) Integer provinceId,
             @RequestParam(required = false) Integer districtId,
             @RequestParam(required = false) String wardCode,
-            HttpServletRequest request,
             Model model) {
 
         if (selectedIds == null) {
@@ -317,7 +377,6 @@ public class GiohangController {
                                    @RequestParam("selectedId") List<Integer> selectedItemIds,
                                    @RequestParam Map<String, String> formData,
                                    HttpSession session,
-                                   HttpServletRequest request,
                                    RedirectAttributes redirectAttributes,
                                    Model model) {
 
@@ -409,8 +468,8 @@ public class GiohangController {
         lichSuHoaDonRepository.save(lichSuHoaDon);
 
         if (phuongThuc.equalsIgnoreCase("tien_mat")) {
-            xuLySauKhiDatHang(hoaDon, gioHangChiTiets, tienGiam,2);
-            model.addAttribute("ma",  hoaDon.getMa());
+            xuLySauKhiDatHang(hoaDon, gioHangChiTiets, tienGiam, 2);
+            model.addAttribute("ma", hoaDon.getMa());
             model.addAttribute("message", "Đặt hàng tiền mặt thành công!");
         }
         if ("chuyen_khoan".equalsIgnoreCase(phuongThuc)) {
@@ -418,14 +477,14 @@ public class GiohangController {
                     .map(ct -> String.valueOf(ct.getId()))
                     .collect(Collectors.joining(","));
 
-            return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa()+ "&ids=" + ids;
+            return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa() + "&ids=" + ids;
         }
         model.addAttribute("maHoaDon", hoaDon.getMa());
-        System.out.println("tien:" +thanhTien);
         model.addAttribute("tienThanhToanThanhCong", thanhTien);
         model.addAttribute("ngayThanhToan", LocalDateTime.now());
         return "client/pages/cart/success";
     }
+
     public void xuLySauKhiDatHang(HoaDon hoaDon, List<GioHangChiTiet> gioHangChiTiets, BigDecimal tienGiam, int trangThai) {
         for (GioHangChiTiet item : gioHangChiTiets) {
             ChiTietSanPham ctsp = item.getChiTietSp();
@@ -452,9 +511,7 @@ public class GiohangController {
         }
 
         // Xóa khỏi giỏ hàng
-        System.out.println("id san pham gio hang"+gioHangChiTiets);
         giohangreposiroty.deleteAll(gioHangChiTiets);
-        System.out.println("hoa don id"+hoaDon.getId());
 
         //Thêm hóa đơn mới
         HoaDon hd = hoadonreposiroty.findById(hoaDon.getId()).orElse(null);
@@ -478,6 +535,7 @@ public class GiohangController {
         }
         return List.of();
     }
+
     @GetMapping("/thanh-toan/shipping-fee")
     @ResponseBody
     public ResponseEntity<?> getShippingFee(@RequestParam("districtId") int districtId,
@@ -485,10 +543,7 @@ public class GiohangController {
         int fromDistrictId = 3440;
         int weight = 500;
 
-        System.out.println("Request shipping fee - toDistrictId: " + districtId + ", toWardCode: " + wardCode);
-
         List<Map<String, Object>> services = ghnService.getAvailableServices(fromDistrictId, districtId);
-        System.out.println("Available services: " + services);
 
         if (services.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm thấy dịch vụ vận chuyển phù hợp.");
@@ -503,6 +558,7 @@ public class GiohangController {
 
         return ResponseEntity.ok(fee);
     }
+
     @GetMapping("/phieu-giam-gia/tien-giam")
     @ResponseBody
     public ResponseEntity<BigDecimal> tinhTienGiam(
@@ -540,4 +596,6 @@ public class GiohangController {
 
         return ResponseEntity.ok(tienGiam);
     }
+
+
 }

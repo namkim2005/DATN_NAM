@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.text.Normalizer;
@@ -175,7 +176,7 @@ public class ListSanPhamController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortDir", sortDir);
 
-        return "client/pages/product";
+        return "client/pages/product/product";
     }
 
 
@@ -184,26 +185,53 @@ public class ListSanPhamController {
             @PathVariable("id") Integer id,
             @RequestParam(value="page", defaultValue="0") int page,
             @RequestParam(value="star", required=false) Integer star,
-            Model model
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
-        // --- 1. LOAD SẢN PHẨM, HÌNH, SIZE, MÀU ---
-        SanPham sanPham = sanPhamService.findbyid(id);
+        try {
+            System.out.println("=== ENTERING PRODUCT DETAIL CONTROLLER ===");
+            System.out.println("Product ID: " + id);
+            
+            // --- 1. LOAD SẢN PHẨM, HÌNH, SIZE, MÀU ---
+            SanPham sanPham = sanPhamService.findbyid(id);
+            System.out.println("SanPham found: " + (sanPham != null));
+            if (sanPham == null) {
+                System.out.println("SanPham is null, redirecting...");
+                return "redirect:/san-pham/danh-sach";
+            }
+        
         model.addAttribute("sanPham", sanPham);
-        model.addAttribute("dsSanPham", sanPhamService.getAll());
-        model.addAttribute("hinhanh", hinhanhrepository.findByhinhanhid(id));
+        // Lấy hình ảnh của sản phẩm
+        List<HinhAnh> hinhanhs = hinhanhrepository.findByhinhanhid(id);
+        HinhAnh hinhanh = hinhanhs.isEmpty() ? null : hinhanhs.get(0);
+        model.addAttribute("hinhanh", hinhanh);
+        model.addAttribute("hinhanhs", hinhanhs); // Để hiển thị nhiều ảnh nếu cần
 
         List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findBySanPhamId(id);
-
-        // Màu sắc duy nhất
-        List<MauSac> dsMauSac = chiTiets.stream()
-                .map(ChiTietSanPham::getMauSac)
-                .filter(ms -> ms != null && ms.getId() != null)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(MauSac::getId, Function.identity(), (a,b)->a),
-                        m -> new ArrayList<>(m.values())
-                ));
-        model.addAttribute("dsMauSac", dsMauSac);
-        model.addAttribute("mauSacCount", dsMauSac.size());
+        
+        // Kiểm tra nếu không có ChiTietSanPham
+        if (chiTiets.isEmpty()) {
+            // Tạm thời comment redirect để debug
+            System.out.println("WARNING: No ChiTietSanPham found for product ID: " + id);
+            // redirectAttributes.addFlashAttribute("error", "Sản phẩm này chưa có thông tin chi tiết!");
+            // return "redirect:/san-pham/danh-sach";
+        }
+        
+        // Tính toán giá từ các biến thể
+        BigDecimal giaBanMin = chiTiets.stream()
+                .map(ChiTietSanPham::getGiaBan)
+                .filter(Objects::nonNull)
+                .min(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+                
+        BigDecimal giaGocMin = chiTiets.stream()
+                .map(ChiTietSanPham::getGiaGoc)
+                .filter(Objects::nonNull)
+                .min(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+        
+        model.addAttribute("giaBanMin", giaBanMin);
+        model.addAttribute("giaGocMin", giaGocMin);
 
         // Size duy nhất
         List<Size> dsSize = chiTiets.stream()
@@ -215,6 +243,37 @@ public class ListSanPhamController {
                 ));
         model.addAttribute("dsSize", dsSize);
         model.addAttribute("sizeCount", dsSize.size());
+        
+        // Màu sắc duy nhất
+        List<MauSac> dsMauSac = chiTiets.stream()
+                .map(ChiTietSanPham::getMauSac)
+                .filter(ms -> ms != null && ms.getId() != null)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(MauSac::getId, Function.identity(), (a,b)->a),
+                        m -> new ArrayList<>(m.values())
+                ));
+        
+        // Xử lý màu sắc với fallback cho mã màu
+        dsMauSac = processColorsWithFallback(dsMauSac);
+        
+        model.addAttribute("dsMauSac", dsMauSac);
+        model.addAttribute("mauSacCount", dsMauSac.size());
+        
+        // Debug logging
+        System.out.println("=== DEBUG PRODUCT DETAIL ===");
+        System.out.println("Total ChiTietSanPham: " + chiTiets.size());
+        System.out.println("Size count: " + dsSize.size());
+        System.out.println("Color count: " + dsMauSac.size());
+        System.out.println("GiaBanMin: " + giaBanMin);
+        System.out.println("GiaGocMin: " + giaGocMin);
+        chiTiets.forEach(ct -> {
+            System.out.println("ChiTiet ID: " + ct.getId() + 
+                             ", Size: " + (ct.getSize() != null ? ct.getSize().getTen() : "NULL") +
+                             ", Color: " + (ct.getMauSac() != null ? ct.getMauSac().getTen() : "NULL") +
+                             ", GiaBan: " + ct.getGiaBan() +
+                             ", SoLuong: " + ct.getSoLuong());
+        });
+        System.out.println("=== END DEBUG ===");
 
         // Chi tiết với tồn kho (dùng cho JS update giá + kho)
         List<Map<String,Object>> dsChiTietMap = chiTiets.stream()
@@ -223,8 +282,9 @@ public class ListSanPhamController {
                     Map<String,Object> m = new HashMap<>();
                     m.put("id", ct.getId());
                     m.put("giaBan", ct.getGiaBan());
-                    m.put("size",   Map.of("id", ct.getSize().getId()));
-                    m.put("mauSac", Map.of("id", ct.getMauSac().getId()));
+                    m.put("giaGoc", ct.getGiaGoc()); // Thêm giá gốc
+                    m.put("size",   Map.of("id", ct.getSize().getId(), "ten", ct.getSize().getTen()));
+                    m.put("mauSac", Map.of("id", ct.getMauSac().getId(), "ten", ct.getMauSac().getTen()));
                     m.put("soLuongTon", ct.getSoLuong());
                     return m;
                 }).toList();
@@ -295,7 +355,13 @@ public class ListSanPhamController {
         model.addAttribute("currentPage",  page);
         model.addAttribute("totalPages",   totalPages);
 
-        return "client/pages/product/detail";
+        System.out.println("=== RETURNING TEMPLATE ===");
+        return "client/pages/product/product-detail";
+        } catch (Exception e) {
+            System.out.println("=== ERROR IN CONTROLLER ===");
+            e.printStackTrace();
+            return "redirect:/san-pham/danh-sach";
+        }
     }
 
     @GetMapping("/search")
@@ -335,7 +401,7 @@ public class ListSanPhamController {
         model.addAttribute("q", q);
         model.addAttribute("isSearch", true);
 
-        return "client/pages/product/list";
+        return "client/pages/product/search";
     }
 
 
@@ -468,7 +534,7 @@ public class ListSanPhamController {
         }
         model.addAttribute("likedMap", likedMap);
 
-        return "client/pages/product :: productGrid";
+        return "client/pages/product/product :: productGrid";
     }
 
     /**
