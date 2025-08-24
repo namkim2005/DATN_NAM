@@ -13,6 +13,13 @@
 <body>
 <main layout:fragment="content">
 
+  <!-- Flash Messages -->
+  <div th:if="${success}" class="alert alert-success alert-dismissible fade show m-3" role="alert">
+    <iconify-icon icon="mdi:check-circle" class="me-2"></iconify-icon>
+    <span th:text="${success}">Thành công</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
   <section id="banner" style="background: #F9F3EC;">
     <div class="container">
       <div class="swiper main-swiper">
