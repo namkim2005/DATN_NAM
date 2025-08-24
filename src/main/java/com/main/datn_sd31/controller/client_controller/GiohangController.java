@@ -63,7 +63,19 @@ public class GiohangController {
     @Transactional
     @GetMapping("/hien_thi")
     public String hienthi(Model model, @ModelAttribute("messa") String messa) {
-        List<GioHangChiTiet> giohangList = giohangreposiroty.findAll();
+        // Lấy khách hàng hiện tại trước
+        KhachHang kh = getCurrentKhachHang();
+        
+        // ✅ CHỈ lấy giỏ hàng của khách hàng đã đăng nhập
+        List<GioHangChiTiet> giohangList = giohangreposiroty.findByKhachHangId(kh.getId());
+
+        if (giohangList.isEmpty()) {
+            // Nếu giỏ hàng trống, trả về danh sách rỗng
+            model.addAttribute("list", new ArrayList<>());
+            model.addAttribute("tongTien", BigDecimal.ZERO);
+            model.addAttribute("messa", messa);
+            return "client/pages/cart/list";
+        }
 
         Map<String, GioHangChiTiet> gopMap = new LinkedHashMap<>();
         for (GioHangChiTiet item : giohangList) {
@@ -96,10 +108,11 @@ public class GiohangController {
             }
         }
 
-        giohangreposiroty.deleteAll();
+        // Xóa các bản ghi cũ của khách hàng này
+        giohangreposiroty.deleteByKhachHangId(kh.getId());
         giohangreposiroty.flush();
 
-        KhachHang kh = getCurrentKhachHang();
+        // Tạo lại danh sách mới với khách hàng đúng
         List<GioHangChiTiet> newList = new ArrayList<>();
         for (GioHangChiTiet item : gopMap.values()) {
             GioHangChiTiet newItem = new GioHangChiTiet();
@@ -119,7 +132,6 @@ public class GiohangController {
         model.addAttribute("list", newList);
         model.addAttribute("tongTien", tongTien);
 
-        System.out.println("▶ Đã vào controller: /gio-hang/hien_thi");
         model.addAttribute("messa", messa);
         return "client/pages/cart/list";
     }
@@ -183,8 +195,8 @@ public class GiohangController {
             giohangreposiroty.save(gh);
         }
 
-        // Redirect về home page với success message để hiển thị mini-cart đầy đủ
-        return "redirect:/home?added=true&product=" + chiTiet.getSanPham().getId();
+        // Redirect về trang giỏ hàng thay vì home
+        return "redirect:/gio-hang/hien_thi";
     }
 
 
@@ -212,35 +224,62 @@ public class GiohangController {
             @RequestParam(value = "soluong", required = false) Integer soluong,
             RedirectAttributes redirectAttributes
     ) {
-        Optional<GioHangChiTiet> optionalItem = giohangreposiroty.findById(id);
-        if (!optionalItem.isPresent()) {
-            return "redirect:/gio-hang/hien_thi";
+        try {
+            Optional<GioHangChiTiet> optionalItem = giohangreposiroty.findById(id);
+            if (!optionalItem.isPresent()) {
+                ThongBaoUtils.addError(redirectAttributes, "Không tìm thấy sản phẩm trong giỏ hàng");
+                return "redirect:/gio-hang/hien_thi";
+            }
+            
+            GioHangChiTiet item = optionalItem.get();
+            
+            // Kiểm tra xem item có thuộc về khách hàng hiện tại không
+            KhachHang currentKh = getCurrentKhachHang();
+            if (!item.getKhachHang().getId().equals(currentKh.getId())) {
+                ThongBaoUtils.addError(redirectAttributes, "Bạn không có quyền cập nhật sản phẩm này");
+                return "redirect:/gio-hang/hien_thi";
+            }
+            
+            int soLuongTonKho = item.getChiTietSp().getSoLuong();
+
+            int soLuongMoi;
+            if ("update".equals(action) && newSoluong != null && newSoluong > 0) {
+                // Cập nhật trực tiếp từ JavaScript
+                soLuongMoi = newSoluong;
+            } else if (newSoluong != null && newSoluong > 0 && !"increase".equals(action) && !"decrease".equals(action)) {
+                // Nếu nhập tay (không phải bấm + hoặc -)
+                soLuongMoi = newSoluong;
+            } else if ("increase".equals(action)) {
+                soLuongMoi = item.getSoLuong() + 1;
+            } else if ("decrease".equals(action)) {
+                soLuongMoi = Math.max(item.getSoLuong() - 1, 1);
+            } else {
+                soLuongMoi = item.getSoLuong();
+            }
+
+            // Kiểm tra số lượng hợp lệ
+            if (soLuongMoi < 1) {
+                ThongBaoUtils.addError(redirectAttributes, "Số lượng không hợp lệ");
+                return "redirect:/gio-hang/hien_thi";
+            }
+
+            if (soLuongMoi > soLuongTonKho) {
+                ThongBaoUtils.addError(redirectAttributes, "Số lượng vượt quá tồn kho (còn " + soLuongTonKho + " sản phẩm)");
+                return "redirect:/gio-hang/hien_thi";
+            }
+
+            // Cập nhật số lượng và thành tiền
+            item.setSoLuong(soLuongMoi);
+            BigDecimal giaBan = item.getChiTietSp().getGiaBan();
+            item.setThanhTien(giaBan.multiply(BigDecimal.valueOf(soLuongMoi)));
+
+            giohangreposiroty.save(item);
+
+            ThongBaoUtils.addSuccess(redirectAttributes, "Cập nhật số lượng thành công");
+            
+        } catch (Exception e) {
+            ThongBaoUtils.addError(redirectAttributes, "Có lỗi xảy ra khi cập nhật số lượng: " + e.getMessage());
         }
-        GioHangChiTiet item = optionalItem.get();
-        int soLuongTonKho = item.getChiTietSp().getSoLuong();
-
-        int soLuongMoi;
-        if (newSoluong != null && newSoluong > 0 && !"increase".equals(action) && !"decrease".equals(action)) {
-            // Nếu nhập tay (không phải bấm + hoặc -)
-            soLuongMoi = newSoluong;
-        } else if ("increase".equals(action)) {
-            soLuongMoi = item.getSoLuong() + 1;
-        } else if ("decrease".equals(action)) {
-            soLuongMoi = Math.max(item.getSoLuong() - 1, 1);
-        } else {
-            soLuongMoi = item.getSoLuong();
-        }
-
-        if (soLuongMoi > soLuongTonKho) {
-            ThongBaoUtils.addError(redirectAttributes, "Số lượng vượt quá tồn kho");
-            return "redirect:/gio-hang/hien_thi";
-        }
-
-        item.setSoLuong(soLuongMoi);
-        BigDecimal giaBan = item.getChiTietSp().getGiaBan();
-        item.setThanhTien(giaBan.multiply(BigDecimal.valueOf(soLuongMoi)));
-
-        giohangreposiroty.save(item);
 
         return "redirect:/gio-hang/hien_thi";
     }
@@ -441,7 +480,6 @@ public class GiohangController {
             return "redirect:/thanh-toan-vnpay?maHoaDon=" + hoaDon.getMa() + "&ids=" + ids;
         }
         model.addAttribute("maHoaDon", hoaDon.getMa());
-        System.out.println("tien:" + thanhTien);
         model.addAttribute("tienThanhToanThanhCong", thanhTien);
         model.addAttribute("ngayThanhToan", LocalDateTime.now());
         return "client/pages/cart/success";
@@ -473,9 +511,7 @@ public class GiohangController {
         }
 
         // Xóa khỏi giỏ hàng
-        System.out.println("id san pham gio hang" + gioHangChiTiets);
         giohangreposiroty.deleteAll(gioHangChiTiets);
-        System.out.println("hoa don id" + hoaDon.getId());
 
         //Thêm hóa đơn mới
         HoaDon hd = hoadonreposiroty.findById(hoaDon.getId()).orElse(null);
@@ -507,10 +543,7 @@ public class GiohangController {
         int fromDistrictId = 3440;
         int weight = 500;
 
-        System.out.println("Request shipping fee - toDistrictId: " + districtId + ", toWardCode: " + wardCode);
-
         List<Map<String, Object>> services = ghnService.getAvailableServices(fromDistrictId, districtId);
-        System.out.println("Available services: " + services);
 
         if (services.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tìm thấy dịch vụ vận chuyển phù hợp.");
