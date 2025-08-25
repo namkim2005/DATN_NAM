@@ -290,7 +290,13 @@ class CheckoutValidator {
     // Discount handling methods
     async handleDiscountChange(event) {
         const maPhieu = event.target.value;
-        
+
+        // Cập nhật hidden input với giá trị phiếu giảm giá
+        const phieuGiamGiaHidden = document.getElementById('phieuGiamGiaHidden');
+        if (phieuGiamGiaHidden) {
+            phieuGiamGiaHidden.value = maPhieu;
+        }
+
         if (!maPhieu) {
             this.currentDiscount = 0;
             this.updateDiscountDisplay(0);
@@ -301,7 +307,7 @@ class CheckoutValidator {
         try {
             const response = await fetch(`/gio-hang/phieu-giam-gia/tien-giam?maPhieu=${maPhieu}&tongTien=${this.tongTien}`);
             const tienGiam = await response.json();
-            
+
             this.currentDiscount = tienGiam;
             this.updateDiscountDisplay(tienGiam);
             this.updateTotalPay();
@@ -342,8 +348,18 @@ class CheckoutValidator {
 
     initializeDiscount() {
         const phieuGiamGia = document.getElementById('phieuGiamGia');
-        if (phieuGiamGia && phieuGiamGia.value) {
-            phieuGiamGia.dispatchEvent(new Event('change'));
+        const phieuGiamGiaHidden = document.getElementById('phieuGiamGiaHidden');
+
+        if (phieuGiamGia) {
+            // Đồng bộ giá trị ban đầu vào hidden input
+            if (phieuGiamGiaHidden && phieuGiamGia.value) {
+                phieuGiamGiaHidden.value = phieuGiamGia.value;
+            }
+
+            // Trigger change event nếu đã có giá trị
+            if (phieuGiamGia.value) {
+                phieuGiamGia.dispatchEvent(new Event('change'));
+            }
         }
     }
 }
