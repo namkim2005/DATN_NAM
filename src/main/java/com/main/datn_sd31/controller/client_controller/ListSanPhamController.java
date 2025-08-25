@@ -87,11 +87,11 @@ public class ListSanPhamController {
 
 
 
-        // Tính toán giá cho mỗi sản phẩm
+        // Lấy giá trực tiếp từ database (giaBan đã được tính toán sẵn)
         List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
         
-        // Tính giá trước/sau giảm cho biến thể rẻ nhất
-        Map<Integer, BigDecimal> giaSauGiamMinMap = new HashMap<>();
+        // Lấy giá bán và giá gốc cho biến thể rẻ nhất
+        Map<Integer, BigDecimal> giaBanMinMap = new HashMap<>();
         Map<Integer, BigDecimal> giaGocCuaBienTheReNhatMap = new HashMap<>();
         Map<Integer, String> tenDotGiamGiaMap = new HashMap<>();
         for (SanPham sp : danhSachSanPham) {
@@ -100,26 +100,15 @@ public class ListSanPhamController {
             BigDecimal minGia = null;
             for (ChiTietSanPham ct : list) {
                 BigDecimal giaGoc = ct.getGiaGoc() == null ? BigDecimal.ZERO : ct.getGiaGoc();
-                BigDecimal giaBan = giaGoc;
-                if (ct.getDotGiamGia() != null && giaGoc != null) {
-                    DotGiamGia dgg = ct.getDotGiamGia();
-                    BigDecimal giaTri = dgg.getGiaTriDotGiamGia();
-                    if (giaTri != null) {
-                        if ("TIEN".equalsIgnoreCase(dgg.getLoai())) {
-                            giaBan = giaGoc.subtract(giaTri);
-                        } else {
-                            BigDecimal phanTram = giaTri.divide(new BigDecimal(100), 2, java.math.RoundingMode.HALF_UP);
-                            giaBan = giaGoc.subtract(giaGoc.multiply(phanTram));
-                        }
-                        if (giaBan.compareTo(BigDecimal.ZERO) < 0) giaBan = BigDecimal.ZERO;
-                    }
-                }
+                // Lấy trực tiếp giaBan từ database (đã được tính toán sẵn)
+                BigDecimal giaBan = ct.getGiaBan() != null ? ct.getGiaBan() : giaGoc;
+                
                 if (minGia == null || giaBan.compareTo(minGia) < 0) {
                     minGia = giaBan;
                     minCt = ct;
                 }
             }
-            giaSauGiamMinMap.put(sp.getId(), minGia == null ? BigDecimal.ZERO : minGia);
+            giaBanMinMap.put(sp.getId(), minGia == null ? BigDecimal.ZERO : minGia);
             if (minCt != null) {
                 giaGocCuaBienTheReNhatMap.put(sp.getId(), minCt.getGiaGoc() == null ? BigDecimal.ZERO : minCt.getGiaGoc());
                 tenDotGiamGiaMap.put(sp.getId(), minCt.getDotGiamGia() != null ? minCt.getDotGiamGia().getTen() : null);
@@ -144,8 +133,25 @@ public class ListSanPhamController {
         });
 
         model.addAttribute("giaGocMinVariantMap", giaGocCuaBienTheReNhatMap);
-        model.addAttribute("giaSauGiamMinMap", giaSauGiamMinMap);
+        model.addAttribute("giaBanMinMap", giaBanMinMap);
         model.addAttribute("tenDotGiamGiaMap", tenDotGiamGiaMap);
+
+        // Debug log để kiểm tra dữ liệu giá
+        System.out.println("=== DEBUG GIÁ SẢN PHẨM ===");
+        System.out.println("giaBanMinMap size: " + (giaBanMinMap != null ? giaBanMinMap.size() : "null"));
+        System.out.println("giaGocMinVariantMap size: " + (giaGocCuaBienTheReNhatMap != null ? giaGocCuaBienTheReNhatMap.size() : "null"));
+        System.out.println("tenDotGiamGiaMap size: " + (tenDotGiamGiaMap != null ? tenDotGiamGiaMap.size() : "null"));
+        
+        // Log chi tiết cho một vài sản phẩm đầu tiên
+        if (danhSachSanPham.size() > 0) {
+            SanPham firstSp = danhSachSanPham.get(0);
+            Integer spId = firstSp.getId();
+            System.out.println("Sản phẩm đầu tiên ID: " + spId);
+            System.out.println("  - giaBan: " + (giaBanMinMap != null ? giaBanMinMap.get(spId) : "null"));
+            System.out.println("  - giaGoc: " + (giaGocCuaBienTheReNhatMap != null ? giaGocCuaBienTheReNhatMap.get(spId) : "null"));
+            System.out.println("  - tenDot: " + (tenDotGiamGiaMap != null ? tenDotGiamGiaMap.get(spId) : "null"));
+        }
+        System.out.println("=== END DEBUG ===");
 
         // Tính điểm trung bình và tổng số lượng tồn theo sản phẩm
         Map<Integer, Double> avgRatingMap = danhSachSanPham.stream()
@@ -404,6 +410,56 @@ public class ListSanPhamController {
         return "client/pages/product/search";
     }
 
+    @GetMapping("/debug-gia")
+    public String debugGiaSanPham(Model model) {
+        // Sử dụng method search mới
+        List<SanPham> danhSachSanPham = sanPhamService.searchAdvanced(
+            null, null, null, null, null, null, null, null, null, null, null
+        );
+        model.addAttribute("danhSachSanPham", danhSachSanPham);
+
+        // Lấy giá trực tiếp từ database (giaBan đã được tính toán sẵn)
+        List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
+        
+        // Lấy giá bán và giá gốc cho biến thể rẻ nhất
+        Map<Integer, BigDecimal> giaBanMinMap = new HashMap<>();
+        Map<Integer, BigDecimal> giaGocCuaBienTheReNhatMap = new HashMap<>();
+        Map<Integer, String> tenDotGiamGiaMap = new HashMap<>();
+        
+        for (SanPham sp : danhSachSanPham) {
+            List<ChiTietSanPham> list = chiTiets.stream().filter(ct -> ct.getSanPham().getId().equals(sp.getId())).toList();
+            ChiTietSanPham minCt = null;
+            BigDecimal minGia = null;
+            for (ChiTietSanPham ct : list) {
+                BigDecimal giaGoc = ct.getGiaGoc() == null ? BigDecimal.ZERO : ct.getGiaGoc();
+                // Lấy trực tiếp giaBan từ database (đã được tính toán sẵn)
+                BigDecimal giaBan = ct.getGiaBan() != null ? ct.getGiaBan() : giaGoc;
+                
+                if (minGia == null || giaBan.compareTo(minGia) < 0) {
+                    minGia = giaBan;
+                    minCt = ct;
+                }
+            }
+            giaBanMinMap.put(sp.getId(), minGia == null ? BigDecimal.ZERO : minGia);
+            if (minCt != null) {
+                giaGocCuaBienTheReNhatMap.put(sp.getId(), minCt.getGiaGoc() == null ? BigDecimal.ZERO : minCt.getGiaGoc());
+                tenDotGiamGiaMap.put(sp.getId(), minCt.getDotGiamGia() != null ? minCt.getDotGiamGia().getTen() : null);
+            }
+        }
+
+        model.addAttribute("giaGocMinVariantMap", giaGocCuaBienTheReNhatMap);
+        model.addAttribute("giaBanMinMap", giaBanMinMap);
+        model.addAttribute("tenDotGiamGiaMap", tenDotGiamGiaMap);
+
+        // Debug log chi tiết
+        System.out.println("=== DEBUG GIÁ SẢN PHẨM (DEBUG PAGE) ===");
+        System.out.println("giaBanMinMap: " + giaBanMinMap);
+        System.out.println("giaGocMinVariantMap: " + giaGocCuaBienTheReNhatMap);
+        System.out.println("tenDotGiamGiaMap: " + tenDotGiamGiaMap);
+        System.out.println("=== END DEBUG ===");
+
+        return "client/pages/product/product-debug";
+    }
 
 
     @GetMapping("/danh-sach/filter")
@@ -431,8 +487,8 @@ public class ListSanPhamController {
         // Tính toán giá cho mỗi sản phẩm
         List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
         
-        // Tính giá trước/sau giảm cho biến thể rẻ nhất
-        Map<Integer, BigDecimal> giaSauGiamMinMap = new HashMap<>();
+        // Lấy giá bán và giá gốc cho biến thể rẻ nhất
+        Map<Integer, BigDecimal> giaBanMinMap = new HashMap<>();
         Map<Integer, BigDecimal> giaGocCuaBienTheReNhatMap = new HashMap<>();
         Map<Integer, String> tenDotGiamGiaMap = new HashMap<>();
         for (SanPham sp : danhSachSanPham) {
@@ -460,7 +516,7 @@ public class ListSanPhamController {
                     minCt = ct;
                 }
             }
-            giaSauGiamMinMap.put(sp.getId(), minGia == null ? BigDecimal.ZERO : minGia);
+            giaBanMinMap.put(sp.getId(), minGia == null ? BigDecimal.ZERO : minGia);
             if (minCt != null) {
                 giaGocCuaBienTheReNhatMap.put(sp.getId(), minCt.getGiaGoc() == null ? BigDecimal.ZERO : minCt.getGiaGoc());
                 tenDotGiamGiaMap.put(sp.getId(), minCt.getDotGiamGia() != null ? minCt.getDotGiamGia().getTen() : null);
@@ -485,7 +541,7 @@ public class ListSanPhamController {
         });
 
         model.addAttribute("giaGocMinVariantMap", giaGocCuaBienTheReNhatMap);
-        model.addAttribute("giaSauGiamMinMap", giaSauGiamMinMap);
+        model.addAttribute("giaBanMinMap", giaBanMinMap);
         model.addAttribute("tenDotGiamGiaMap", tenDotGiamGiaMap);
 
         // Ảnh: ưu tiên loai_anh = 0, sau đó tên "ảnh chính", cuối cùng ảnh đầu

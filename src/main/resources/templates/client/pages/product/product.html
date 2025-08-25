@@ -367,9 +367,16 @@
                                     <!-- Price Section -->
                                     <div class="tw-mb-3">
                                         <div class="tw-flex tw-items-baseline tw-gap-2 tw-mb-1">
-                                            <div class="tw-text-lg tw-font-bold tw-text-gray-900" th:text="${#numbers.formatDecimal((giaSauGiamMinMap != null and giaSauGiamMinMap.containsKey(sp.id)) ? giaSauGiamMinMap.get(sp.id) : 0, 0, 'COMMA', 0, 'POINT')} + 'đ'"></div>
-                                            <div class="tw-text-sm tw-text-gray-400 tw-line-through" th:if="${giaGocMinVariantMap != null and giaGocMinVariantMap.containsKey(sp.id) and giaGocMinVariantMap.get(sp.id) > 0}" th:text="${#numbers.formatDecimal(giaGocMinVariantMap.get(sp.id), 0, 'COMMA', 0, 'POINT')} + 'đ'"></div>
+                                            <!-- Giá bán (lấy trực tiếp từ giaBan trong database) -->
+                                            <div class="tw-text-lg tw-font-bold tw-text-gray-900" th:text="${#numbers.formatDecimal((giaBanMinMap != null and giaBanMinMap.containsKey(sp.id)) ? giaBanMinMap.get(sp.id) : 0, 0, 'COMMA', 0, 'POINT')} + 'đ'"></div>
+                                            
+                                            <!-- Giá gốc (giá trước giảm) - chỉ hiển thị khi có giảm giá thực sự -->
+                                            <div class="tw-text-sm tw-text-gray-400 tw-line-through" 
+                                                 th:if="${giaGocMinVariantMap != null and giaGocMinVariantMap.containsKey(sp.id) and giaBanMinMap != null and giaBanMinMap.containsKey(sp.id) and giaGocMinVariantMap.get(sp.id) > giaBanMinMap.get(sp.id)}" 
+                                                 th:text="${#numbers.formatDecimal(giaGocMinVariantMap.get(sp.id), 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                                            </div>
                                         </div>
+                                        <!-- Tên đợt giảm giá -->
                                         <div class="tw-text-xs tw-text-red-500 tw-font-semibold tw-bg-red-50 tw-rounded-full tw-px-2 tw-py-1 tw-inline-block" th:if="${tenDotGiamGiaMap != null and tenDotGiamGiaMap.containsKey(sp.id)}" th:text="${tenDotGiamGiaMap.get(sp.id)}"></div>
                                     </div>
                                     
