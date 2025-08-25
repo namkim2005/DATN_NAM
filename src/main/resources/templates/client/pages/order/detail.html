@@ -453,33 +453,34 @@
     <div class="row mb-2">
         <div class="col-md-6">
             <p><strong>Mã hóa đơn:</strong> <span th:text="${hoaDon.ma}"></span></p>
-            <p><strong>Khách hàng:</strong> <span th:text="${hoaDon.tenKH}"></span></p>
+            <p><strong>Tên người nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
             <p><strong>Email:</strong> <span th:text="${hoaDon.email}"></span></p>
         </div>
         <div class="col-md-6">
+            <p><strong>Mã KH:</strong> <span th:text="${hoaDon.maKH}"></span></p>
             <p><strong>SĐT:</strong> <span th:text="${hoaDon.soDienThoai}"></span></p>
             <p><strong>Địa chỉ:</strong> <span th:text="${hoaDon.diaChi}"></span></p>
         </div>
     </div>
+<!--    <p><strong>Nhân viên:</strong> <span th:text="${hoaDon.tenNhanVien}"></span></p>-->
+    <!--        <p><strong>Cập nhật lần cuối bởi:</strong> <span th:text="${lichSuMoiNhat.tenNguoiTao}"></span></p>-->
     <p><strong>Trạng thái:</strong> <span th:text="${hoaDon.getTrangThaiLichSuHoaDonMoTa()}"></span></p>
-    <p>
-        <strong>Ghi chú: </strong>
+    <p >
+        <strong>Ghi chú:</strong>
 
-        <span th:if="${!@hoa_don_utils.choPhepSuaGhiChuHoaDonKhachHang(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}"
+        <span th:if="${!@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}"
               th:text="${!hoaDon.ghiChu.isEmpty() ? hoaDon.ghiChu.toString() : 'Không có ghi chú'}">
             </span>
 
-<!--    <form th:action="@{/khach-hang/don-hang/{id}/{maHoaDon}/cap-nhat-ghi-chu(id=${id}, maHoaDon=${maHoaDon})}"-->
-<!--          method="post"-->
-<!--          th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDonKhachHang(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">-->
-<!--        <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}"/>-->
+        <!--        <form th:action="@{/admin/don-hang/detail/cap-nhat-ghi-chu}" method="post"-->
+        <!--              th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">-->
+        <!--            <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}" />-->
 
-<!--        <input type="text" name="ghiChuHoaDon" th:value="${hoaDon.ghiChu}" class="form-control"/>-->
-<!--        <button type="submit" class="btn btn-primary mt-2">Cập nhật ghi chú</button>-->
-<!--    </form>-->
+        <!--            <input type="text" name="ghiChuHoaDon" th:value="${hoaDon.ghiChu}" class="form-control"/>-->
+        <!--            <button type="submit" class="btn btn-primary mt-2">Cập nhật ghi chú</button>-->
+        <!--        </form>-->
     </p>
 </div>
-
 <!-- Danh sách sản phẩm -->
 <div class="container mt-4">
     <h3>Danh sách sản phẩm</h3>

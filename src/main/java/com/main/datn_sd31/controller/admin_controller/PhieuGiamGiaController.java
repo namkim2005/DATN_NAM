@@ -67,9 +67,9 @@ public class PhieuGiamGiaController {
              RedirectAttributes redirectAttributes,
              Model model)
     {
-        if (!phieuGiamGia.isDieuKienHopLe()) {
-            bindingResult.rejectValue("dieuKien", "error.dieuKien", "Điều kiện không được lớn hơn Giảm tối đa");
-        }
+//        if (!phieuGiamGia.isDieuKienHopLe()) {
+//            bindingResult.rejectValue("dieuKien", "error.dieuKien", "Điều kiện không được lớn hơn Giảm tối đa");
+//        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Thêm thất bại");
@@ -114,9 +114,9 @@ public class PhieuGiamGiaController {
             Model model,
             RedirectAttributes redirectAttributes
     ) {
-        if (!pg.isDieuKienHopLe()) {
-            result.rejectValue("dieuKien", "error.dieuKien", "Điều kiện không được nhỏ hơn Giảm tối đa");
-        }
+//        if (!pg.isDieuKienHopLe()) {
+//            result.rejectValue("dieuKien", "error.dieuKien", "Điều kiện không được nhỏ hơn Giảm tối đa");
+//        }
 
         if (result.hasErrors()) {
             model.addAttribute("error", "Cập nhật thất bại");

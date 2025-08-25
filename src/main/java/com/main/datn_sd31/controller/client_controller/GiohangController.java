@@ -451,9 +451,11 @@ public class GiohangController {
         hoaDon.setNhanVien(nv);
         hoaDon.setNguoiTao(1);
         hoaDon.setNguoiSua(1);
+//        System.out.println("pgg: " + formData);
 
         if (formData.containsKey("phieuGiamGia") && !formData.get("phieuGiamGia").isBlank()) {
             PhieuGiamGia phieu = phieugiamgiarepository.findByMa(formData.get("phieuGiamGia"));
+//            System.out.println("Tim thay 1.1: " + phieu);
             hoaDon.setPhieuGiamGia(phieu);
         }
         hoaDon.setTrangThai(1);
@@ -494,17 +496,19 @@ public class GiohangController {
             hdct.setHoaDon(hoaDon);
             hdct.setChiTietSanPham(ctsp);
             hdct.setSoLuong(soLuong);
-            hdct.setGiaGoc(ctsp.getGiaBan());
-            hdct.setGiaGiam(tienGiam);
-            hdct.setGiaSauGiam(ctsp.getGiaBan().subtract(tienGiam));
+            hdct.setGiaGoc(ctsp.getGiaGoc());
+            hdct.setGiaSauGiam(ctsp.getGiaBan());
+            hdct.setGiaGiam(ctsp.getGiaGoc().subtract(ctsp.getGiaBan()));
             hdct.setTenCtsp(ctsp.getSanPham().getTen() + " - " + ctsp.getTenCt());
 
             hoadonCTreposiroty.save(hdct);
         }
 
         if (hoaDon.getPhieuGiamGia() != null) {
+//            System.out.println("tim thay pgg: " + hoaDon.getPhieuGiamGia());
             PhieuGiamGia phieu = hoaDon.getPhieuGiamGia();
             if (phieu.getSoLuongTon() != null && phieu.getSoLuongTon() > 0) {
+//                System.out.println("sl: " + phieu.getSoLuongTon());
                 phieu.setSoLuongTon(phieu.getSoLuongTon() - 1);
                 phieugiamgiarepository.save(phieu);
             }
@@ -597,6 +601,7 @@ public class GiohangController {
         if (tienGiam.compareTo(tongTien) > 0) {
             tienGiam = tongTien;
         }
+
         return ResponseEntity.ok(tienGiam);
     }
 

@@ -1,7 +1,7 @@
 package com.main.datn_sd31.entity;
 
 import com.main.datn_sd31.validator.ValidDateRange;
-import com.main.datn_sd31.validator.ValidDieuKienVsGiamToiDa;
+//import com.main.datn_sd31.validator.ValidDieuKienVsGiamToiDa;
 import com.main.datn_sd31.validator.ValidMucDoGiamGia;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -28,7 +28,7 @@ import java.util.Set;
 @Entity
 @ValidDateRange(message = "Ngày bắt đầu không được lớn hơn ngày kết thúc")
 @ValidMucDoGiamGia(message = "Mức giảm không hợp lệ với Loại phiếu giảm giá")
-@ValidDieuKienVsGiamToiDa(message = "Điều kiện không được lớn hơn Giảm tối đa")
+//@ValidDieuKienVsGiamToiDa(message = "Điều kiện không được lớn hơn Giảm tối đa")
 @Table(name = "phieu_giam_gia")
 public class PhieuGiamGia {
     @Id
@@ -117,12 +117,12 @@ public class PhieuGiamGia {
     @OneToMany(mappedBy = "phieuGiamGia")
     private Set<HoaDon> hoaDons = new LinkedHashSet<>();
 
-    @AssertTrue(message = "Điều kiện không được nhỏ hơn Giảm tối đa")
-    public boolean isDieuKienHopLe() {
-        if (dieuKien == null || giamToiDa == null) {
-            return true; // bỏ qua check nếu null, đã có @NotNull check riêng
-        }
-        return dieuKien.compareTo(giamToiDa) >= 0;
-    }
+//    @AssertTrue(message = "Điều kiện không được nhỏ hơn Giảm tối đa")
+//    public boolean isDieuKienHopLe() {
+//        if (dieuKien == null || giamToiDa == null) {
+//            return true; // bỏ qua check nếu null, đã có @NotNull check riêng
+//        }
+//        return dieuKien.compareTo(giamToiDa) >= 0;
+//    }
 
 }

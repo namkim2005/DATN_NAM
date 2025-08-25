@@ -182,6 +182,7 @@
                         <input type="hidden" name="tenHuyen" id="tenHuyenHidden" />
                         <input type="hidden" name="tenXa" id="tenXaHidden" />
                         <input type="hidden" name="tienGiam" id="tienGiamInput" value="0" />
+                        <input type="hidden" name="phieuGiamGia" id="phieuGiamGiaHidden" />
 
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -436,6 +437,7 @@
             // Mã giảm giá - tính toán tiền giảm
             phieuGiamGia.addEventListener("change", function () {
                 const maPhieu = this.value;
+                document.getElementById("phieuGiamGiaHidden").value = maPhieu;
                 if (!maPhieu) {
                     currentDiscount = 0;
                     tienGiamText.innerText = "0 ₫";

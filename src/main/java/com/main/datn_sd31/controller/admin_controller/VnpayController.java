@@ -96,15 +96,7 @@ public class VnpayController {
         if ("00".equals(responseCode) && "00".equals(transactionStatus)) {
 
             hoaDonRepository.capNhatTrangThaiHoaDon(3,maHoaDon);
-//            // Lưu lịch sử
-//            LichSuHoaDon lichSu = new LichSuHoaDon();
-//            lichSu.setHoaDon(hoaDon);
-//            lichSu.setTrangThai(1);
-//            lichSu.setNguoiTao(hoaDon.getNguoiTao());
-//            lichSu.setNguoiSua(hoaDon.getNguoiSua());
-//            lichSu.setGhiChu("Đặt hàng thành công");
-//            lichSu.setNgayTao(LocalDateTime.now());
-//            lichSuHoaDonRepository.save(lichSu);
+//
 
             for (GioHangChiTiet item : gioHangChiTiets) {
                 ChiTietSanPham ctsp = item.getChiTietSp();
@@ -114,9 +106,9 @@ public class VnpayController {
                 hdct.setHoaDon(hoaDon);
                 hdct.setChiTietSanPham(ctsp);
                 hdct.setSoLuong(soLuong);
-                hdct.setGiaGoc(ctsp.getGiaBan());
-                hdct.setGiaGiam(tienGiam);
-                hdct.setGiaSauGiam(ctsp.getGiaBan().subtract(tienGiam));
+                hdct.setGiaGoc(ctsp.getGiaGoc());
+                hdct.setGiaSauGiam(ctsp.getGiaBan());
+                hdct.setGiaGiam(ctsp.getGiaGoc().subtract(ctsp.getGiaBan()));
                 hdct.setTenCtsp(ctsp.getSanPham().getTen() + " - " + ctsp.getTenCt());
 
                 hoaDonChiTietRepository.save(hdct);
@@ -128,6 +120,16 @@ public class VnpayController {
             model.addAttribute("message", "Thanh toán VNPay thành công!");
             return "/client/pages/payment/success";
         } else {
+//             Lưu lịch sử
+            LichSuHoaDon lichSu = new LichSuHoaDon();
+            lichSu.setHoaDon(hoaDon);
+            lichSu.setTrangThai(9);
+            lichSu.setNguoiTao(hoaDon.getNguoiTao());
+            lichSu.setNguoiSua(hoaDon.getNguoiSua());
+            lichSu.setGhiChu("Hủy đơn");
+            lichSu.setNgayTao(LocalDateTime.now());
+            lichSuHoaDonRepository.save(lichSu);
+
             hoaDon.setTrangThai(5);
             hoaDonRepository.save(hoaDon);
             model.addAttribute("message", "Thanh toán thất bại hoặc bị hủy.");
