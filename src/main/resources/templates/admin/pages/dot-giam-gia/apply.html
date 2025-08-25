@@ -105,6 +105,23 @@
                 </table>
             </div>
 
+            <div class="tw-flex tw-items-center tw-justify-between tw-mt-4">
+                <div class="tw-flex tw-items-center tw-gap-2">
+                    <button id="btnPrev" type="button" class="tw-px-3 tw-py-2 tw-text-sm tw-rounded-lg tw-border tw-border-gray-300 hover:tw-bg-gray-50">Trang trước</button>
+                    <span id="pageInfo" class="tw-text-sm tw-text-gray-600">Trang 1/1</span>
+                    <button id="btnNext" type="button" class="tw-px-3 tw-py-2 tw-text-sm tw-rounded-lg tw-border tw-border-gray-300 hover:tw-bg-gray-50">Trang sau</button>
+                </div>
+                <div class="tw-flex tw-items-center tw-gap-2">
+                    <span class="tw-text-sm tw-text-gray-600">Hiển thị</span>
+                    <select id="pageSize" class="tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-lg tw-text-sm">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="tw-flex tw-justify-end tw-items-center tw-mt-4 tw-gap-2">
                 <button id="btnApply" type="button" class="tw-bg-project-primary tw-text-white tw-rounded-lg tw-px-4 tw-py-2 tw-text-sm hover:tw-bg-project-primary-dark">Áp dụng</button>
                 <button id="btnUnapply" type="button" class="tw-bg-gray-100 tw-text-gray-700 tw-rounded-lg tw-px-4 tw-py-2 tw-text-sm hover:tw-bg-gray-200">Bỏ áp dụng</button>
@@ -123,20 +140,33 @@
             const btnApply = document.getElementById('btnApply');
             const btnUnapply = document.getElementById('btnUnapply');
             const selectedCount = document.getElementById('selectedCount');
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+            const pageInfo = document.getElementById('pageInfo');
+            const pageSizeEl = document.getElementById('pageSize');
 
             if (!dotId || !tbody) return;
 
             let selected = new Set();
+            let currentPage = 0;
+            let pageSize = parseInt(pageSizeEl ? pageSizeEl.value : '20', 10);
+            let totalPages = 1;
             function renderSelectedCount() { selectedCount.textContent = 'Đã chọn: ' + selected.size; }
             function currency(v) { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v); }
+            function updatePager() {
+                if (pageInfo) pageInfo.textContent = 'Trang ' + (currentPage + 1) + '/' + Math.max(totalPages, 1);
+                if (btnPrev) btnPrev.disabled = currentPage <= 0;
+                if (btnNext) btnNext.disabled = currentPage >= (totalPages - 1);
+            }
 
             async function loadProducts() {
                 tbody.innerHTML = '<tr><td class="tw-px-4 tw-py-3" colspan="5">Đang tải...</td></tr>';
-                const params = new URLSearchParams({ dotId, page: 0, size: 20, keyword: keywordEl.value || '', applied: appliedEl.value });
+                const params = new URLSearchParams({ dotId, page: currentPage, size: pageSize, keyword: keywordEl.value || '', applied: appliedEl.value });
                 const res = await fetch('/admin/dot-giam-gia/api/products?' + params.toString());
                 const data = await res.json();
-                if (!data.success) { tbody.innerHTML = '<tr><td class="tw-px-4 tw-py-3" colspan="5">' + (data.message || 'Lỗi tải dữ liệu') + '</td></tr>'; return; }
+                if (!data.success) { tbody.innerHTML = '<tr><td class="tw-px-4 tw-py-3" colspan="5">' + (data.message || 'Lỗi tải dữ liệu') + '</td></tr>'; updatePager(); return; }
                 selected.clear(); renderSelectedCount();
+                totalPages = data.totalPages || 1;
                 tbody.innerHTML = '';
                 data.content.forEach(item => {
                     const tr = document.createElement('tr');
@@ -153,6 +183,7 @@
                     });
                     tbody.appendChild(tr);
                 });
+                updatePager();
             }
 
             async function postJSON(url, body) {
@@ -170,9 +201,12 @@
                 return await res.json();
             }
 
-            btnReload && btnReload.addEventListener('click', loadProducts);
-            keywordEl && keywordEl.addEventListener('keyup', (e) => { if (e.key === 'Enter') loadProducts(); });
-            appliedEl && appliedEl.addEventListener('change', loadProducts);
+            btnReload && btnReload.addEventListener('click', () => { currentPage = 0; loadProducts(); });
+            keywordEl && keywordEl.addEventListener('keyup', (e) => { if (e.key === 'Enter') { currentPage = 0; loadProducts(); } });
+            appliedEl && appliedEl.addEventListener('change', () => { currentPage = 0; loadProducts(); });
+            pageSizeEl && pageSizeEl.addEventListener('change', () => { pageSize = parseInt(pageSizeEl.value, 10) || 20; currentPage = 0; loadProducts(); });
+            btnPrev && btnPrev.addEventListener('click', () => { if (currentPage > 0) { currentPage--; loadProducts(); } });
+            btnNext && btnNext.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; loadProducts(); } });
 
             btnApply && btnApply.addEventListener('click', async () => {
                 if (selected.size === 0) { alert('Vui lòng chọn ít nhất một biến thể.'); return; }
