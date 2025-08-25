@@ -151,12 +151,12 @@ function applyDefaultsGlobal(btn) {
 function applyDefaultsForColor(colorId) {
 	const gGocInput = document.getElementById('colorDefaultGiaGoc__' + colorId);
 	const gNhapInput = document.getElementById('colorDefaultGiaNhap__' + colorId);
-	const gBanInput = document.getElementById('colorDefaultGiaBan__' + colorId);
+	// const gBanInput = document.getElementById('colorDefaultGiaBan__' + colorId);
 	const slInput = document.getElementById('colorDefaultSoLuong__' + colorId);
 
 	const gGoc = gGocInput.value;
 	const gNhap = gNhapInput.value;
-	const gBan = gBanInput.value;
+	// const gBan = gBanInput.value;
 	const sl = slInput.value;
 
 	// Xóa lỗi cũ phạm vi khối màu
@@ -177,10 +177,10 @@ function applyDefaultsForColor(colorId) {
 	let hasError = false;
 	if (gGoc && parseFloat(gGoc) <= 0) { addFieldError(gGocInput, 'Phải > 0'); hasError = true; }
 	if (gNhap && parseFloat(gNhap) <= 0) { addFieldError(gNhapInput, 'Phải > 0'); hasError = true; }
-	if (gBan && parseFloat(gBan) <= 0) { addFieldError(gBanInput, 'Phải > 0'); hasError = true; }
+	// if (gBan && parseFloat(gBan) <= 0) { addFieldError(gBanInput, 'Phải > 0'); hasError = true; }
 	if (gGoc && gNhap && parseFloat(gNhap) > parseFloat(gGoc)) { addFieldError(gNhapInput, 'Không > giá gốc'); hasError = true; }
-	if (gBan && gNhap && parseFloat(gBan) < parseFloat(gNhap)) { addFieldError(gBanInput, 'Không < giá nhập'); hasError = true; }
-	if (gBan && gGoc && parseFloat(gBan) > parseFloat(gGoc)) { addFieldError(gBanInput, 'Không > giá gốc'); hasError = true; }
+	// if (gBan && gNhap && parseFloat(gBan) < parseFloat(gNhap)) { addFieldError(gBanInput, 'Không < giá nhập'); hasError = true; }
+	// if (gBan && gGoc && parseFloat(gBan) > parseFloat(gGoc)) { addFieldError(gBanInput, 'Không > giá gốc'); hasError = true; }
 	if (sl && (parseInt(sl) < 5 || parseInt(sl) > 1000)) { addFieldError(slInput, '5 - 1000'); hasError = true; }
 	if (hasError) { return; }
 
@@ -191,11 +191,11 @@ function applyDefaultsForColor(colorId) {
 		if (!tr) return;
 		const gg = tr.querySelector('input[data-role="giaGoc"]');
 		const gn = tr.querySelector('input[data-role="giaNhap"]');
-		const gb = tr.querySelector('input[data-role="giaBan"]');
+		// const gb = tr.querySelector('input[data-role="giaBan"]');
 		const q = tr.querySelector('input[data-role="soLuong"]');
 		if (gGoc !== '' && gg) gg.value = gGoc;
 		if (gNhap !== '' && gn) gn.value = gNhap;
-		if (gBan !== '' && gb) gb.value = gBan;
+		// if (gBan !== '' && gb) gb.value = gBan;
 		if (sl !== '' && q) q.value = sl;
 		appliedCount++;
 	});
@@ -274,7 +274,7 @@ function ensureAnySelected(btn) {
         
         const giaGoc = tr.querySelector('input[data-role="giaGoc"]');
         const giaNhap = tr.querySelector('input[data-role="giaNhap"]');
-        const giaBan = tr.querySelector('input[data-role="giaBan"]');
+        // const giaBan = tr.querySelector('input[data-role="giaBan"]');
         const soLuong = tr.querySelector('input[data-role="soLuong"]');
         
         if (!giaGoc || !giaGoc.value || parseFloat(giaGoc.value) <= 0) {
@@ -302,18 +302,18 @@ function ensureAnySelected(btn) {
             seenMessages.add('Giá nhập không được cao hơn giá gốc');
             hasError = true;
         }
-        if (giaGoc && giaBan && giaGoc.value && giaBan.value && parseFloat(giaBan.value) > parseFloat(giaGoc.value)) {
-            addFieldError(giaBan, 'Không > giá gốc');
-            if (!firstInvalid) firstInvalid = giaBan;
-            seenMessages.add('Giá bán không được cao hơn giá gốc');
-            hasError = true;
-        }
-        if (giaBan && giaNhap && giaBan.value && giaNhap.value && parseFloat(giaBan.value) < parseFloat(giaNhap.value)) {
-            addFieldError(giaBan, 'Không < giá nhập');
-            if (!firstInvalid) firstInvalid = giaBan;
-            seenMessages.add('Giá bán không được nhỏ hơn giá nhập');
-            hasError = true;
-        }
+        // if (giaGoc && giaBan && giaGoc.value && giaBan.value && parseFloat(giaBan.value) > parseFloat(giaGoc.value)) {
+        //     addFieldError(giaBan, 'Không > giá gốc');
+        //     if (!firstInvalid) firstInvalid = giaBan;
+        //     seenMessages.add('Giá bán không được cao hơn giá gốc');
+        //     hasError = true;
+        // }
+        // if (giaBan && giaNhap && giaBan.value && giaNhap.value && parseFloat(giaBan.value) < parseFloat(giaNhap.value)) {
+        //     addFieldError(giaBan, 'Không < giá nhập');
+        //     if (!firstInvalid) firstInvalid = giaBan;
+        //     seenMessages.add('Giá bán không được nhỏ hơn giá nhập');
+        //     hasError = true;
+        // }
     });
     
                     if (hasError) {

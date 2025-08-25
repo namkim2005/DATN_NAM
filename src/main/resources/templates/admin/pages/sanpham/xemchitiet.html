@@ -163,37 +163,37 @@
             </form>
         </div>
 
-        <!-- Global Defaults Section -->
-        <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-p-6">
-            <h4 class="tw-font-semibold tw-mb-4 tw-flex tw-items-center">
-                <i class="fas fa-cogs tw-mr-2 tw-text-project-primary"></i>
-                Áp dụng mặc định cho tất cả màu đã chọn
-            </h4>
-            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-5 tw-gap-4">
-                <div>
-                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá gốc (₫)</label>
-                    <input id="globalGiaGoc" type="number" min="0" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">
-                </div>
-                <div>
-                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá nhập (₫)</label>
-                    <input id="globalGiaNhap" type="number" min="0" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">
-                </div>
-                <div>
-                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá bán (₫)</label>
-                    <input id="globalGiaBan" type="number" min="0" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary" readonly>
-                </div>
-                <div>
-                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Số lượng</label>
-                    <input id="globalSoLuong" type="number" min="5" max="1000" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">
-                </div>
-                <div class="tw-flex tw-items-end">
-                    <button type="button" class="tw-w-full tw-bg-project-primary hover:tw-bg-project-primary-dark tw-text-white tw-rounded-lg tw-px-4 tw-py-2 tw-transition-colors"
-                            onclick="applyDefaultsGlobal(this)">
-                        <i class="fas fa-magic tw-mr-2"></i> Áp dụng tất cả
-                    </button>
-                </div>
-            </div>
-        </div>
+<!--        &lt;!&ndash; Global Defaults Section &ndash;&gt;-->
+<!--        <div class="tw-bg-white tw-rounded-lg tw-shadow-sm tw-border tw-border-gray-200 tw-p-6">-->
+<!--            <h4 class="tw-font-semibold tw-mb-4 tw-flex tw-items-center">-->
+<!--                <i class="fas fa-cogs tw-mr-2 tw-text-project-primary"></i>-->
+<!--                Áp dụng mặc định cho tất cả màu đã chọn-->
+<!--            </h4>-->
+<!--            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-5 tw-gap-4">-->
+<!--                <div>-->
+<!--                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá gốc (₫)</label>-->
+<!--                    <input id="globalGiaGoc" type="number" min="0" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">-->
+<!--                </div>-->
+<!--                <div>-->
+<!--                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá nhập (₫)</label>-->
+<!--                    <input id="globalGiaNhap" type="number" min="0" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">-->
+<!--                </div>-->
+<!--                <div>-->
+<!--                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá bán (₫)</label>-->
+<!--                    <input id="globalGiaBan" type="number" min="0" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary" readonly>-->
+<!--                </div>-->
+<!--                <div>-->
+<!--                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Số lượng</label>-->
+<!--                    <input id="globalSoLuong" type="number" min="5" max="1000" step="1" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">-->
+<!--                </div>-->
+<!--                <div class="tw-flex tw-items-end">-->
+<!--                    <button type="button" class="tw-w-full tw-bg-project-primary hover:tw-bg-project-primary-dark tw-text-white tw-rounded-lg tw-px-4 tw-py-2 tw-transition-colors"-->
+<!--                            onclick="applyDefaultsGlobal(this)">-->
+<!--                        <i class="fas fa-magic tw-mr-2"></i> Áp dụng tất cả-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <!-- Color Blocks Section -->
         <div th:each="block : ${mauBlocks}" class="tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-overflow-hidden">
@@ -214,20 +214,20 @@
                 <!-- Default values for this color -->
                 <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-5 tw-gap-4 tw-mb-6 tw-p-4 tw-bg-gray-50 tw-rounded-lg">
                     <div>
-                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá gốc (₫)</label>
-                        <input th:id="'colorDefaultGiaGoc__' + ${block.mau.id}" type="number" min="0" step="1"
-                               class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">
-                    </div>
-                    <div>
                         <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá nhập (₫)</label>
                         <input th:id="'colorDefaultGiaNhap__' + ${block.mau.id}" type="number" min="0" step="1"
                                class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">
                     </div>
                     <div>
-                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá bán (₫)</label>
-                        <input th:id="'colorDefaultGiaBan__' + ${block.mau.id}" type="number" min="0" step="1"
+                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá gốc (₫)</label>
+                        <input th:id="'colorDefaultGiaGoc__' + ${block.mau.id}" type="number" min="0" step="1"
                                class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">
                     </div>
+<!--                    <div>-->
+<!--                        <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Giá bán (₫)</label>-->
+<!--                        <input th:id="'colorDefaultGiaBan__' + ${block.mau.id}" type="number" min="0" step="1"-->
+<!--                               class="tw-w-full tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary">-->
+<!--                    </div>-->
                     <div>
                         <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">Số lượng</label>
                         <input th:id="'colorDefaultSoLuong__' + ${block.mau.id}" type="number" min="5" max="1000" step="1"
@@ -249,10 +249,10 @@
                         <tr class="tw-bg-gray-50">
                             <th class="tw-text-left tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Chọn</th>
                             <th class="tw-text-left tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Size</th>
-                            <th class="tw-text-right tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Giá gốc</th>
-                            <th class="tw-text-right tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Giá nhập</th>
-                            <th class="tw-text-right tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Giá bán</th>
-                            <th class="tw-text-right tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Số lượng</th>
+                            <th class="tw-text-left tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Giá nhập</th>
+                            <th class="tw-text-left tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Giá gốc</th>
+<!--                            <th class="tw-text-right tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Giá bán</th>-->
+                            <th class="tw-text-left tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Số lượng</th>
                             <th class="tw-text-left tw-px-4 tw-py-3 tw-font-medium tw-text-gray-700">Trạng thái</th>
                         </tr>
                         </thead>
@@ -263,16 +263,16 @@
                                 <input type="checkbox" disabled class="tw-text-project-primary">
                             </td>
                             <td class="tw-px-4 tw-py-3" th:if="${row.existed}" th:text="${row.size.ten}">M</td>
-                            <td class="tw-px-4 tw-py-3 tw-text-right" th:if="${row.existed}">
-                                <span th:title="${#numbers.formatDecimal(row.giaGoc,0,'COMMA',0,'POINT')} + ' ₫'" class="tw-text-gray-500">—</span>
-                            </td>
-                            <td class="tw-px-4 tw-py-3 tw-text-right" th:if="${row.existed}">
+                            <td class="tw-px-4 tw-py-3 tw-text-left" th:if="${row.existed}">
                                 <span th:title="${#numbers.formatDecimal(row.giaNhap,0,'COMMA',0,'POINT')} + ' ₫'" class="tw-text-gray-500">—</span>
                             </td>
-                            <td class="tw-px-4 tw-py-3 tw-text-right" th:if="${row.existed}">
-                                <span th:title="${row.giaBan != null ? #numbers.formatDecimal(row.giaBan,0,'COMMA',0,'POINT') + ' ₫' : 'Chưa có giá bán'}" class="tw-text-gray-500">—</span>
+                            <td class="tw-px-4 tw-py-3 tw-text-left" th:if="${row.existed}">
+                                <span th:title="${#numbers.formatDecimal(row.giaGoc,0,'COMMA',0,'POINT')} + ' ₫'" class="tw-text-gray-500">—</span>
                             </td>
-                            <td class="tw-px-4 tw-py-3 tw-text-right" th:if="${row.existed}">
+<!--                            <td class="tw-px-4 tw-py-3 tw-text-right" th:if="${row.existed}">-->
+<!--                                <span th:title="${row.giaBan != null ? #numbers.formatDecimal(row.giaBan,0,'COMMA',0,'POINT') + ' ₫' : 'Chưa có giá bán'}" class="tw-text-gray-500">—</span>-->
+<!--                            </td>-->
+                            <td class="tw-px-4 tw-py-3 tw-text-left" th:if="${row.existed}">
                                 <span th:title="${row.soLuong}" class="tw-text-gray-500">—</span>
                             </td>
                             <td class="tw-px-4 tw-py-3" th:if="${row.existed}">
@@ -288,23 +288,23 @@
                             </td>
                             <td class="tw-px-4 tw-py-3" th:if="${!row.existed}" th:text="${row.size.ten}">M</td>
                             <td class="tw-px-4 tw-py-3" th:if="${!row.existed}">
-                                <input type="number" min="0" step="1" data-role="giaGoc"
-                                       class="tw-w-32 tw-text-right tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"
-                                       th:name="'chiTietList[' + ${row.formIndex} + '].giaGoc'" th:value="${row.giaGoc}">
-                            </td>
-                            <td class="tw-px-4 tw-py-3" th:if="${!row.existed}">
                                 <input type="number" min="0" step="1" data-role="giaNhap"
-                                       class="tw-w-32 tw-text-right tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"
+                                       class="tw-w-32 tw-text-left tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"
                                        th:name="'chiTietList[' + ${row.formIndex} + '].giaNhap'" th:value="${row.giaNhap}">
                             </td>
                             <td class="tw-px-4 tw-py-3" th:if="${!row.existed}">
-                                <input type="number" min="0" step="1" data-role="giaBan"
-                                       class="tw-w-32 tw-text-right tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"
-                                       th:name="'chiTietList[' + ${row.formIndex} + '].giaBan'" th:value="${row.giaBan}">
+                                <input type="number" min="0" step="1" data-role="giaGoc"
+                                       class="tw-w-32 tw-text-left tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"
+                                       th:name="'chiTietList[' + ${row.formIndex} + '].giaGoc'" th:value="${row.giaGoc}">
                             </td>
+<!--                            <td class="tw-px-4 tw-py-3" th:if="${!row.existed}">-->
+<!--                                <input type="number" min="0" step="1" data-role="giaBan"-->
+<!--                                       class="tw-w-32 tw-text-right tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"-->
+<!--                                       th:name="'chiTietList[' + ${row.formIndex} + '].giaBan'" th:value="${row.giaBan}">-->
+<!--                            </td>-->
                             <td class="tw-px-4 tw-py-3" th:if="${!row.existed}">
                                 <input type="number" min="5" max="1000" step="1" data-role="soLuong"
-                                       class="tw-w-28 tw-text-right tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"
+                                       class="tw-w-28 tw-text-left tw-border tw-border-gray-300 tw-rounded-lg tw-px-3 tw-py-2 focus:tw-border-project-primary focus:tw-ring-1 focus:tw-ring-project-primary"
                                        th:name="'chiTietList[' + ${row.formIndex} + '].soLuong'" th:value="${row.soLuong}">
                             </td>
                             <td class="tw-px-4 tw-py-3" th:if="${!row.existed}">

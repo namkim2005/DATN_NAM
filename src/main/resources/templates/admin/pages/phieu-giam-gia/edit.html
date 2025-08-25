@@ -196,13 +196,13 @@
 
             <div class="mb-3" id="divGiamToiDa">
                 <label>Giảm tối đa</label>
-                <input type="number" class="form-control" th:field="*{giamToiDa}" />
+                <input type="number" id="giamToiDa" class="form-control" th:field="*{giamToiDa}" oninput="limitNumberLength(this, 18)"/>
                 <div class="text-danger" th:errors="*{giamToiDa}"></div>
             </div>
 
             <div class="mb-3">
                 <label>Điều kiện</label>
-                <input type="number" class="form-control" th:field="*{dieuKien}" />
+                <input type="number" class="form-control" th:field="*{dieuKien}" oninput="limitNumberLength(this, 18)"/>
                 <div class="text-danger" th:errors="*{dieuKien}"></div>
             </div>
 

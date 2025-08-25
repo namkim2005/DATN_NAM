@@ -734,8 +734,8 @@
             const checkbox = document.getElementById("muonVanChuyen");
             const diaChiDiv = document.getElementById("diaChiVanChuyen");
 
-            // Lấy tất cả input cần set required
-            const inputs = diaChiDiv.querySelectorAll("input, select");
+            // Lấy tất cả input cần set required (trừ ghi chú)
+            const inputs = diaChiDiv.querySelectorAll("input:not(#ghichu), select");
 
             function setRequiredForInputs(isRequired) {
                 inputs.forEach(input => {
