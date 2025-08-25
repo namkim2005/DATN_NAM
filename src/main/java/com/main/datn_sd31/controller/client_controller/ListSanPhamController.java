@@ -147,16 +147,24 @@ public class ListSanPhamController {
         model.addAttribute("giaSauGiamMinMap", giaSauGiamMinMap);
         model.addAttribute("tenDotGiamGiaMap", tenDotGiamGiaMap);
 
-        // Tính điểm trung bình và tổng số lượng tồn theo sản phẩm
+        // FIX 1: Trong method hienThiDanhSachSanPham - Sửa logic avgRatingMap
         Map<Integer, Double> avgRatingMap = danhSachSanPham.stream()
                 .collect(Collectors.toMap(
                         SanPham::getId,
                         sp -> {
-                            double avg = danhGiaService.tinhDiemTrungBinh(sp.getId());
-                            if (avg == 0 && (sp.getDanhGias() == null || sp.getDanhGias().isEmpty())) return 5.0;
-                            return avg;
+                            // THAY BẰNG LOGIC ĐÚNG:
+                            Set<DanhGia> reviews = sp.getDanhGias();
+                            if (reviews == null || reviews.isEmpty()) {
+                                return 0.0; // Chưa có đánh giá = 0 sao
+                            } else {
+                                return reviews.stream()
+                                        .mapToInt(DanhGia::getSoSao)
+                                        .average()
+                                        .orElse(0.0);
+                            }
                         }
                 ));
+
         Map<Integer, Integer> totalQuantityMap = chitietsanphamRepo.findAll().stream()
                 .collect(Collectors.groupingBy(ct -> ct.getSanPham().getId(),
                         Collectors.summingInt(ct -> ct.getSoLuong() == null ? 0 : ct.getSoLuong())));
@@ -291,6 +299,8 @@ public class ListSanPhamController {
         model.addAttribute("dsChiTietSanPham", dsChiTietMap);
 
 
+
+
         // --- 2. TÍNH TOÁN REVIEW ---
         // 2.1: Load toàn bộ review (mới nhất trước)
         List<DanhGia> allReviews = danhGiaService.layDanhGiaChoSanPham(id);
@@ -307,34 +317,64 @@ public class ListSanPhamController {
         model.addAttribute("countByStar", countByStar);
 
         // 2.3: Tính điểm trung bình và format
-        double avg = danhGiaService.tinhDiemTrungBinh(id);
-        // Tách phần nguyên và phần thập phân
-        int base = (int) Math.floor(avg);
-        double frac = avg - base;
+        // FIX 2: Trong method xemChiTietSanPham - Sửa logic tính avgRating
+        Double avgObj = danhGiaService.tinhDiemTrungBinh(id);
+        double avgRating;
 
-        String avgRatingStr = String.format(Locale.FRANCE, "%.1f", avg);
-        int fullStars;
-        boolean halfStar;
-        // Áp theo ngưỡng: <0.3 → không half, [0.3, 0.8) → half, ≥0.8 → làm tròn lên
-        if (frac < 0.3) {
-            fullStars = base;
-            halfStar   = false;
-        } else if (frac < 0.8) {
-            fullStars = base;
-            halfStar   = true;
+        if (allReviews.isEmpty()) {
+            // Không có đánh giá nào -> 0 sao
+            avgRating = 0.0;
+        } else if (avgObj == null || avgObj == 0) {
+            // Có đánh giá nhưng method trả null/0 -> kiểm tra lại method tinhDiemTrungBinh
+            // Hoặc tính toán lại ngay tại đây
+            avgRating = allReviews.stream()
+                    .mapToInt(DanhGia::getSoSao)
+                    .average()
+                    .orElse(0.0);
         } else {
-            fullStars = base + 1;
-            halfStar   = false;
+            avgRating = avgObj;
         }
-        int emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
+        // FIX 3: Cập nhật logic hiển thị sao trong template
+        // Format điểm trung bình - chỉ hiển thị khi có đánh giá
+        String avgRatingStr;
+        int fullStars = 0;
+        boolean halfStar = false;
+        int emptyStars = 5;
+
+        if (avgRating > 0 && !allReviews.isEmpty()) {
+            // Có đánh giá -> hiển thị sao theo điểm
+            avgRatingStr = String.format(Locale.FRANCE, "%.1f", avgRating);
+
+            int base = (int) avgRating;
+            double frac = avgRating - base;
+
+            fullStars = base;
+
+            if (frac >= 0.25 && frac < 0.75) {
+                halfStar = true;
+            } else if (frac >= 0.75) {
+                fullStars += 1;
+            }
+
+            emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+            if (emptyStars < 0) emptyStars = 0;
+        } else {
+            // Chưa có đánh giá -> hiển thị "Chưa có đánh giá"
+            avgRatingStr = "0.0";
+            fullStars = 0;
+            halfStar = false;
+            emptyStars = 5;
+        }
+
+        // Gửi ra view
         model.addAttribute("avgRatingStr", avgRatingStr);
-        model.addAttribute("fullStars",    fullStars);
-        model.addAttribute("halfStar",     halfStar);
-        model.addAttribute("emptyStars",   emptyStars);
-        model.addAttribute("avgRatingStr", String.format(Locale.FRANCE, "%.1f", avg));
+        model.addAttribute("fullStars", fullStars);
+        model.addAttribute("halfStar", halfStar);
+        model.addAttribute("emptyStars", emptyStars);
+        model.addAttribute("hasReviews", !allReviews.isEmpty()); // Thêm flag này
 
-        // --- 3. LỌC THEO STAR VÀ PHÂN TRANG ---
+            // --- 3. LỌC THEO STAR VÀ PHÂN TRANG ---
         List<DanhGia> filtered = (star == null)
                 ? allReviews
                 : allReviews.stream()

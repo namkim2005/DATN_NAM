@@ -1,10 +1,20 @@
 package com.main.datn_sd31.util;
 
 import com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon;
+import com.main.datn_sd31.entity.KhachHang;
+import com.main.datn_sd31.service.impl.DanhGiaService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("hoa_don_utils")
 public class HoaDonUtils {
+
+    private final DanhGiaService danhGiaService;
+
+    public HoaDonUtils(DanhGiaService danhGiaService) {
+        this.danhGiaService = danhGiaService;
+    }
 
     public static boolean choPhepSuaGhiChuHoaDon(TrangThaiLichSuHoaDon trangThai) {
         return switch (trangThai) {
@@ -45,5 +55,16 @@ public class HoaDonUtils {
             };
         }
         return false;
+    }
+
+    public boolean choPhepDanhGiaDonHang(TrangThaiLichSuHoaDon trangThai, Integer idCtsp, Integer idKhachHang) {
+        if (!danhGiaService.checkDanhGiaExist(idCtsp, idKhachHang)) {
+            return false;
+        }
+
+        return switch (trangThai) {
+            case HOAN_THANH, DA_GIAO -> true;
+            default -> false;
+        };
     }
 }

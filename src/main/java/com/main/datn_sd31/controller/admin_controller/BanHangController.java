@@ -709,19 +709,20 @@ public class BanHangController {
 
         String diachi= diaChiTinh + "-" + diaChiHuyen + "-" + diaChiXa;
 
-        String tenn=ten+"/"+sdtvc;
-        System.out.println(phiShip);
-        System.out.println(BigDecimal.ZERO.equals(phiShip));
+//        System.out.println(phiShip);
+//        System.out.println(BigDecimal.ZERO.equals(phiShip));
         if (!BigDecimal.ZERO.equals(phiShip)) {
             hd.setDiaChi(diachi);
-            hd.setTenNguoiNhan(tenn);
+            hd.setTenNguoiNhan(ten);
 
-            String ghiChuFull = "Đơn hàng vận chuyển. \nSố điện thoại người nhận:" + sdtvc;
+            String ghiChuFull = "Đơn hàng vận chuyển. \nSố điện thoại người nhận: " + sdtvc;
             if (ghichu != null && !ghichu.trim().isEmpty()) {
                 ghiChuFull += "\n" + ghichu;
             }
+            System.out.println(ghiChuFull);
 
             hd.setGhiChu(ghiChuFull);
+            System.out.println(hd.getGhiChu());
         }
 
         hd.setGiaGoc(tongTien);
@@ -737,7 +738,7 @@ public class BanHangController {
         session.setAttribute("gioTam", gio);
         session.setAttribute("cartKeyTam", cartKey);
 
-        return hoanTatThanhToan(cartKey, gio, sdt,sdtvc,tenn,ghichu, giagiam,magiam, tongTien, phiShip, phuongThuc,diachi,redirect, session);
+        return hoanTatThanhToan(cartKey, gio, sdt,sdtvc, ten,ghichu, giagiam,magiam, tongTien, phiShip, phuongThuc,diachi,redirect, session);
     }
 
     private String hoanTatThanhToan(String cartKey, List<HoaDonChiTiet> gio,
@@ -757,11 +758,10 @@ public class BanHangController {
 
         hd.setDiaChi(diachi);
         KhachHang kh = khachHangRepository.findSoDienThoai(sdt);
-        String tenn = ten + "/" + sdtvc;
-//        System.out.println(!BigDecimal.ZERO.equals(phiShip));
+        //        System.out.println(!BigDecimal.ZERO.equals(phiShip));
         if (!BigDecimal.ZERO.equals(phiShip)) {
             hd.setDiaChi(diachi);
-            hd.setTenNguoiNhan(tenn);
+            hd.setTenNguoiNhan(ten);
 
             String ghiChuFull = "Số điện thoại người nhận:" + sdtvc;
             if (ghichu != null && !ghichu.trim().isEmpty()) {

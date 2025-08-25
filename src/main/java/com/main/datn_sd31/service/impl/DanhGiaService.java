@@ -49,4 +49,8 @@ public class DanhGiaService {
     public Page<DanhGia> layDanhGiaChoSanPham(Integer spId, int page, int size) {
         return repo.findBySanPhamIdOrderByThoiGianDesc(spId, PageRequest.of(page, size));
     }
+
+    public boolean checkDanhGiaExist(Integer idCtsp, Integer khId) {
+        return repo.existsBySanPhamIdAndKhachHangId(idCtsp, khId);
+    }
 }

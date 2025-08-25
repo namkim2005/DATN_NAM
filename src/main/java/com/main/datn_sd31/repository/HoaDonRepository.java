@@ -43,11 +43,6 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     SELECT DISTINCT hd FROM HoaDon hd
     WHERE (:startDate IS NULL OR hd.ngayTao >= :startDate)
       AND (:endDate IS NULL OR hd.ngayTao <= :endDate)
-      AND NOT EXISTS (
-          SELECT 1 FROM LichSuHoaDon lshd
-          WHERE lshd.hoaDon = hd
-            AND lshd.trangThai IN (5, 8, 9, 10)
-      )
       AND hd.khachHang.id = :idKhachHang
     ORDER BY hd.ngayTao DESC
     """)
