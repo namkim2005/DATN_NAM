@@ -59,8 +59,11 @@ public class SanPhamkhachhangController {
 
     @GetMapping("/danh-sach")
     public String hienThiDanhSachSanPham(Model model, HttpSession session) {
-        List<SanPham> danhSachSanPham = sanPhamService.getAll();
-        List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll();
+        List<SanPham> danhSachSanPham = sanPhamService.getAllActive();
+        // Chỉ lấy chi tiết của sản phẩm đang hoạt động
+        List<ChiTietSanPham> chiTiets = chitietsanphamRepo.findAll().stream()
+            .filter(ct -> ct.getSanPham() != null && ct.getSanPham().getTrangThai())
+            .collect(Collectors.toList());
 
         Map<Integer, BigDecimal> giaGocMap = chiTiets.stream()
                 .collect(Collectors.groupingBy(ct -> ct.getSanPham().getId(),

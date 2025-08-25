@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (accordion) {
             // Default to open state
-            accordion.classList.remove('tw-hidden');
             accordion.style.maxHeight = accordion.scrollHeight + 'px';
             
             // Set icon to down position (open state)
@@ -94,6 +93,11 @@ document.addEventListener('DOMContentLoaded', function() {
             else { window.currentSortBy = null; window.currentSortDir = null; }
             applyFilters();
         });
+    }
+
+    // Trigger initial load to populate product grid
+    if (typeof applyFilters === 'function') {
+        applyFilters();
     }
 });
 
@@ -431,6 +435,7 @@ function updatePriceDisplay(value) {
 
 // Apply all filters
 function applyFilters() {
+    console.log('Applying filters:', currentFilters);
     showLoading();
     updateActiveFilters();
     
@@ -454,14 +459,20 @@ function applyFilters() {
     if (window.currentSortDir) params.append('sortDir', window.currentSortDir);
 
     // Make AJAX request
+    console.log('Making AJAX request to:', `/san-pham/danh-sach/filter?${params.toString()}`);
     fetch(`/san-pham/danh-sach/filter?${params.toString()}`, {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.text())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.text();
+    })
     .then(html => {
+        console.log('Response HTML length:', html.length);
+        console.log('Response HTML preview:', html.substring(0, 500));
         // Update URL without page reload
         const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
         window.history.pushState({}, '', newUrl);
@@ -716,20 +727,30 @@ function clearAllFilters() {
 
 // Update product grid with new data
 function updateProductGrid(html) {
+    console.log('updateProductGrid called with HTML length:', html.length);
     const productGrid = document.getElementById('productGrid');
     const noProducts = document.getElementById('noProducts');
     
+    console.log('productGrid element:', productGrid);
+    console.log('noProducts element:', noProducts);
+    
     // Check if there are products
-    if (html.includes('tw-bg-white tw-rounded-lg')) {
+    if (html.includes('tw-bg-white tw-rounded-2xl')) {
+        console.log('Found products in HTML');
         // Parse HTML và lấy content bên trong
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         
+        console.log('Parsed HTML, looking for #productGrid');
         // Lấy nội dung bên trong div productGrid từ response
         const newContent = tempDiv.querySelector('#productGrid');
+        console.log('Found newContent:', newContent);
+        
         if (newContent) {
+            console.log('Using newContent.innerHTML');
             productGrid.innerHTML = newContent.innerHTML;
         } else {
+            console.log('Using full HTML');
             productGrid.innerHTML = html;
         }
         

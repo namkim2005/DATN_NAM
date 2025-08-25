@@ -30,7 +30,7 @@ public class dotGiamGiaController {
 
     private final Dotgiamgiarepository dotGiamGiaRepository;
 
-    //  Cập nhật trạng thái tự động theo thời gian
+    //  Cập nhật trạng thái tự động theo thời gian (đơn giản hóa vì đã có service riêng)
     private void capNhatTrangThaiTuDong() {
         List<DotGiamGia> list = dotGiamGiaRepository.findAll();
         LocalDateTime now = LocalDateTime.now();
@@ -203,7 +203,7 @@ public class dotGiamGiaController {
     }
 
     /**
-     * API: Áp dụng đợt cho danh sách biến thể (không cho phép ghi đè)
+     * API: Áp dụng đợt cho danh sách biến thể (tự động tính toán và lưu giá bán)
      */
     @PostMapping("/{dotId}/apply-products")
     @ResponseBody
@@ -225,6 +225,14 @@ public class dotGiamGiaController {
         for (ChiTietSanPham ct : list) {
             // Không cho ghi đè: nếu đã có dotGiamGia thì chặn
             if (ct.getDotGiamGia() != null) { blocked.add(ct.getId()); continue; }
+            
+            // Tính toán giá bán sau khi áp dụng đợt giảm giá
+            BigDecimal giaGoc = ct.getGiaGoc();
+            if (giaGoc != null && giaGoc.compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal giaBan = calculateAndApplyDiscount(giaGoc, dot);
+                ct.setGiaBan(giaBan);
+            }
+            
             ct.setDotGiamGia(dot);
             applied++;
         }
@@ -233,12 +241,12 @@ public class dotGiamGiaController {
         res.put("success", true);
         res.put("applied", applied);
         res.put("blocked", blocked);
-        res.put("message", blocked.isEmpty() ? "Áp dụng thành công" : "Một số mục bị chặn do đã thuộc đợt khác");
+        res.put("message", blocked.isEmpty() ? "Áp dụng thành công và đã cập nhật giá bán!" : "Một số mục bị chặn do đã thuộc đợt khác");
         return res;
     }
 
     /**
-     * API: Bỏ áp dụng đợt cho danh sách biến thể (chỉ bỏ nếu đang gắn đúng dotId)
+     * API: Bỏ áp dụng đợt cho danh sách biến thể (tự động khôi phục giá gốc)
      */
     @PostMapping("/{dotId}/unapply-products")
     @ResponseBody
@@ -253,6 +261,9 @@ public class dotGiamGiaController {
         int removed = 0; List<Integer> skipped = new ArrayList<>();
         for (ChiTietSanPham ct : list) {
             if (ct.getDotGiamGia() == null || !Objects.equals(ct.getDotGiamGia().getId(), dotId)) { skipped.add(ct.getId()); continue; }
+            
+            // Khôi phục giá gốc khi bỏ áp dụng đợt giảm giá
+            ct.setGiaBan(ct.getGiaGoc());
             ct.setDotGiamGia(null);
             removed++;
         }
@@ -261,7 +272,7 @@ public class dotGiamGiaController {
         res.put("success", true);
         res.put("removed", removed);
         res.put("skipped", skipped);
-        res.put("message", skipped.isEmpty() ? "Bỏ áp dụng thành công" : "Một số mục không thuộc đợt này nên được bỏ qua");
+        res.put("message", skipped.isEmpty() ? "Bỏ áp dụng thành công và đã khôi phục giá gốc!" : "Một số mục không thuộc đợt này nên được bỏ qua");
         return res;
     }
 
@@ -466,4 +477,38 @@ public class dotGiamGiaController {
         }
         return "redirect:/admin/dot-giam-gia";
     }
+
+    // ================== CÁC METHOD HỖ TRỢ TÍNH TOÁN GIÁ ==================
+
+    /**
+     * Tính toán giá bán sau khi áp dụng đợt giảm giá
+     * Sử dụng logic đơn giản để tránh dependency
+     */
+    private BigDecimal calculateAndApplyDiscount(BigDecimal giaGoc, DotGiamGia dot) {
+        if (giaGoc == null || dot == null || dot.getGiaTriDotGiamGia() == null || dot.getLoai() == null) {
+            return giaGoc;
+        }
+
+        BigDecimal giaBan = giaGoc;
+        BigDecimal giaTri = dot.getGiaTriDotGiamGia();
+
+        if ("phan_tram".equalsIgnoreCase(dot.getLoai())) {
+            // Giảm giá theo phần trăm (1-100)
+            if (giaTri.compareTo(BigDecimal.ZERO) > 0 && giaTri.compareTo(new BigDecimal(100)) <= 0) {
+                BigDecimal phanTram = giaTri.divide(new BigDecimal(100), 2, java.math.RoundingMode.HALF_UP);
+                BigDecimal soTienGiam = giaGoc.multiply(phanTram);
+                giaBan = giaGoc.subtract(soTienGiam);
+            }
+        } else if ("tien_mat".equalsIgnoreCase(dot.getLoai())) {
+            // Giảm giá theo tiền mặt
+            if (giaTri.compareTo(BigDecimal.ZERO) > 0) {
+                giaBan = giaGoc.subtract(giaTri);
+            }
+        }
+
+        // Đảm bảo giá không âm
+        return giaBan.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : giaBan;
+    }
+
+
 }

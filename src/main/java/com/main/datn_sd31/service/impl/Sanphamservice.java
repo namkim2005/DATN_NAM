@@ -57,9 +57,26 @@ public class Sanphamservice {
     }
 
     /**
-     * Lấy danh sách sản phẩm với thông tin đầy đủ cho hiển thị
+     * Lấy danh sách sản phẩm đang hoạt động (cho client)
+     */
+    public List<SanPham> getAllActive() {
+        return sanPhamRepo.findByTrangThaiTrue();
+    }
+
+    /**
+     * Lấy danh sách sản phẩm với thông tin đầy đủ cho hiển thị (cho client)
      */
     public List<SanPhamListDTO> getAllForDisplay() {
+        List<SanPham> sanPhams = sanPhamRepo.findByTrangThaiTrue();
+        return sanPhams.stream()
+                .map(this::convertToSanPhamListDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách tất cả sản phẩm với thông tin đầy đủ cho hiển thị (cho admin)
+     */
+    public List<SanPhamListDTO> getAllForAdminDisplay() {
         List<SanPham> sanPhams = sanPhamRepo.findAll();
         return sanPhams.stream()
                 .map(this::convertToSanPhamListDTO)
@@ -67,19 +84,70 @@ public class Sanphamservice {
     }
 
     /**
-     * Lấy danh sách sản phẩm có phân trang
+     * Lấy danh sách sản phẩm có phân trang (cho client)
      */
     public Page<SanPhamListDTO> getAllForDisplayPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("ngayTao").descending());
-        Page<SanPham> sanPhamPage = sanPhamRepo.findAll(pageable);
+        // Tạo Page object từ danh sách đã lọc theo trạng thái
+        List<SanPham> allActiveProducts = sanPhamRepo.findByTrangThaiTrue();
+        int totalElements = allActiveProducts.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        int startIndex = page * size;
+        int endIndex = Math.min(startIndex + size, totalElements);
         
+        List<SanPham> pageContent = startIndex < totalElements ? 
+                allActiveProducts.subList(startIndex, endIndex) : new ArrayList<>();
+        
+        Page<SanPham> sanPhamPage = new PageImpl<>(pageContent, pageable, totalElements);
         return sanPhamPage.map(this::convertToSanPhamListDTO);
     }
 
     /**
-     * Lấy danh sách sản phẩm có phân trang với filter và sort
+     * Lấy danh sách tất cả sản phẩm có phân trang (cho admin)
+     */
+    public Page<SanPhamListDTO> getAllForAdminDisplayPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("ngayTao").descending());
+        Page<SanPham> sanPhamPage = sanPhamRepo.findAll(pageable);
+        return sanPhamPage.map(this::convertToSanPhamListDTO);
+    }
+
+    /**
+     * Lấy danh sách sản phẩm có phân trang với filter và sort (cho client)
      */
     public Page<SanPhamListDTO> getAllForDisplayPaginatedWithFilter(SanPhamFilterDTO filter) {
+        // Lấy tất cả sản phẩm đang hoạt động
+        List<SanPham> allSanPhams = getAllActive();
+        
+        // Chuyển đổi sang DTO
+        List<SanPhamListDTO> allDTOs = allSanPhams.stream()
+                .map(this::convertToSanPhamListDTO)
+                .collect(Collectors.toList());
+        
+        // Áp dụng filter
+        List<SanPhamListDTO> filteredDTOs = applyFilters(allDTOs, filter);
+        
+        // Áp dụng sorting
+        List<SanPhamListDTO> sortedDTOs = applySorting(filteredDTOs, filter);
+        
+        // Tính toán pagination
+        int totalElements = sortedDTOs.size();
+        int totalPages = (int) Math.ceil((double) totalElements / filter.getSize());
+        int startIndex = filter.getPage() * filter.getSize();
+        int endIndex = Math.min(startIndex + filter.getSize(), totalElements);
+        
+        // Lấy content cho trang hiện tại
+        List<SanPhamListDTO> pageContent = startIndex < totalElements ? 
+                sortedDTOs.subList(startIndex, endIndex) : new ArrayList<>();
+        
+        // Tạo Page object
+        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
+        return new PageImpl<>(pageContent, pageable, totalElements);
+    }
+
+    /**
+     * Lấy danh sách tất cả sản phẩm có phân trang với filter và sort (cho admin)
+     */
+    public Page<SanPhamListDTO> getAllForAdminDisplayPaginatedWithFilter(SanPhamFilterDTO filter) {
         // Lấy tất cả sản phẩm
         List<SanPham> allSanPhams = getAll();
         
@@ -113,7 +181,26 @@ public class Sanphamservice {
      * Lấy danh sách sản phẩm với filter và sort
      */
     public List<SanPhamListDTO> getFilteredProducts(SanPhamFilterDTO filter) {
-        List<SanPham> sanPhams = getAll(); // Tạm thời lấy tất cả, sau này sẽ implement filter ở repository
+        List<SanPham> sanPhams = getAllActive(); // Lấy sản phẩm đang hoạt động
+        
+        List<SanPhamListDTO> result = sanPhams.stream()
+                .map(this::convertToSanPhamListDTO)
+                .collect(Collectors.toList());
+        
+        // Apply filters
+        result = applyFilters(result, filter);
+        
+        // Apply sorting
+        result = applySorting(result, filter);
+        
+        return result;
+    }
+
+    /**
+     * Lấy danh sách tất cả sản phẩm với filter và sort (cho admin)
+     */
+    public List<SanPhamListDTO> getFilteredProductsForAdmin(SanPhamFilterDTO filter) {
+        List<SanPham> sanPhams = getAll(); // Lấy tất cả sản phẩm
         
         List<SanPhamListDTO> result = sanPhams.stream()
                 .map(this::convertToSanPhamListDTO)
@@ -505,7 +592,7 @@ public class Sanphamservice {
 
         // if no filter at all, trả về all
         if (keyword.isEmpty() && danhMucId == null && loaiThuId == null && chatLieuId == null && kieuDangId == null && xuatXuId == null &&  min == null) {
-            return sanPhamRepo.findAll();
+            return sanPhamRepo.findByTrangThaiTrue();
         }
 
         return sanPhamRepo.filter(keyword, danhMucId, loaiThuId, chatLieuId, kieuDangId, xuatXuId, min, max);
@@ -534,6 +621,18 @@ public class Sanphamservice {
 
     public SanPham findbyid(Integer id) {
         return sanPhamRepo.findById(id).orElse(null);
+    }
+
+    /**
+     * Tìm sản phẩm theo ID (cho client - chỉ trả về sản phẩm đang hoạt động)
+     */
+    public SanPham findByIdActive(Integer id) {
+        SanPham sanPham = sanPhamRepo.findById(id).orElse(null);
+        // Chỉ trả về sản phẩm đang hoạt động
+        if (sanPham != null && sanPham.getTrangThai()) {
+            return sanPham;
+        }
+        return null;
     }
 
     public void delete(Integer id) {
@@ -569,7 +668,7 @@ public class Sanphamservice {
         if (keyword.isEmpty() && danhMucId == null && loaiThuId == null && 
             sizeId == null && mauSacId == null && kieuDangId == null && 
             thuongHieuId == null && xuatXuId == null && min == null) {
-            return sanPhamRepo.findAll();
+            return sanPhamRepo.findByTrangThaiTrue();
         }
 
         // Sử dụng method filter cơ bản trước

@@ -12,18 +12,26 @@ import java.util.List;
 
 @Repository
 public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
-    List<SanPham> findByTenContainingIgnoreCase(String keyword);
+    
+    // Chỉ lấy sản phẩm đang hoạt động
+    List<SanPham> findByTrangThaiTrue();
+    
+    // Chỉ lấy sản phẩm đang hoạt động theo tên
+    List<SanPham> findByTrangThaiTrueAndTenContainingIgnoreCase(String keyword);
 
-
+    // Chỉ lấy sản phẩm đang hoạt động cho search
     @Query("SELECT sp FROM SanPham sp " +
-            "WHERE LOWER(sp.ten) LIKE LOWER(CONCAT('%', :search, '%'))")
+            "WHERE sp.trangThai = true " +
+            "AND LOWER(sp.ten) LIKE LOWER(CONCAT('%', :search, '%'))")
     List<SanPham> search(@Param("search") String search);
 
+    // Chỉ lấy sản phẩm đang hoạt động cho filter
     @Query("""
         SELECT DISTINCT sp
         FROM SanPham sp
         JOIN sp.chiTietSanPhams ct
-        WHERE LOWER(sp.ten) LIKE LOWER(CONCAT('%', COALESCE(:q, ''), '%'))
+        WHERE sp.trangThai = true
+          AND LOWER(sp.ten) LIKE LOWER(CONCAT('%', COALESCE(:q, ''), '%'))
           AND (:danhMucId IS NULL OR sp.danhMuc.id = :danhMucId)
           AND (:loaiThuId IS NULL OR sp.loaiThu.id = :loaiThuId)
           AND (:chatLieuId IS NULL OR sp.chatLieu.id = :chatLieuId)

@@ -13,4 +13,13 @@ public interface KhachHangService {
     void capNhatSoDienThoai(Integer id, String soDienThoaiMoi);
 
     void capNhatDiaChi(Integer id, String diaChiMoi);
+    
+    // Method đăng ký khách hàng mới
+    KhachHang dangKyKhachHang(KhachHang khachHang, String xacNhanMatKhau);
+    
+    // Kiểm tra email đã tồn tại
+    boolean emailDaTonTai(String email);
+    
+    // Tạo mã khách hàng tự động
+    String taoMaKhachHang();
 }
