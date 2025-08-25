@@ -317,6 +317,15 @@
                             </select>
                         </div>
 
+                        <!-- Search Input (hidden but needed for JavaScript) -->
+                        <input type="text" id="searchInput" class="tw-hidden" placeholder="Tìm kiếm sản phẩm...">
+
+                        <!-- Price Range Slider (hidden but needed for JavaScript) -->
+                        <div class="tw-hidden">
+                            <input type="range" id="priceRange" min="0" max="10000000" step="100000" value="10000000">
+                            <span id="maxPrice">10,000,000đ</span>
+                        </div>
+
                         <!-- Loading Spinner -->
                         <div id="loadingSpinner" class="tw-hidden tw-justify-center tw-items-center tw-py-12">
                             <div class="tw-animate-spin tw-rounded-full tw-h-12 tw-w-12 tw-border-b-2 tw-border-blue-500"></div>

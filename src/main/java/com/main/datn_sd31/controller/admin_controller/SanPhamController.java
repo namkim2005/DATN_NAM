@@ -104,8 +104,8 @@ public class SanPhamController {
 
     @GetMapping("/hien_thi")
     public String hienthi(Model model) {
-        // Lấy trang đầu tiên với 10 sản phẩm mỗi trang
-        Page<SanPhamListDTO> pageData = sanPhamService.getAllForDisplayPaginated(0, 10);
+        // Lấy trang đầu tiên với 10 sản phẩm mỗi trang (cho admin - tất cả sản phẩm)
+        Page<SanPhamListDTO> pageData = sanPhamService.getAllForAdminDisplayPaginated(0, 10);
         model.addAttribute("list", pageData.getContent());
         model.addAttribute("currentPage", 0);
         model.addAttribute("totalPages", pageData.getTotalPages());
@@ -165,7 +165,7 @@ public class SanPhamController {
                 .size(size)
                 .build();
         
-        Page<SanPhamListDTO> pageData = sanPhamService.getAllForDisplayPaginatedWithFilter(filter);
+        Page<SanPhamListDTO> pageData = sanPhamService.getAllForAdminDisplayPaginatedWithFilter(filter);
         
         Map<String, Object> response = new HashMap<>();
         response.put("content", pageData.getContent());
@@ -216,7 +216,7 @@ public class SanPhamController {
                 .sortOrder(sortOrder)
                 .build();
         
-        List<SanPhamListDTO> result = sanPhamService.getFilteredProducts(filter);
+        List<SanPhamListDTO> result = sanPhamService.getFilteredProductsForAdmin(filter);
         return ResponseEntity.ok(result);
     }
 

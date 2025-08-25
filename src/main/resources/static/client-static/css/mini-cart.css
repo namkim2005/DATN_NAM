@@ -24,6 +24,25 @@
     border-left: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
+    z-index: 1055 !important; /* Đảm bảo offcanvas nằm trên fixed bar */
+}
+
+/* Offcanvas Backdrop - Đảm bảo backdrop cũng nằm trên fixed bar */
+.offcanvas-backdrop {
+    z-index: 1054 !important;
+}
+
+/* Đảm bảo offcanvas hoạt động tốt trên mobile */
+@media (max-width: 768px) {
+    .offcanvas {
+        z-index: 1055 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .offcanvas-backdrop {
+        z-index: 1054 !important;
+    }
 }
 
 /* Cart Header */
@@ -55,7 +74,7 @@
     top: 50%;
     transform: translateY(-50%);
     filter: brightness(0) invert(1);
-    z-index: 1;
+    z-index: 1056 !important; /* Đảm bảo nút close nằm trên cùng */
     transition: all 0.2s ease;
 }
 
@@ -283,54 +302,54 @@
         gap: 16px;
         padding: 20px;
         text-align: center;
-    }
-    
+}
+
     .mini-cart-item-image-container {
         width: 100px;
         height: 100px;
-    }
-    
+}
+
     .mini-cart-item-details {
         align-items: center;
         text-align: center;
-    }
-    
+}
+
     .offcanvas-header {
         padding: 24px 20px 20px 20px;
-    }
-    
+}
+
     .offcanvas-header .btn-close {
-        right: 20px;
+    right: 20px;
     }
     
     .mini-cart-summary-section {
         padding: 14px 20px;
-    }
-    
+}
+
     .mini-cart-footer {
         padding: 20px;
-    }
-    
+}
+
     .mini-cart-checkout-btn {
         min-width: 200px;
         padding: 16px 28px;
-    }
+}
 }
 
 @media (max-width: 480px) {
     .mini-cart-item {
         padding: 16px;
-    }
-    
+}
+
     .mini-cart-item-image {
         width: 80px;
         height: 80px;
-    }
-    
+}
+
     .mini-cart-item-name {
         font-size: 14px;
-    }
-    
+}
+
     .mini-cart-item-price {
         font-size: 15px;
     }
@@ -346,24 +365,24 @@
     .mini-cart-summary-label,
     .mini-cart-summary-quantity {
         font-size: 12px;
-    }
-    
+}
+
     .mini-cart-summary-amount {
         font-size: 14px;
-    }
-    
+}
+
     .offcanvas-header {
         padding: 20px 16px 16px 16px;
-    }
-    
+}
+
     .offcanvas-header .btn-close {
         right: 16px;
     }
     
     .mini-cart-footer {
         padding: 16px;
-    }
-    
+}
+
     .mini-cart-checkout-btn {
         min-width: 180px;
         padding: 14px 24px;
@@ -379,7 +398,7 @@
 /* Custom scrollbar */
 .offcanvas-body::-webkit-scrollbar {
     width: 6px;
-}
+    }
 
 .offcanvas-body::-webkit-scrollbar-track {
     background: var(--white-color);
@@ -388,8 +407,8 @@
 .offcanvas-body::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 3px;
-}
-
+    }
+    
 .offcanvas-body::-webkit-scrollbar-thumb:hover {
     background: var(--primary-hover);
 } 
