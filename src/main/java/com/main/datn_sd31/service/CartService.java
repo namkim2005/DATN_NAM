@@ -109,6 +109,7 @@ public class CartService {
             cartData.put("items", miniCartItems);
             cartData.put("totalItems", tongSoLuong);
             cartData.put("totalAmount", tongTien);
+            cartData.put("totalDistinctItems", miniCartItems.size());
             return cartData;
 
         } catch (Exception e) {
@@ -125,6 +126,7 @@ public class CartService {
         emptyData.put("items", new ArrayList<>());
         emptyData.put("totalItems", 0);
         emptyData.put("totalAmount", BigDecimal.ZERO);
+        emptyData.put("totalDistinctItems", 0);
         return emptyData;
     }
 
