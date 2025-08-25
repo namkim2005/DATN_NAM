@@ -294,6 +294,10 @@ public class BanHangController {
         }
 
         // Lưu theo cartKey
+        if (tienGiam.compareTo(tongTien) > 0) {
+            tienGiam = tongTien;
+        }
+
         session.setAttribute("giamGia_" + cartKey, tienGiam);
         session.setAttribute("maGiamGia_" + cartKey, ma.trim());
 

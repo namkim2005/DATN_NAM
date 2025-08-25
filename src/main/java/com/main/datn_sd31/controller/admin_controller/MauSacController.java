@@ -1,6 +1,7 @@
 package com.main.datn_sd31.controller.admin_controller;
 
 import com.main.datn_sd31.entity.MauSac;
+import com.main.datn_sd31.entity.ThuongHieu;
 import com.main.datn_sd31.repository.Mausacrepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -39,16 +40,31 @@ public class MauSacController {
         if (mauSac.getId() == null) {
             // THÊM MỚI
             mauSac.setNgayTao(LocalDateTime.now());
+            MauSac last = mauSacRepository.findTopByOrderByMaDesc();
+            int nextNumber = 1;
+
+            if (last != null && last.getMa() != null && last.getMa().startsWith("MS")) {
+                try {
+                    nextNumber = Integer.parseInt(last.getMa().substring(2)) + 1;
+                } catch (NumberFormatException e) {
+                    nextNumber = 1;
+                }
+            }
+            // Format mã theo dạng TH001, TH002...
+            mauSac.setMa(String.format("MS%03d", nextNumber));
         } else {
             // SỬA: Lấy bản gốc để giữ nguyên ngày tạo
             MauSac existing = mauSacRepository.findById(mauSac.getId()).orElse(null);
             if (existing != null) {
                 mauSac.setNgayTao(existing.getNgayTao());
+                mauSac.setMa(existing.getMa()); // Giữ nguyên mã khi sửa
+
             }
         }
 
         // Ngày sửa luôn được cập nhật
         mauSac.setNgaySua(LocalDateTime.now());
+
         mauSacRepository.save(mauSac);
         return "redirect:/admin/mau-sac"; // Trở lại trang chính
     }
