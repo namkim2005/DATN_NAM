@@ -1,5 +1,6 @@
 package com.main.datn_sd31.repository;
 
+import com.main.datn_sd31.entity.ChiTietSanPham;
 import com.main.datn_sd31.entity.SanPham;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -52,4 +53,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
     // Kiểm tra mã sản phẩm có tồn tại không
     boolean existsByMa(String ma);
+
+    @Query("SELECT sp FROM SanPham sp JOIN sp.chiTietSanPhams ctsp WHERE ctsp = :chiTietSanPham")
+    SanPham findSanPhamByChiTietSanPham(@Param("chiTietSanPham") ChiTietSanPham chiTietSanPham);
 }

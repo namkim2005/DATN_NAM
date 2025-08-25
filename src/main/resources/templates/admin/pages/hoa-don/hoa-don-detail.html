@@ -443,20 +443,10 @@
         <p><strong>Nhân viên:</strong> <span th:text="${hoaDon.tenNhanVien}"></span></p>
         <!--        <p><strong>Cập nhật lần cuối bởi:</strong> <span th:text="${lichSuMoiNhat.tenNguoiTao}"></span></p>-->
         <p><strong>Trạng thái:</strong> <span th:text="${hoaDon.getTrangThaiLichSuHoaDonMoTa()}"></span></p>
-        <p >
+        <p>
             <strong>Ghi chú:</strong>
-
-            <span th:if="${!@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}"
-                  th:text="${!hoaDon.ghiChu.isEmpty() ? hoaDon.ghiChu.toString() : 'Không có ghi chú'}">
+            <span th:utext="${!#strings.isEmpty(hoaDon.ghiChu) ? hoaDon.ghiChu.replaceAll('\n','<br/>') : 'Không có ghi chú'}">
             </span>
-
-            <!--        <form th:action="@{/admin/don-hang/detail/cap-nhat-ghi-chu}" method="post"-->
-            <!--              th:if="${@hoa_don_utils.choPhepSuaGhiChuHoaDon(lichSuMoiNhat.getTrangThaiLichSuHoaDon())}">-->
-            <!--            <input type="hidden" name="maHoaDon" th:value="${hoaDon.ma}" />-->
-
-            <!--            <input type="text" name="ghiChuHoaDon" th:value="${hoaDon.ghiChu}" class="form-control"/>-->
-            <!--            <button type="submit" class="btn btn-primary mt-2">Cập nhật ghi chú</button>-->
-            <!--        </form>-->
         </p>
     </div>
 

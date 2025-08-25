@@ -20,6 +20,8 @@ public interface HoaDonService {
 
     List<HoaDonDTO> getAllHoaDon();
 
+    List<HoaDonDTO> getAllHoaDonKhachHang(KhachHang khachHang);
+
     Map<String, Long> getTrangThaiCount(List<HoaDonDTO> list);
 
     Pagination<HoaDonDTO> getAllHoaDonByStatus(TrangThaiLichSuHoaDon status, int pageNo, int pageSize);

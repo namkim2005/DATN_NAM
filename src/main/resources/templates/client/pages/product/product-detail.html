@@ -14,6 +14,35 @@
         <!-- Lightbox CSS for image gallery -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
     </th:block>
+    <!-- 3. KIỂM TRA CSS HIỂN THỊ SAO -->
+    <!-- Đảm bảo CSS cho sao được định nghĩa đúng -->
+    <style>
+        .product-rating .stars .star {
+            color: #ddd; /* Sao rỗng - màu xám nhạt */
+            font-size: 1.2em;
+            margin-right: 2px;
+        }
+
+        .product-rating .stars .star.filled {
+            color: #ffc107; /* Sao đầy - màu vàng */
+        }
+
+        .product-rating .stars .star.half {
+            color: #ffc107; /* Nửa sao - màu vàng */
+            position: relative;
+        }
+
+        /* CSS cho nửa sao nếu cần hiệu ứng đặc biệt */
+        .product-rating .stars .star.half::before {
+            content: "★";
+            position: absolute;
+            left: 0;
+            color: #ffc107;
+            width: 50%;
+            overflow: hidden;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -87,17 +116,54 @@
 
                             <!-- Product Title -->
                             <h1 class="product-title" th:text="${sanPham.ten}">Tên sản phẩm</h1>
-                            
-                            <!-- Product Rating -->
+
+                            <!-- 1. THÊM DEBUG INFO VÀO TEMPLATE để xem giá trị thực tế -->
+                            <!-- Thêm đoạn này vào đầu template để debug (có thể ẩn bằng CSS sau) -->
+<!--                            <div class="debug-info" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">-->
+<!--                                <strong>DEBUG RATING INFO:</strong><br>-->
+<!--                                avgRatingStr: <span th:text="${avgRatingStr}">N/A</span><br>-->
+<!--                                fullStars: <span th:text="${fullStars}">N/A</span><br>-->
+<!--                                halfStar: <span th:text="${halfStar}">N/A</span><br>-->
+<!--                                emptyStars: <span th:text="${emptyStars}">N/A</span><br>-->
+<!--                                totalCount: <span th:text="${totalCount}">N/A</span><br>-->
+<!--                                hasReviews: <span th:text="${hasReviews}">N/A</span><br>-->
+<!--                            </div>-->
+
+                            <!-- 2. SỬA LOGIC HIỂN THỊ SAO TRONG PRODUCT RATING -->
                             <div class="product-rating">
                                 <div class="stars">
-                                    <span th:each="i : ${#numbers.sequence(1, fullStars)}" class="star filled">★</span>
+                                    <!-- Hiển thị sao đầy -->
+                                    <th:block th:if="${fullStars > 0}">
+                                        <span th:each="i : ${#numbers.sequence(1, fullStars)}" class="star filled">★</span>
+                                    </th:block>
+
+                                    <!-- Hiển thị nửa sao -->
                                     <span th:if="${halfStar}" class="star half">★</span>
-                                    <span th:each="i : ${#numbers.sequence(1, emptyStars)}" class="star">★</span>
+
+                                    <!-- Hiển thị sao rỗng -->
+                                    <th:block th:if="${emptyStars > 0}">
+                                        <span th:each="i : ${#numbers.sequence(1, emptyStars)}" class="star">★</span>
+                                    </th:block>
+
+                                    <!-- Fallback nếu không có sao nào (trường hợp lỗi logic) -->
+<!--                                    <th:block th:if="${fullStars == 0 && !halfStar && emptyStars == 5}">-->
+<!--                                        <span class="star">★</span>-->
+<!--                                        <span class="star">★</span>-->
+<!--                                        <span class="star">★</span>-->
+<!--                                        <span class="star">★</span>-->
+<!--                                        <span class="star">★</span>-->
+<!--                                    </th:block>-->
                                 </div>
+
                                 <span class="rating-text">
-                                    <span th:text="${avgRatingStr}">4.5</span>/5 
-                                    (<span th:text="${totalCount}">0</span> đánh giá)
+                                    <!-- Hiển thị khác nhau tùy vào có đánh giá hay không -->
+                                    <span th:if="${totalCount > 0}">
+                                        <span th:text="${avgRatingStr}">0.0</span>/5
+                                        (<span th:text="${totalCount}">0</span> đánh giá)
+                                    </span>
+                                    <span th:unless="${totalCount > 0}">
+                                        Chưa có đánh giá
+                                    </span>
                                 </span>
                             </div>
 
@@ -232,7 +298,7 @@
                                             <iconify-icon icon="material-symbols:schedule" class="icon"></iconify-icon>
                                         </div>
                                         <div class="policy-content">
-                                            <div class="policy-title">60 ngày đổi trả</div>
+                                            <div class="policy-title">03 ngày đổi trả</div>
                                             <div class="policy-desc">sản phẩm chưa qua sử dụng và còn nguyên nhãn mác</div>
                                         </div>
                                     </div>
@@ -272,27 +338,36 @@
                 <div class="row">
                     <div class="col-12">
                         <h3 class="section-title">Đánh giá sản phẩm</h3>
-                        
+
                         <!-- Rating Summary -->
                         <div class="rating-summary">
                             <div class="rating-overview">
                                 <div class="average-rating">
-                                    <div class="rating-number" th:text="${avgRatingStr}">4.5</div>
+                                    <div class="rating-number" th:text="${avgRatingStr}">0.0</div>
                                     <div class="rating-stars">
-                                        <span th:each="i : ${#numbers.sequence(1, fullStars)}" class="star filled">★</span>
+                                        <!-- Hiển thị sao đầy -->
+                                        <th:block th:if="${fullStars > 0}">
+                                            <span th:each="i : ${#numbers.sequence(1, fullStars)}" class="star filled">★</span>
+                                        </th:block>
+
+                                        <!-- Hiển thị nửa sao -->
                                         <span th:if="${halfStar}" class="star half">★</span>
-                                        <span th:each="i : ${#numbers.sequence(1, emptyStars)}" class="star">★</span>
+
+                                        <!-- Hiển thị sao rỗng -->
+                                        <th:block th:if="${emptyStars > 0}">
+                                            <span th:each="i : ${#numbers.sequence(1, emptyStars)}" class="star">★</span>
+                                        </th:block>
                                     </div>
                                     <div class="total-reviews" th:text="${totalCount + ' đánh giá'}">0 đánh giá</div>
                                 </div>
                             </div>
-                            
+
                             <!-- Rating Breakdown -->
                             <div class="rating-breakdown">
                                 <div th:each="star : ${#numbers.sequence(5, 1)}" class="rating-bar">
                                     <span class="star-label" th:text="${star} + ' sao'">5 sao</span>
                                     <div class="rating-progress">
-                                        <div class="progress-bar" 
+                                        <div class="progress-bar"
                                              th:style="'width: ' + ${countByStar.get(star) != null ? (countByStar.get(star) * 100 / totalCount) : 0} + '%'">
                                         </div>
                                     </div>
@@ -310,21 +385,26 @@
                                             <iconify-icon icon="healthicons:person" class="avatar-icon"></iconify-icon>
                                         </div>
                                         <div class="reviewer-details">
-                                            <div class="reviewer-name" th:text="${review.tenKhachHang != null ? review.tenKhachHang : 'Khách hàng'}">
+                                            <div class="reviewer-name" th:text="${review.khachHang.ten != null ? review.khachHang.ten : 'Khách hàng'}">
                                                 Khách hàng
                                             </div>
-                                            <div class="review-date" th:text="${#temporals.format(review.ngayTao, 'dd/MM/yyyy')}">
+                                            <div class="review-date" th:text="${#temporals.format(review.thoiGian, 'dd/MM/yyyy')}">
                                                 01/01/2024
                                             </div>
                                         </div>
                                     </div>
                                     <div class="review-rating">
-                                        <span th:each="i : ${#numbers.sequence(1, review.soSao)}" class="star filled">★</span>
-                                        <span th:each="i : ${#numbers.sequence(review.soSao + 1, 5)}" class="star">★</span>
+                                        <!-- Cách đơn giản: duyệt từ 1 đến 5 -->
+                                        <span th:each="starNum : ${#numbers.sequence(1, 5)}"
+                                              class="star"
+                                              th:classappend="${starNum <= review.soSao} ? ' filled' : ''">★</span>
                                     </div>
                                 </div>
                                 <div class="review-content" th:if="${review.noiDung != null}">
                                     <p th:text="${review.noiDung}">Nội dung đánh giá</p>
+                                </div>
+                                <div class="review-content" th:if="${review.hinhAnh != null}">
+                                    <img th:src="${review.hinhAnh}" alt="img-danh-gia" width="400px" height="400px"></img>
                                 </div>
                             </div>
                         </div>
@@ -347,6 +427,20 @@
                                     </li>
                                 </ul>
                             </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fallback khi không có đánh giá -->
+        <section class="product-reviews-section" th:if="${totalCount == 0}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="section-title">Đánh giá sản phẩm</h3>
+                        <div class="no-reviews-message">
+                            <p>Sản phẩm này chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
                         </div>
                     </div>
                 </div>
