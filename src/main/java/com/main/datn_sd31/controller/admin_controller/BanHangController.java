@@ -769,17 +769,18 @@ public class BanHangController {
             hd.setTenNguoiNhan("Khách lẻ");
         }
 
-
         if (kh != null) {
             hd.setKhachHang(kh);
-            hd.setSoDienThoai(sdt);
         } else {
             KhachHang khachLe = khachHangRepository.findBySoDienThoai("000000000")
                     .orElse(null);
             hd.setKhachHang(khachLe);
+        }
+        if(sdtvc !=null){
+            hd.setSoDienThoai(sdtvc);
+        }else{
             hd.setSoDienThoai("Khách lẻ");
         }
-
         hd.setPhuongThuc(phuongThuc);
 //        System.out.println(phuongThuc.equals("tien_mat") && !BigDecimal.ZERO.equals(phiShip));
         if (phuongThuc.equals("tien_mat") && !BigDecimal.ZERO.equals(phiShip)) {
