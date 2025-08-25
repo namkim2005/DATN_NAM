@@ -107,7 +107,7 @@ public class PhieuGiamGiaServiceImpl implements PhieuGiamGiaService {
             if (!pgg.getNgayKetThuc().isAfter(LocalDate.now())) {
                 pgg.setTrangThai(false);
                 repository.save(pgg);
-                System.out.println("Cap nhat thanh cong");
+//                System.out.println("Cap nhat thanh cong");
             }
         }
     }

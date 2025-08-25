@@ -506,6 +506,16 @@ public class SanPhamController {
 
         for (ChiTietSanPham ct : form.getChiTietList()) {
             try {
+
+//                // Nếu toàn bộ dữ liệu null/trống thì bỏ qua, không tính là error
+//                if ((ct.getSize() == null || ct.getSize().getId() == null) &&
+//                        (ct.getSoLuong() == null) &&
+//                        (ct.getGiaGoc() == null) &&
+//                        (ct.getGiaNhap() == null) &&
+//                        (ct.getGiaBan() == null)) {
+//                    continue; // skip biến thể này
+//                }
+
                 if (ct.getSize() == null || ct.getSize().getId() == null) {
                     errorMessages.add("Thiếu size");
                     errorCount++; continue;
@@ -573,12 +583,15 @@ public class SanPhamController {
             }
         }
 
-        if (successCount > 0) {
+        if (successCount > 0 && errorCount == 0) {
             redirectAttributes.addFlashAttribute("success", "Đã lưu " + successCount + " biến thể");
-        }
-        if (errorCount > 0) {
+        } else if (successCount > 0 && errorCount > 0) {
+            redirectAttributes.addFlashAttribute("success", "Đã lưu " + successCount + " biến thể");
+            redirectAttributes.addFlashAttribute("warning", "Một số biến thể không được lưu: " + String.join("; ", errorMessages));
+        } else {
             redirectAttributes.addFlashAttribute("error", String.join("; ", errorMessages));
         }
+
 
         return "redirect:/admin/san-pham/chitietsanpham/them?id=" + sanPhamId;
     }

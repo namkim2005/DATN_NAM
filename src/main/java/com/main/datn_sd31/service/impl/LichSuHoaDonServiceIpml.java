@@ -102,7 +102,7 @@ public class LichSuHoaDonServiceIpml implements LichSuHoaDonService {
                     TrangThaiLichSuHoaDon.XAC_NHAN,
                     TrangThaiLichSuHoaDon.HUY);
             case XAC_NHAN -> {
-                if (hoaDonDTO.getPhiVanChuyen().compareTo(BigDecimal.ZERO) == 0) {
+                if (hoaDonDTO.getPhiVanChuyen().compareTo(BigDecimal.ZERO) != 0) {
                     yield List.of(
                             TrangThaiLichSuHoaDon.CHO_GIAO_HANG,
                             TrangThaiLichSuHoaDon.HUY);

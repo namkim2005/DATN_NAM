@@ -129,7 +129,7 @@ public class dotGiamGiaController {
     public Map<String, Object> listProductsForDot(
             @RequestParam("dotId") Integer dotId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1000") int size,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "ALL") String applied
     ) {
@@ -145,8 +145,10 @@ public class dotGiamGiaController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ChiTietSanPham> pageData = chiTietSanPhamRepo.findAll(pageable);
 
+//        List<ChiTietSanPham> filtered = chiTietSanPhamRepo.findAll();
         // Lọc đơn giản theo keyword
-        List<ChiTietSanPham> filtered = pageData.getContent().stream()
+        List<ChiTietSanPham> filtered = pageData.getContent()
+                .stream()
                 .filter(ct -> {
                     if (keyword == null || keyword.isBlank()) return true;
                     String k = keyword.toLowerCase();

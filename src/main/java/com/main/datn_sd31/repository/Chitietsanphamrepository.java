@@ -71,7 +71,7 @@ public interface Chitietsanphamrepository extends JpaRepository<ChiTietSanPham,I
 
     // ChiTietSanPhamRepository.java
     @Query("SELECT ct FROM ChiTietSanPham ct " +
-            "WHERE ct.maVach = :maVach")
+            "WHERE ct.id = :maVach")
     ChiTietSanPham findByMaVach(@Param("maVach") String maVach);
 
     Page<ChiTietSanPham> findByDotGiamGia_Id(Integer dotId, Pageable pageable);

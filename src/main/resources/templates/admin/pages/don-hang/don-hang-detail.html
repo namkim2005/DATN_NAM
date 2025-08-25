@@ -394,7 +394,8 @@
                                           and hoaDon.trangThaiLichSuHoaDon.name() != 'HUY'}">
                             <label class="form-label">Chọn trạng thái mới:</label>
                             <select name="trangThaiMoi" class="form-select"
-                                    th:id="'trangThaiMoi_' + ${hoaDon.ma}">
+                                    th:id="'trangThaiMoi_' + ${hoaDon.ma}"
+                                    onchange="toggleRequired(this)">
                                 <option th:each="tt : ${trangThaiHopLe}"
                                         th:value="${tt.value}"
                                         th:text="${hoaDon.trangThaiLichSuHoaDon.name() == 'YEU_CAU_HOAN_HANG' ? (tt.value == 5 ? 'Từ chối - Hoàn thành đơn' : tt.moTa) : tt.moTa}">
@@ -425,9 +426,18 @@
 
 
                         <div class="mb-3">
-                            <label class="form-label">Ghi chú</label>
-                            <textarea class="form-control" name="ghiChu" rows="3"
-                                      placeholder="Nhập ghi chú..." required></textarea>
+                            <label class="form-label">Ghi chú
+                                <span class="liDoGhiChu" style="display:none;">
+                                  lí do <span style="color:red;">*</span>
+                                </span>
+                            </label>
+                            <textarea class="form-control"
+                                      name="ghiChu"
+                                      rows="3"
+                                      placeholder="Nhập ghi chú..."
+                                      oninvalid="this.setCustomValidity('Vui lòng nhập ghi chú khi Hủy hoặc Giao Hàng Không Thành Công')"
+                                      oninput="this.setCustomValidity('')"
+                            ></textarea>
                         </div>
 
                     </div>
@@ -678,6 +688,23 @@
 <!--            });-->
 <!--        });-->
 <!--    </script>-->
+
+    <!-- Yeu cau nhap ghi chú -->
+    <script>
+        function toggleRequired(selectElement) {
+            const modal = selectElement.closest(".modal-body");
+            const ghiChu = modal.querySelector("textarea[name='ghiChu']");
+            const liDo = modal.querySelector(".liDoGhiChu");
+
+            if (selectElement.value === "10" || selectElement.value === "9") {
+                ghiChu.setAttribute("required", "required");
+                liDo.style.display = "inline";   // hiện chữ "lí do *"
+            } else {
+                ghiChu.removeAttribute("required");
+                liDo.style.display = "none";     // ẩn luôn
+            }
+        }
+    </script>
 
 </section>
 
