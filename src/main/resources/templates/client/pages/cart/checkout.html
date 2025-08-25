@@ -9,80 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/client-static/css/checkout.css}">
     <link rel="stylesheet" th:href="@{/client-static/css/stepper.css}">
-    <style>
-        .dropdown-menu {
-            border: 1px solid #e9ecef;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            z-index: 1050 !important;
-            position: absolute !important;
-        }
-
-        .dropdown-menu .form-select {
-            border: none;
-            padding: 0.5rem;
-        }
-
-        .dropdown-menu .form-select:focus {
-            box-shadow: none;
-            border: none;
-        }
-
-        .text-primary {
-            color: #0070f3 !important;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-            border-color: #545b62;
-        }
-
-        /* Form validation styles */
-        .form-control.is-invalid {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-        }
-
-        .form-control.is-invalid:focus {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-        }
-
-        /* Fix dropdown positioning */
-        .dropdown {
-            position: relative;
-        }
-
-        .order-summary {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Ensure dropdown appears above other elements */
-        .dropdown-menu.show {
-            z-index: 1050 !important;
-            position: absolute !important;
-        }
-
-        /* Spacing for body when using bg-gray-50 */
-        body.bg-gray-50 {
-            margin: 12px;
-        }
-
-        @media (min-width: 768px) {
-            body.bg-gray-50 {
-                margin: 20px;
-            }
-        }
-    </style>
-
 </head>
 
-<body class="bg-gray-50">
+<body class="checkout-page">
 
     <!-- Success Toast -->
     <div id="customSuccess" class="custom-toast success" style="display:none;">
@@ -99,6 +28,7 @@
         <button class="close-btn" onclick="closeToast('customError')">&times;</button>
         <div class="progress-bar"></div>
     </div>
+    
     <div class="stepper-wrapper mb-4">
         <div class="progress" style="height: 2px;">
             <div class="progress-bar" role="progressbar" style="width: 0%"></div>
@@ -189,6 +119,7 @@
                                     <input type="text" class="form-control" id="tenNguoiNhan" name="tenNguoiNhan"
                                         th:value="${khachHang.ten}" placeholder="Tên người nhận" required>
                                     <label for="tenNguoiNhan">Tên người nhận <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback" id="tenNguoiNhan-error"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -197,6 +128,7 @@
                                         th:value="${khachHang.soDienThoai}" placeholder="Số điện thoại" required
                                         pattern="[0-9]{9,11}">
                                     <label for="soDienThoai">Số điện thoại <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback" id="soDienThoai-error"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -204,6 +136,7 @@
                                     <input type="email" class="form-control" id="email" name="email"
                                         th:value="${khachHang.email}" placeholder="Email" required>
                                     <label for="email">Email <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback" id="email-error"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -220,40 +153,44 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <div class="form-floating">
-                                    <select name="provinceId" id="provinceSelect" class="form-select">
+                                    <select name="provinceId" id="provinceSelect" class="form-select" required>
                                         <option value="">-- Chọn Tỉnh / Thành phố --</option>
                                         <option th:each="province : ${provinces}"
                                             th:value="${province.get('ProvinceID')}"
                                             th:text="${province.get('ProvinceName')}"></option>
                                     </select>
-                                    <label>Tỉnh / Thành phố</label>
+                                    <label>Tỉnh / Thành phố <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback" id="provinceSelect-error"></div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-floating">
-                                    <select name="districtId" id="districtSelect" class="form-select">
+                                    <select name="districtId" id="districtSelect" class="form-select" required>
                                         <option value="">-- Chọn Quận / Huyện --</option>
                                         <option th:each="district : ${districts}" th:value="${district['DistrictID']}"
                                             th:text="${district['DistrictName']}"></option>
                                     </select>
-                                    <label>Quận / Huyện</label>
+                                    <label>Quận / Huyện <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback" id="districtSelect-error"></div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-floating">
-                                    <select name="wardId" id="wardSelect" class="form-select">
+                                    <select name="wardId" id="wardSelect" class="form-select" required>
                                         <option value="">-- Chọn Phường / Xã --</option>
                                         <option th:each="ward : ${wards}" th:value="${ward.get('WardCode')}"
                                             th:text="${ward.get('WardName')}"></option>
                                     </select>
-                                    <label>Phường / Xã</label>
+                                    <label>Phường / Xã <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback" id="wardSelect-error"></div>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-floating">
                                     <input type="text" class="form-control" id="diaChi" name="diaChi"
-                                        placeholder="Địa chỉ chi tiết">
-                                    <label for="diaChi">Địa chỉ chi tiết</label>
+                                        placeholder="Địa chỉ chi tiết" required>
+                                    <label for="diaChi">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback" id="diaChi-error"></div>
                                 </div>
                             </div>
                         </div>
@@ -288,8 +225,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </form>
                 </div>
             </div>
@@ -342,13 +277,12 @@
 
                         <div class="summary-item d-flex justify-content-between mb-2">
                             <span>Giá trị đơn hàng:</span>
-                            <span class="amount"
+                            <span class="amount" id="tongTienText"
                                 th:text="${#numbers.formatDecimal(tongTien,0,'COMMA',0,'POINT')} + ' ₫'">0 ₫</span>
                         </div>
                         <div class="summary-item d-flex justify-content-between mb-2">
                             <span>Phí vận chuyển:</span>
-                            <span class="amount" id="tienVanChuyenText"
-                                th:text="${#numbers.formatDecimal(shippingFee,0,'COMMA',0,'POINT')} + ' ₫'">0 ₫</span>
+                            <span class="amount" id="tienVanChuyenText">0 ₫</span>
                         </div>
                         <div class="text-muted small mb-3" id="shippingNote" style="display: none;">
                             Freeship cho sản phẩm FW24
@@ -361,18 +295,16 @@
                                 <strong>Tổng tiền thanh toán</strong><br>
                                 <small class="text-muted">(Đã bao gồm thuế VAT)</small>
                             </div>
-                            <strong class="total-amount" id="tongThanhToanText" th:text="${tongThanhToan} + ' ₫'">0
-                                ₫</strong>
+                            <strong class="total-amount" id="tongThanhToanText">0 ₫</strong>
                         </div>
 
                         <div class="text-danger small mb-4" id="savingsText">
-                            Tiết kiệm <span id="tienGiamText"
-                                th:text="${#numbers.formatDecimal(tienGiam,0,'COMMA',0,'POINT')} + ' ₫'">0 ₫</span>
+                            Tiết kiệm <span id="tienGiamText">0 ₫</span>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="d-grid gap-2">
-                            <button type="submit" form="checkout-form" class="btn btn-secondary btn-lg text-white">
+                            <button type="submit" form="checkout-form" class="btn btn-secondary btn-lg text-white" id="submitBtn" disabled>
                                 THANH TOÁN
                             </button>
                             <a th:href="@{/gio-hang/hien_thi}" class="btn btn-outline-secondary">
@@ -384,291 +316,6 @@
             </div>
         </div>
     </div>
-
-    <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
-            // Khai báo phần tử
-            const phieuGiamGia = document.getElementById("phieuGiamGia");
-            const tienGiamText = document.getElementById("tienGiamText");
-            const tongThanhToanText = document.getElementById("tongThanhToanText");
-            const provinceSelect = document.querySelector('select[name="provinceId"]');
-            const districtSelect = document.querySelector('select[name="districtId"]');
-            const wardSelect = document.querySelector('select[name="wardId"]');
-            const shippingFeeText = document.getElementById("tienVanChuyenText");
-            const shippingFeeInput = document.getElementById("tienVanChuyenInput");
-
-            // Các input hidden lưu tên địa chỉ
-            const tenTinhHidden = document.getElementById("tenTinhHidden");
-            const tenHuyenHidden = document.getElementById("tenHuyenHidden");
-            const tenXaHidden = document.getElementById("tenXaHidden");
-
-            // Discount dropdown elements
-            const discountToggle = document.getElementById('discountToggle');
-            const discountDropdown = document.getElementById('discountDropdown');
-            const discountText = document.getElementById('discountText');
-
-            // Tổng tiền gốc từ server
-            const tongTien = /*[[${tongTien}]]*/ 0;
-            let currentDiscount = 0;
-            let currentShippingFee = 0;
-
-            function updateTotalPay() {
-                const total = tongTien - currentDiscount + currentShippingFee;
-                tongThanhToanText.innerText = total.toLocaleString('vi-VN') + " ₫";
-            }
-
-            function clearSelect(select, placeholder = "-- Chọn --") {
-                if (!select) return;
-                select.innerHTML = `<option value="">${placeholder}</option>`;
-            }
-
-            function populateSelect(select, items, valueKey, textKey) {
-                if (!select) return;
-                clearSelect(select);
-                items.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item[valueKey];
-                    option.textContent = item[textKey];
-                    select.appendChild(option);
-                });
-            }
-
-            // Mã giảm giá - tính toán tiền giảm
-            phieuGiamGia.addEventListener("change", function () {
-                const maPhieu = this.value;
-                if (!maPhieu) {
-                    currentDiscount = 0;
-                    tienGiamText.innerText = "0 ₫";
-                    document.getElementById("tienGiamInput").value = 0;
-                    updateTotalPay();
-                    return;
-                }
-
-                fetch(`/gio-hang/phieu-giam-gia/tien-giam?maPhieu=${maPhieu}&tongTien=${tongTien}`)
-                    .then(res => res.json())
-                    .then(tienGiam => {
-                        currentDiscount = tienGiam;
-                        tienGiamText.innerText = tienGiam.toLocaleString('vi-VN') + " ₫";
-                        document.getElementById("tienGiamInput").value = tienGiam;
-                        updateTotalPay();
-                    })
-                    .catch(() => {
-                        currentDiscount = 0;
-                        tienGiamText.innerText = "0 ₫";
-                        document.getElementById("tienGiamInput").value = 0;
-                        updateTotalPay();
-                    });
-            });
-
-            // Khi chọn tỉnh
-            provinceSelect.addEventListener("change", function () {
-                const provinceId = this.value;
-                const selectedText = this.options[this.selectedIndex]?.text || "";
-                tenTinhHidden.value = selectedText;
-
-                clearSelect(districtSelect, "-- Chọn Quận / Huyện --");
-                clearSelect(wardSelect, "-- Chọn Phường / Xã --");
-                tenHuyenHidden.value = "";
-                tenXaHidden.value = "";
-
-                currentShippingFee = 0;
-                shippingFeeText.innerText = "0 ₫";
-                shippingFeeInput.value = 0;
-                updateTotalPay();
-
-                if (!provinceId) return;
-
-                fetch(`/gio-hang/thanh-toan/location?provinceId=${provinceId}`)
-                    .then(res => res.json())
-                    .then(districts => populateSelect(districtSelect, districts, 'DistrictID', 'DistrictName'))
-                    .catch(err => console.error('Lỗi lấy districts:', err));
-            });
-
-            // Khi chọn quận/huyện
-            districtSelect.addEventListener("change", function () {
-                const districtId = this.value;
-                const selectedText = this.options[this.selectedIndex]?.text || "";
-                tenHuyenHidden.value = selectedText;
-
-                clearSelect(wardSelect, "-- Chọn Phường / Xã --");
-                tenXaHidden.value = "";
-
-                currentShippingFee = 0;
-                shippingFeeText.innerText = "0 ₫";
-                shippingFeeInput.value = 0;
-                updateTotalPay();
-
-                if (!districtId) return;
-
-                fetch(`/gio-hang/thanh-toan/location?districtId=${districtId}`)
-                    .then(res => res.json())
-                    .then(wards => populateSelect(wardSelect, wards, 'WardCode', 'WardName'))
-                    .catch(err => console.error('Lỗi lấy wards:', err));
-            });
-
-            // Khi chọn phường/xã
-            wardSelect.addEventListener("change", function () {
-                const wardCode = this.value;
-                const selectedText = this.options[this.selectedIndex]?.text || "";
-                tenXaHidden.value = selectedText;
-
-                updateShippingFee();
-            });
-
-            function updateShippingFee() {
-                const districtId = districtSelect?.value;
-                const wardCode = wardSelect?.value;
-
-                if (!districtId || !wardCode) {
-                    currentShippingFee = 0;
-                    shippingFeeText.innerText = "0 ₫";
-                    shippingFeeInput.value = 0;
-                    updateTotalPay();
-                    return;
-                }
-
-                fetch(`/gio-hang/thanh-toan/shipping-fee?districtId=${districtId}&wardCode=${wardCode}`)
-                    .then(res => {
-                        if (!res.ok) throw new Error("Không thể lấy phí vận chuyển");
-                        return res.json();
-                    })
-                    .then(fee => {
-                        currentShippingFee = fee;
-                        shippingFeeText.innerText = fee.toLocaleString('vi-VN') + " ₫";
-                        shippingFeeInput.value = fee;
-                        updateTotalPay();
-                    })
-                    .catch(err => {
-                        console.error("Lỗi tính phí ship:", err);
-                        currentShippingFee = 0;
-                        shippingFeeText.innerText = "Không thể tính";
-                        shippingFeeInput.value = 0;
-                        updateTotalPay();
-                    });
-            }
-
-            // Khởi tạo lần đầu
-            tienGiamText.innerText = "0 ₫";
-            shippingFeeText.innerText = "0 ₫";
-            tongThanhToanText.innerText = tongTien.toLocaleString('vi-VN') + " ₫";
-
-            function autoSelectBestVoucher() {
-                const currentValue = phieuGiamGia.value;
-                if (currentValue) return; // Đã có mã được chọn => không auto nữa
-
-                const options = [...phieuGiamGia.options].filter(o => o.value !== "");
-                if (options.length === 0) return;
-
-                let bestVoucher = null;
-                let maxDiscount = 0;
-
-                const promises = options.map(option => {
-                    const maPhieu = option.value;
-                    return fetch(`/gio-hang/phieu-giam-gia/tien-giam?maPhieu=${maPhieu}&tongTien=${tongTien}`)
-                        .then(res => res.json())
-                        .then(discount => {
-                            if (discount > maxDiscount) {
-                                maxDiscount = discount;
-                                bestVoucher = maPhieu;
-                            }
-                        }).catch(() => { });
-                });
-
-                Promise.all(promises).then(() => {
-                    if (bestVoucher) {
-                        phieuGiamGia.value = bestVoucher;
-                        phieuGiamGia.dispatchEvent(new Event('change'));
-                    }
-                });
-            }
-
-            autoSelectBestVoucher();
-            // Nếu đã có mã giảm giá được chọn sẵn từ server
-            if (phieuGiamGia.value) {
-                phieuGiamGia.dispatchEvent(new Event('change'));
-                // Cập nhật text hiển thị
-                const selectedOption = phieuGiamGia.options[phieuGiamGia.selectedIndex];
-                if (selectedOption) {
-                    discountText.textContent = selectedOption.textContent.split(' - ')[0];
-                }
-            }
-
-            // Payment method selection
-            const paymentCards = document.querySelectorAll('.payment-card');
-            const paymentInputs = document.querySelectorAll('input[name="phuongThucThanhToan"]');
-
-            paymentInputs.forEach(input => {
-                input.addEventListener('change', function () {
-                    paymentCards.forEach(card => card.classList.remove('selected'));
-                    if (this.checked) {
-                        this.closest('.payment-card').classList.add('selected');
-                    }
-                });
-            });
-
-            // Discount dropdown toggle
-
-            discountToggle.addEventListener('click', function (e) {
-                e.preventDefault();
-                const isVisible = discountDropdown.style.display !== 'none';
-                discountDropdown.style.display = isVisible ? 'none' : 'block';
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!discountToggle.contains(e.target) && !discountDropdown.contains(e.target)) {
-                    discountDropdown.style.display = 'none';
-                }
-            });
-
-            // Update discount text when selection changes
-            phieuGiamGia.addEventListener('change', function () {
-                const selectedOption = this.options[this.selectedIndex];
-                if (this.value) {
-                    discountText.textContent = selectedOption.textContent.split(' - ')[0]; // Show only code
-                    discountDropdown.style.display = 'none';
-                } else {
-                    discountText.textContent = 'Chọn hoặc nhập mã';
-                }
-            });
-
-            // Form validation and submission
-            const checkoutForm = document.getElementById('checkout-form');
-            const submitButton = checkoutForm.querySelector('button[type="submit"]');
-
-            checkoutForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                // Basic validation
-                const requiredFields = checkoutForm.querySelectorAll('[required]');
-                let isValid = true;
-
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        isValid = false;
-                        field.classList.add('is-invalid');
-                    } else {
-                        field.classList.remove('is-invalid');
-                    }
-                });
-
-                // Check if payment method is selected
-                const paymentMethod = checkoutForm.querySelector('input[name="phuongThucThanhToan"]:checked');
-                if (!paymentMethod) {
-                    isValid = false;
-                    alert('Vui lòng chọn phương thức thanh toán');
-                    return;
-                }
-
-                if (isValid) {
-                    // Submit form
-                    checkoutForm.submit();
-                } else {
-                    alert('Vui lòng điền đầy đủ thông tin bắt buộc');
-                }
-            });
-        });
-    </script>
 
     <!-- Thong bao -->
     <script th:inline="javascript">
@@ -708,7 +355,9 @@
         /*]]>*/
     </script>
 
+    <!-- External JavaScript Files -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/client-static/js/checkout.js}"></script>
 </body>
 
 </html>
