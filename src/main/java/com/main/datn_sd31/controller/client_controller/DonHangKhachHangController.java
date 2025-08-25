@@ -66,7 +66,9 @@ public class DonHangKhachHangController {
         model.addAttribute("pageInfo", hoaDonList);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonList.getContent()));
+        model.addAttribute("trangThaiCount", hoaDonService.getTrangThaiCount(hoaDonService.getAllHoaDonKhachHang(getKhachHang.getCurrentKhachHang())));
+
+//        System.out.println(hoaDonService.getAllHoaDonKhachHang(getKhachHang.getCurrentKhachHang()).toString() + "\n");
 
         Map<String, List<TrangThaiLichSuHoaDon>> trangThaiHopLeMap = new HashMap<>();
         for (HoaDonDTO hd : hoaDonList.getContent()) {

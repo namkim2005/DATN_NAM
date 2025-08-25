@@ -162,6 +162,37 @@ public class HoaDonServiceIpml implements HoaDonService {
     }
 
     @Override
+    public List<HoaDonDTO> getAllHoaDonKhachHang(KhachHang khachHang) {
+        List<HoaDonDTO> hoaDonList = new ArrayList<>();
+
+        for (HoaDon hoaDon : hoaDonRepository.findAllByKhachHang(khachHang)) {
+            HoaDonDTO hoaDonDTO = new HoaDonDTO();
+            hoaDonDTO.setMa(hoaDon.getMa());
+            hoaDonDTO.setNgayTao(hoaDon.getNgayTao().toString());
+
+            if (hoaDon.getKhachHang() != null) {
+                hoaDonDTO.setMaKH(hoaDon.getKhachHang().getMa());
+                hoaDonDTO.setTenKH(hoaDon.getKhachHang().getTen());
+            } else {
+                hoaDonDTO.setMaKH(null);
+                hoaDonDTO.setTenKH("Khách vãng lai");
+            }
+
+            LichSuHoaDon lichSuMoiNhat = lichSuHoaDonRepository.findTopByHoaDonOrderByIdDesc(hoaDon);
+            if (lichSuMoiNhat != null) {
+                hoaDonDTO.setTrangThaiLichSuHoaDon(lichSuMoiNhat.getTrangThai());
+            } else {
+                hoaDonDTO.setTrangThaiLichSuHoaDon(11);
+            }
+
+            hoaDonDTO.setThanhTien(hoaDon.getThanhTien());
+            hoaDonList.add(hoaDonDTO);
+        }
+
+        return hoaDonList;
+    }
+
+    @Override
     public Map<String, Long> getTrangThaiCount(List<HoaDonDTO> list) {
         return list.stream()
                 .collect(Collectors.groupingBy(HoaDonDTO::getTrangThaiLichSuHoaDonMoTa, Collectors.counting()));
