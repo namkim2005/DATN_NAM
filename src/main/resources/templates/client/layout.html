@@ -608,7 +608,7 @@
         dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
         
         // Chuyển đến trang logout
-        window.location.href = '/auth/customer/logout';
+        window.location.href = '/khach-hang/dang-xuat';
       }
     });
   </script>
@@ -623,6 +623,13 @@
       // Add sticky classes and modify structure
       stickyNavbar.classList.add('navbar-sticky');
       stickyNavbar.classList.remove('main-menu');
+      
+      // Đảm bảo cart count trong sticky navbar có z-index cao hơn
+      const stickyCartCounts = stickyNavbar.querySelectorAll('#headerCartCount, #mobileHeaderCartCount');
+      stickyCartCounts.forEach(count => {
+        count.style.zIndex = '1050';
+        count.style.position = 'absolute';
+      });
       
       // Wrap in container for proper layout
       const stickyContainer = document.createElement('div');

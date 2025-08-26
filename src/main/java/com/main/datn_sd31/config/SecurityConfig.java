@@ -38,6 +38,8 @@ public class SecurityConfig {
             .securityMatcher(ADMIN_PATTERNS)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(ADMIN_PERMIT_ALL).permitAll()
+                .requestMatchers(ADMIN_ONLY_URLS).hasRole("ADMIN")
+                .requestMatchers(ADMIN_AND_NHANVIEN_URLS).hasAnyRole("ADMIN", "NHANVIEN")
                 .anyRequest().hasAnyRole("ADMIN", "NHANVIEN")
             )
             .formLogin(form -> form
@@ -47,13 +49,13 @@ public class SecurityConfig {
                 .failureHandler(customAuthenticationFailureHandler)
                 .permitAll()
             )
-            .logout(logout -> logout
-                .logoutUrl(ADMIN_LOGOUT)
-                .logoutSuccessUrl(ADMIN_LOGIN + "?logout=true")
-                .permitAll()
-            )
+            // Logout được xử lý bởi AccessDeniedController
+            .logout(logout -> logout.disable())
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers(CSRF_EXEMPTIONS)
+            )
+            .exceptionHandling(exception -> exception
+                .accessDeniedPage("/admin/access-denied")
             );
         return http.build();
     }
@@ -72,15 +74,11 @@ public class SecurityConfig {
                         .loginPage(CUSTOMER_LOGIN)
                         .loginProcessingUrl(CUSTOMER_LOGIN)
                         .defaultSuccessUrl(PRODUCTS + "/danh-sach", true)
+                        .failureHandler(customAuthenticationFailureHandler)
                         .permitAll()
                 )
-                .logout(lg -> lg
-                        .logoutUrl(CUSTOMER_LOGOUT)
-                        .logoutSuccessUrl(PRODUCTS + "/danh-sach")
-                        .invalidateHttpSession(true)                  // ✅ XÓA SESSION
-                        .deleteCookies("JSESSIONID")                  // ✅ XÓA COOKIE phiên
-                        .clearAuthentication(true)                    // ✅ XÓA thông tin xác thực
-                );
+                // Logout được xử lý bởi KhachHangLoginController
+                .logout(lg -> lg.disable());
 
         return http.build();
     }

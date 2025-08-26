@@ -7,6 +7,7 @@ import com.main.datn_sd31.repository.KhachHangRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,6 +39,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Tìm khách hàng
         KhachHang kh = khachHangRepository.findByEmail(email).orElse(null);
         if (kh != null) {
+            // Kiểm tra trạng thái hoạt động
+            if (!kh.getTrangThai()) {
+                throw new DisabledException("Tài khoản đã bị khóa. Vui lòng liên hệ admin để được hỗ trợ.");
+            }
             return buildUser(kh.getEmail(), kh.getMatKhau(), "ROLE_KHACHHANG");
         }
 
