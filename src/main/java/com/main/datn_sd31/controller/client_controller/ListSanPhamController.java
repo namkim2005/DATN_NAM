@@ -3,7 +3,9 @@ package com.main.datn_sd31.controller.client_controller;
 import com.main.datn_sd31.entity.*;
 import com.main.datn_sd31.entity.DotGiamGia;
 import com.main.datn_sd31.repository.*;
+import com.main.datn_sd31.service.SpYeuThichService;
 import com.main.datn_sd31.service.impl.DanhGiaService;
+import com.main.datn_sd31.service.impl.KhachHangServiceImpl;
 import com.main.datn_sd31.service.impl.Sanphamservice;
 import com.main.datn_sd31.util.GetKhachHang;
 import com.main.datn_sd31.util.ColorUtil;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.function.Function;
@@ -45,6 +48,10 @@ public class ListSanPhamController {
     private final DanhGiaService danhGiaService;
 
     private final GetKhachHang getKhachHang;
+    private final KhachHangRepository khachHangRepository;
+    private final SpYeuThichService spYeuThichService;
+    private final KhachHangServiceImpl khachHangServiceImpl;
+    private final SpYeuThichRepository spYeuThichRepository;
 
     @GetMapping("/danh-sach")
     public String hienThiDanhSachSanPham(
@@ -187,6 +194,7 @@ public class ListSanPhamController {
             @PathVariable("id") Integer id,
             @RequestParam(value="page", defaultValue="0") int page,
             @RequestParam(value="star", required=false) Integer star,
+            Principal principal,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
@@ -396,6 +404,21 @@ public class ListSanPhamController {
         model.addAttribute("totalPages",   totalPages);
 
         System.out.println("=== RETURNING TEMPLATE ===");
+
+        SanPham sp = sanPhamService.findbyid(id);
+//            System.out.println("tim thay sp");
+        model.addAttribute("sanPham", sp);
+
+        // Lấy danh sách sản phẩm yêu thích của khách hàng hiện tại
+        List<Integer> yeuThichList = new ArrayList<>();
+        if (principal != null) {
+            KhachHang kh = khachHangServiceImpl.findByEmail(principal.getName());
+            yeuThichList = spYeuThichRepository.findAllSanPhamIdByKhachHang(kh.getId());
+        }
+        model.addAttribute("yeuThichList", yeuThichList);
+
+        model.addAttribute("yeuThichList", yeuThichList);
+
         return "client/pages/product/product-detail";
         } catch (Exception e) {
             System.out.println("=== ERROR IN CONTROLLER ===");

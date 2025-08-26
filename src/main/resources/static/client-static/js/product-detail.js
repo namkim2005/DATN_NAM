@@ -809,6 +809,60 @@ function formatCurrency(amount) {
     return Utils.formatCurrency(amount);
 }
 
-function showNotification(message, type = 'info') {
-    Utils.showNotification(message, type);
-} 
+// THAY BẰNG:
+function showNotification(message, type) {
+    // Kiểm tra xem có thư viện notification nào đã load chưa
+    if (typeof toastr !== 'undefined') {
+        // Nếu có toastr
+        if (type === 'success') {
+            toastr.success(message);
+        } else {
+            toastr.error(message);
+        }
+    } else if (typeof Swal !== 'undefined') {
+        // Nếu có SweetAlert2
+        Swal.fire({
+            title: type === 'success' ? 'Thành công!' : 'Lỗi!',
+            text: message,
+            icon: type === 'success' ? 'success' : 'error',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    } else {
+        // Fallback: Tạo notification đơn giản bằng vanilla JS
+        createSimpleNotification(message, type);
+    }
+}
+
+function createSimpleNotification(message, type) {
+    // Tạo notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 300px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    `;
+
+    notification.innerHTML = `
+        <strong>${type === 'success' ? 'Thành công!' : 'Lỗi!'}</strong>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Tự động ẩn sau 3 giây
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 150); // Đợi animation fade out
+        }
+    }, 3000);
+}
