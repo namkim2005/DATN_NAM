@@ -54,6 +54,30 @@ public final class SecurityConstants {
         ADMIN_LOGIN, ADMIN_LOGOUT, "/admin/san-pham/api/export-excel"
     };
     
+    // Admin URLs cho Quản lý (ADMIN)
+    public static final String[] ADMIN_ONLY_URLS = {
+        "/admin/quanlytaikhoan/**",  // Quản lý tài khoản
+        "/admin/dot-giam-gia/**",    // Đợt giảm giá
+        "/admin/phieu-giam-gia/**",  // Phiếu giảm giá
+        "/admin/san-pham/**",        // Sản phẩm và thuộc tính
+        "/admin/thuong-hieu/**",     // Thương hiệu
+        "/admin/kieu-dang/**",       // Kiểu dáng
+        "/admin/xuat-xu/**",         // Xuất xứ
+        "/admin/chat-lieu/**",       // Chất liệu
+        "/admin/danh-muc/**",        // Danh mục
+        "/admin/loai-thu/**",        // Loại thú
+        "/admin/mau-sac/**",         // Màu sắc
+        "/admin/size/**"             // Size
+    };
+    
+    // Admin URLs cho cả Quản lý và Nhân viên
+    public static final String[] ADMIN_AND_NHANVIEN_URLS = {
+        "/admin/thong-ke/**",        // Tổng quan
+        "/admin/ban-hang/**",        // Bán hàng
+        "/admin/hoa-don/**",         // Hoá đơn
+        "/admin/don-hang/**"         // Đơn hàng
+    };
+    
     public static final String[] CUSTOMER_PERMIT_ALL = {
         CUSTOMER_LOGIN, CUSTOMER_REGISTER, CUSTOMER_FORGOT_PASSWORD,
         "/khach-hang/danh-sach", "/khach-hang/chi-tiet/**",

@@ -24,24 +24,7 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     // ==================== LOGOUT ENDPOINTS ====================
-    
-    @GetMapping("/admin/logout")
-    public String adminLogout(HttpServletRequest request, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-        return "redirect:/admin/dang-nhap?logout=true";
-    }
-
-    @GetMapping("/customer/logout")
-    public String customerLogout(HttpServletRequest request, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-        return "redirect:/home";
-    }
+    // Đã xóa các method logout vì Spring Security đã xử lý
 
     // ==================== AUTH STATUS ENDPOINT ====================
     

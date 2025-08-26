@@ -678,6 +678,14 @@ Single Product section style start
 }
 
 /*--------------------------------------------------------------
+Header - Đảm bảo luôn hiển thị trên navbar sticky
+--------------------------------------------------------------*/
+header {
+  position: relative;
+  z-index: 1020; /* Thấp hơn navbar sticky nhưng cao hơn các element khác */
+}
+
+/*--------------------------------------------------------------
 Sticky Navbar with Liquid Glass Effect
 --------------------------------------------------------------*/
 .navbar-sticky {
@@ -689,6 +697,44 @@ Sticky Navbar with Liquid Glass Effect
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform: translateY(-100%);
   opacity: 0;
+}
+
+/* Header Cart Count - Đảm bảo luôn hiển thị trên navbar sticky */
+#headerCartCount,
+#mobileHeaderCartCount {
+  z-index: 1040 !important; /* Cao hơn navbar sticky (1030) */
+  position: absolute !important;
+}
+
+/* Đảm bảo cart icon trong header luôn hiển thị trên navbar sticky */
+header .nav-link[data-bs-target="#offcanvasCart"],
+header .nav-link[data-bs-target="#offcanvasCart"] iconify-icon {
+  position: relative;
+  z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+  pointer-events: auto !important;
+}
+
+/* Đảm bảo tất cả cart-related elements trong header luôn hiển thị trên navbar sticky */
+header .d-flex .nav-link[data-bs-target="#offcanvasCart"],
+header .d-flex .nav-link[data-bs-target="#offcanvasCart"] iconify-icon,
+header .d-flex .badge {
+  position: relative;
+  z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+  pointer-events: auto !important;
+}
+
+/* Đảm bảo cart count badge luôn hiển thị trên cùng */
+.badge.cart-count-badge {
+  z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Đảm bảo cart icon container luôn hiển thị trên navbar sticky */
+.nav-link[data-bs-target="#offcanvasCart"] {
+  position: relative !important;
+  z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+  pointer-events: auto !important;
 }
 
 .navbar-sticky.show {
@@ -722,6 +768,19 @@ Sticky Navbar with Liquid Glass Effect
 .navbar-sticky .nav-link {
   border-radius: 12px;
   overflow: hidden;
+}
+
+/* Đảm bảo cart count trong sticky navbar luôn hiển thị */
+.navbar-sticky .badge.cart-count-badge {
+  z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+.navbar-sticky .nav-link[data-bs-target="#offcanvasCart"] {
+  position: relative !important;
+  z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+  pointer-events: auto !important;
 }
 
 
@@ -812,6 +871,15 @@ Sticky Navbar with Liquid Glass Effect
   
   .navbar-sticky .nav-link {
     padding: 8px 16px;
+  }
+  
+  /* Đảm bảo mobile cart count luôn hiển thị trên navbar sticky */
+  .d-flex.d-lg-none .nav-link[data-bs-target="#offcanvasCart"],
+  .d-flex.d-lg-none .nav-link[data-bs-target="#offcanvasCart"] iconify-icon,
+  .d-flex.d-lg-none .badge {
+    position: relative;
+    z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+    pointer-events: auto !important;
   }
 }
 

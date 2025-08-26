@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>404 - Page Not Found</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            prefix: 'tw-',
+            theme: {
+                extend: {},
+            },
+            plugins: [],
+        }
+    </script>
     <style>
         @keyframes float {
             0% { transform: translateY(0); }
@@ -20,12 +29,12 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
-    <div class="text-center animate-fadeIn">
-        <img src="https://yemca-services.net/404.png" alt="404 Illustration" class="mx-auto w-80 animate-[float_3s_infinite] shadow-xl rounded-lg">
-        <h1 class="text-7xl font-extrabold text-blue-700 mt-6">Looks Like You're Lost!</h1>
-        <p class="text-xl text-gray-700 mt-2">We can't seem to find the page you're looking for.</p>
-        <a href="/" class="mt-6 inline-block bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg transform transition hover:scale-105 hover:bg-blue-700">Return Home</a>
+<body class="tw-flex tw-items-center tw-justify-center tw-min-h-screen tw-bg-gradient-to-br tw-from-blue-50 tw-to-gray-100">
+    <div class="tw-text-center animate-fadeIn">
+        <img src="https://yemca-services.net/404.png" alt="404 Illustration" class="tw-mx-auto tw-w-80 tw-animate-[float_3s_infinite] tw-shadow-xl tw-rounded-lg">
+        <h1 class="tw-text-7xl tw-font-extrabold tw-text-blue-700 tw-mt-6">Looks Like You're Lost!</h1>
+        <p class="tw-text-xl tw-text-gray-700 tw-mt-2">We can't seem to find the page you're looking for.</p>
+        <a href="/" class="tw-mt-6 tw-inline-block tw-bg-blue-600 tw-text-white tw-px-8 tw-py-3 tw-rounded-full tw-text-lg tw-font-semibold tw-shadow-lg tw-transform tw-transition hover:tw-scale-105 hover:tw-bg-blue-700">Return Home</a>
     </div>
 </body>
 </html>

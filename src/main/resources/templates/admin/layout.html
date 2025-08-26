@@ -410,7 +410,7 @@
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-3 px-4" th:href="@{/auth/admin/logout}" style="color: #dead6f; font-weight: 500; border-radius: 8px; transition: background 0.2s;">
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-3 px-4" th:href="@{/admin/logout}" style="color: #dead6f; font-weight: 500; border-radius: 8px; transition: background 0.2s;">
                             <i class="fas fa-sign-out-alt" style="font-size: 1.2rem;"></i>
                             <span>Sign Out</span>
                         </a>
@@ -483,9 +483,8 @@
                         <span class="menu-title">Đơn hàng</span>
                     </a>
                 </li>
-                <li class="nav-item">
-<!--                    <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">-->
-<!--                        <i class="menu-icon fas fa-box"></i>-->
+                <!-- Menu Sản phẩm - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
                     <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
                        aria-controls="ui-basic">
                         <i class="menu-icon mdi mdi-content-copy"></i>
@@ -551,25 +550,29 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
+                <!-- Menu Đợt giảm giá - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
                     <a class="nav-link" th:href="@{/admin/dot-giam-gia}">
                         <i class="menu-icon fas fa-percentage"></i>
                         <span class="menu-title">Đợt giảm giá</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <!-- Menu Phiếu giảm giá - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
                     <a class="nav-link" th:href="@{/admin/phieu-giam-gia}">
                         <i class="menu-icon fas fa-ticket-alt"></i>
                         <span class="menu-title">Phiếu giảm giá</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <!-- Menu Nhân viên - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
                     <a class="nav-link" th:href="@{/admin/quanlytaikhoan/nhanvien}">
                         <i class="menu-icon fas fa-users-cog"></i>
                         <span class="menu-title">Nhân viên</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <!-- Menu Khách hàng - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
                     <a class="nav-link" th:href="@{/admin/quanlytaikhoan/khachhang}">
                         <i class="menu-icon fas fa-users"></i>
                         <span class="menu-title">Khách hàng</span>

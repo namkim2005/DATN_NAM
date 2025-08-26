@@ -693,9 +693,9 @@ public class QuanLyTaiKhoan {
 
     // Validation cho khách hàng
     private void validateKhachHang(KhachHang khachHang, BindingResult result) {
-        // Kiểm tra mã khách hàng
-        if (khachHang.getMa() == null || !khachHang.getMa().matches("^KH\\d{3,5}$")) {
-            result.rejectValue("ma", "invalid", "Mã phải có dạng KH + 3-5 chữ số");
+        // Kiểm tra mã khách hàng - chỉ cần không null
+        if (khachHang.getMa() == null || khachHang.getMa().trim().isEmpty()) {
+            result.rejectValue("ma", "required", "Mã khách hàng không được để trống");
         }
         
         // Kiểm tra trùng mã

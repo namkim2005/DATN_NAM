@@ -19,6 +19,29 @@
     --shadow-color: rgba(222, 173, 111, 0.15);
 }
 
+/* Header Cart Count - Đảm bảo luôn hiển thị trên navbar sticky */
+#headerCartCount,
+#mobileHeaderCartCount {
+    z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+    position: absolute !important;
+    pointer-events: auto !important;
+}
+
+/* Đảm bảo cart count luôn hiển thị trên navbar sticky */
+.cart-count-badge {
+    z-index: 1050 !important;
+    position: absolute !important;
+    pointer-events: auto !important;
+}
+
+/* Đảm bảo cart icon trong header luôn hiển thị trên navbar sticky */
+header .nav-link[data-bs-target="#offcanvasCart"],
+header .nav-link[data-bs-target="#offcanvasCart"] iconify-icon {
+    position: relative;
+    z-index: 1050 !important; /* Cao hơn navbar sticky (1030) và header (1020) */
+    pointer-events: auto !important;
+}
+
 /* Offcanvas Container */
 .offcanvas {
     border-left: 1px solid var(--border-color);

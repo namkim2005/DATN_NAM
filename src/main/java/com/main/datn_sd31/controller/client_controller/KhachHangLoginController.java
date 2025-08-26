@@ -2,7 +2,12 @@ package com.main.datn_sd31.controller.client_controller;
 
 import com.main.datn_sd31.entity.KhachHang;
 import com.main.datn_sd31.service.KhachHangService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -87,5 +92,14 @@ public class KhachHangLoginController {
             model.addAttribute("khachHang", khachHang);
             return "client/pages/auth/register";
         }
+    }
+    
+    @GetMapping("/dang-xuat")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        return "redirect:/";
     }
 }
