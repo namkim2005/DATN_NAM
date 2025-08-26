@@ -489,19 +489,14 @@
                         </td>
                         <td class="text-end tong-tien" th:text="${@utils.formatCurrency(hdct.tongTien)}"></td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
-                                    data-bs-target="#modalDanhGiaSanPham"
-                                    th:data-id="${hdct.idCTSP}"
-                                    onclick="chonSanPhamDanhGia(this)"
-                                    th:classappend="${@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang) ? '' : 'disabled-custom'}"
-                                    th:attr="title=${!@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang) ? 'Không thể đánh giá ở trạng thái hiện tại' : null}"
-                                    th:if="${@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang)}">
-                                Đánh giá
-                            </button>
                             <button type="button" class="btn btn-outline-secondary"
-                                    th:classappend="${@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang) ? '' : 'disabled-custom'}"
-                                    th:attr="title=${!@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang) ? 'Không thể đánh giá ở trạng thái hiện tại' : null}"
-                                    th:if="${!@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang)}">
+                                    th:data-id="${hdct.idCTSP}"
+                                    th:attr="disabled=${!@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang)},
+                                    title=${@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang) ? null : 'Không thể đánh giá ở trạng thái hiện tại'}"
+                                    th:classappend="${@hoa_don_utils.choPhepDanhGiaDonHang(hoaDon.trangThaiLichSuHoaDon, hdct.idCTSP, idKhachHang) ? '' : ' disabled-custom'}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalDanhGiaSanPham"
+                                    onclick="chonSanPhamDanhGia(this)">
                                 Đánh giá
                             </button>
                         </td>
