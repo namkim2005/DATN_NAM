@@ -104,8 +104,8 @@
 }
 
 .btn-primary-custom {
-    background-color: #dead6f !important;
-    border: 2px solid #dead6f !important;
+    background-color: #c0577f !important;
+    border: 2px solid #c0577f !important;
     color: #ffffff !important;
     border-radius: 8px !important;
     padding: 12px 24px !important;
@@ -114,10 +114,10 @@
 }
 
 .btn-primary-custom:hover {
-    background-color: #c19b5b !important;
-    border-color: #c19b5b !important;
+    background-color: #744651 !important;
+    border-color: #744651 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(222, 173, 111, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(192, 87, 127, 0.3) !important;
 }
 
 .btn-secondary-custom {
@@ -137,7 +137,7 @@
 }
 
 .section-icon {
-    color: #dead6f !important;
+    color: #c0577f !important;
 }
 
 .upload-area {
@@ -147,8 +147,8 @@
 }
 
 .upload-area:hover {
-    border-color: #dead6f !important;
-    background-color: rgba(222, 173, 111, 0.05) !important;
+    border-color: #c0577f !important;
+    background-color: rgba(192, 87, 127, 0.05) !important;
 }
 
 /* Validation styles */

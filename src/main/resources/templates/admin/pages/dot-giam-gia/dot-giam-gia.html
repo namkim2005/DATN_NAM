@@ -13,11 +13,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'project-primary': '#dead6f',
-                        'project-primary-dark': '#c19b5b',
-                        'project-primary-light': '#f0d4a0',
-                        'project-gray': '#f8f9fa',
-                        'project-dark': '#2c3e50'
+                        'project-primary': '#c0577f',
+                        'project-primary-dark': '#744651',
+                        'project-primary-light': '#d88baf',
+                        'project-gray': '#fff0f6',
+                        'project-dark': '#744651'
                     }
                 }
             }
@@ -214,7 +214,7 @@
                         <td class="tw-px-6 tw-py-4" th:text="${#temporals.format(item.ngayKetThuc, 'dd/MM/yyyy HH:mm')}"></td>
                         <td class="tw-px-6 tw-py-4">
                             <span class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium"
-                                  th:classappend="${item.trangThai == 0} ? ' tw-bg-yellow-100 tw-text-yellow-800' : (${item.trangThai == 1} ? ' tw-bg-green-100 tw-text-green-800' : ' tw-bg-red-100 tw-text-red-800')"
+                                  th:classappend="${item.trangThai == 0} ? ' tw-bg-project-primary-light/30 tw-text-project-primary' : (${item.trangThai == 1} ? ' tw-bg-green-100 tw-text-green-800' : ' tw-bg-red-100 tw-text-red-800')"
                                   th:text="${item.trangThai == 0} ? 'Chuẩn bị hoạt động' : (${item.trangThai == 1} ? 'Đang hoạt động' : 'Ngừng hoạt động')"></span>
                         </td>
                         <td class="tw-px-6 tw-py-4">

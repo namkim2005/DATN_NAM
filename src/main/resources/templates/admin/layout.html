@@ -60,16 +60,28 @@
             border-bottom: 1px solid rgba(0, 0, 0, 0.08);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            height: 70px !important;
+            min-height: 70px !important;
         }
 
         .navbar-brand-wrapper {
             position: relative;
             background: linear-gradient(135deg, #dead6f 0%, #c19b5b 100%);
+            width: 280px !important;
+            height: 70px !important;
+            min-height: 70px !important;
+            flex: 0 0 280px !important;
         }
 
         .navbar-menu-wrapper {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            height: 70px !important;
+            min-height: 70px !important;
+            flex: 1 1 auto !important;
+            width: calc(100% - 280px) !important;
         }
+        .navbar-menu-wrapper .navbar-nav { align-items: center !important; }
+        .navbar .navbar-toggler { height: 40px; width: 40px; }
 
         .nav-link.dropdown-toggle {
             transition: all 0.3s ease;
@@ -203,14 +215,22 @@
             height: calc(100vh - 70px) !important; /* Chiều cao viewport trừ navbar */
             overflow-y: auto !important; /* Cho phép scroll nếu menu dài */
             z-index: 1000 !important;
-            width: 260px !important; /* Chiều rộng cố định */
+            width: 280px !important; /* Khớp với navbar-brand-wrapper */
             transition: transform 0.3s ease !important;
         }
 
         /* Đảm bảo main panel không bị che bởi sidebar */
         .main-panel {
-            margin-left: 260px !important; /* Bằng chiều rộng sidebar */
+            margin-left: 280px !important; /* Bằng chiều rộng sidebar */
             transition: margin-left 0.3s ease !important;
+        }
+
+        /* Fix overflow and wrapping issues for navbar on narrow widths */
+        @media (max-width: 991.98px) {
+            .navbar-brand-wrapper { width: 220px !important; flex-basis: 220px !important; }
+            .navbar-menu-wrapper { width: calc(100% - 220px) !important; }
+            .sidebar { width: 260px !important; }
+            .main-panel { margin-left: 0 !important; }
         }
 
         /* Responsive cho mobile */
@@ -353,6 +373,195 @@
             margin-left: 8px !important;
         }
     </style>
+    <style>
+        :root {
+            --clr-deep: #744651;
+            --clr-primary: #c0577f;
+            --clr-accent: #d88baf;
+            --clr-soft: #dab0c4;
+            --clr-soft-10: rgba(218, 176, 196, 0.1);
+            --clr-primary-10: rgba(192, 87, 127, 0.1);
+            --clr-deep-90: rgba(116, 70, 81, 0.9);
+        }
+
+        body {
+            background: linear-gradient(180deg, #fff 0%, var(--clr-soft) 100%) !important;
+        }
+
+        .navbar.default-layout {
+            background: linear-gradient(135deg, #ffffff 0%, var(--clr-soft) 100%) !important;
+            border-bottom: 1px solid rgba(116, 70, 81, 0.12) !important;
+            box-shadow: 0 6px 22px rgba(116, 70, 81, 0.12) !important;
+        }
+
+        .navbar-brand-wrapper {
+            background: linear-gradient(135deg, var(--clr-deep) 0%, var(--clr-primary) 100%) !important;
+        }
+        .navbar-menu-wrapper {
+            background: transparent !important;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--clr-deep) 0%, var(--clr-primary) 100%) !important;
+            box-shadow: 6px 0 24px rgba(116, 70, 81, 0.25) !important;
+            width: 280px !important;
+        }
+        .main-panel { margin-left: 280px !important; }
+
+        .sidebar .nav .nav-item .nav-link {
+            color: #f7eaf0 !important;
+            border-radius: 10px !important;
+            margin: 2px 8px !important;
+            transition: all .2s ease !important;
+        }
+        .sidebar .nav:not(.sub-menu) > .nav-item:hover:not(.nav-profile) > .nav-link {
+            background: var(--clr-primary-10) !important;
+            color: #ffffff !important;
+        }
+        .sidebar .nav .nav-item.active > .nav-link,
+        .sidebar .nav .nav-item .nav-link[aria-expanded="true"] {
+            background: rgba(192, 87, 127, .25) !important;
+            color: #ffffff !important;
+        }
+        .sidebar .nav .nav-item .nav-link .menu-icon {
+            color: #ffe2ee !important;
+            background: rgba(255,255,255,.12);
+            border-radius: 8px;
+            width: 28px; height: 28px;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-right: 10px;
+        }
+        .sidebar .nav .nav-item .nav-link:hover .menu-icon { color: #ffffff !important; }
+
+        .sidebar .nav .nav-item .collapse.show,
+        .sidebar .nav .nav-item .collapsing {
+            background: rgba(255,255,255, .06) !important;
+        }
+        .sidebar .nav.sub-menu .nav-item .nav-link {
+            color: #f2dae4 !important;
+            border-radius: 8px !important;
+            margin: 2px 16px !important;
+        }
+        .sidebar .nav.sub-menu .nav-item .nav-link:hover {
+            background: var(--clr-primary-10) !important;
+            color: #ffffff !important;
+        }
+        .sidebar .nav.sub-menu .nav-item .nav-link.active {
+            color: #ffffff !important;
+            background: rgba(192, 87, 127, .3) !important;
+        }
+
+        /* Scrollbar */
+        .sidebar::-webkit-scrollbar-thumb { background: var(--clr-primary) !important; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(0,0,0,.1) !important; }
+
+        /* Dropdown */
+        .dropdown-menu {
+            background: rgba(255,255,255,0.95) !important;
+            box-shadow: 0 12px 32px rgba(116, 70, 81, 0.25) !important;
+            border: 1px solid rgba(116, 70, 81, .12) !important;
+        }
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-soft) 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 14px rgba(116, 70, 81, .24) !important;
+        }
+
+        /* Chips & badges in navbar */
+        .nav-link.dropdown-toggle:hover {
+            background: var(--clr-soft-10) !important;
+            box-shadow: 0 2px 10px rgba(116, 70, 81, .15) !important;
+        }
+
+        /* Toast accents */
+        .custom-toast.success { background-color: var(--clr-deep) !important; }
+        .custom-toast.error { background-color: var(--clr-primary) !important; }
+        .custom-toast .progress-bar { background-color: rgba(255,255,255,.8) !important; }
+
+        /* Card surface on admin pages */
+        .content-wrapper .card,
+        .content-wrapper .table,
+        .content-wrapper .form-control {
+            border-radius: 12px !important;
+            border-color: rgba(116, 70, 81, 0.15) !important;
+        }
+        .btn-primary,
+        .btn.btn-primary {
+            background: var(--clr-primary) !important;
+            border-color: var(--clr-primary) !important;
+        }
+        .btn-primary:hover,
+        .btn.btn-primary:hover {
+            background: var(--clr-deep) !important;
+            border-color: var(--clr-deep) !important;
+        }
+    </style>
+    <style>
+        /* Fix sidebar alignment after removing profile block */
+        .sidebar { top: 70px !important; left: 0 !important; }
+        .sidebar .nav { margin: 0 !important; padding: 12px 10px 20px !important; }
+        .sidebar .nav .nav-item { margin: 6px 0 !important; }
+        .sidebar .nav .nav-item .nav-link { display: flex !important; align-items: center !important; gap: 10px !important; padding: 12px 14px !important; }
+        .sidebar .nav .nav-item .nav-link .menu-icon { margin-right: 0 !important; }
+        /* Ensure main panel aligns with new sidebar width */
+        .main-panel { margin-left: 280px !important; }
+        /* Remove unintended horizontal scroll/offsets */
+        .container-scroller { overflow-x: hidden !important; }
+        .page-body-wrapper { padding-top: 70px !important; }
+    </style>
+    <style>
+        /* Force background for the composite navbar class */
+        .navbar.default-layout.col-lg-12.col-12.p-0.fixed-top.d-flex.flex-row {
+            background: #744651 !important; /* solid tone from palette */
+            background-color: #744651 !important;
+        }
+    </style>
+    <style>
+        /* Global focus styles - pink ring */
+        input.form-control:focus,
+        textarea.form-control:focus,
+        select.form-select:focus,
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #c0577f !important;
+            box-shadow: 0 0 0 0.25rem rgba(192, 87, 127, 0.25) !important;
+            outline: 0 !important;
+        }
+
+        .btn:focus,
+        .btn:focus-visible {
+            box-shadow: 0 0 0 0.25rem rgba(192, 87, 127, 0.35) !important;
+            outline: 0 !important;
+        }
+
+        .btn-outline-primary { border-color: #c0577f !important; color: #c0577f !important; }
+        .btn-outline-primary:hover { background: #c0577f !important; color: #fff !important; border-color: #c0577f !important; }
+
+        /* Sidebar link focus/hover effects */
+        .sidebar .nav .nav-item .nav-link { transition: transform .15s ease, box-shadow .2s ease !important; }
+        .sidebar .nav .nav-item .nav-link:focus,
+        .sidebar .nav .nav-item .nav-link:focus-visible {
+            background: rgba(192, 87, 127, 0.15) !important;
+            transform: translateX(2px);
+            box-shadow: inset 0 0 0 1px rgba(192, 87, 127, 0.25);
+        }
+
+        /* Icon interactions */
+        .sidebar .nav .nav-item .nav-link .menu-icon {
+            transition: transform .2s ease, color .2s ease, filter .2s ease !important;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,.15));
+        }
+        .sidebar .nav .nav-item .nav-link:hover .menu-icon,
+        .sidebar .nav .nav-item .nav-link:focus .menu-icon {
+            transform: scale(1.12) rotate(4deg);
+            color: #ffffff !important;
+            filter: drop-shadow(0 2px 6px rgba(192,87,127,.45));
+        }
+
+        /* Table action icon buttons */
+        .table .btn.btn-sm i { transition: transform .15s ease, color .15s ease; }
+        .table .btn.btn-sm:hover i { transform: translateY(-1px); }
+    </style>
 </head>
 
 <body>
@@ -378,7 +587,7 @@
     <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
             <a class="navbar-brand brand-logo" th:href="@{/admin/thong-ke}">
-                <img th:src="@{/images/logo-h.png}" alt="logo" style="width: 14rem; height: auto; padding: 0.2rem 0"/>
+                <img th:src="@{/images/logo-h.png}" alt="logo" style="width: 7rem; height: 4rem; padding: 0 0"/>
             </a>
             <a class="navbar-brand brand-logo-mini" th:href="@{/admin/thong-ke}">
                 <img th:src="@{/images/logo-mini.svg}" alt="logo"/>
@@ -429,36 +638,6 @@
         <!-- partial:partials/_sidebar.html -->
         <nav class="sidebar sidebar-offcanvas" id="sidebar">
             <ul class="nav">
-                <li class="nav-item nav-profile">
-                    <div class="nav-link">
-                        <div class="user-wrapper">
-                            <div class="profile-image">
-                                <img th:if="${@get_nhan_vien.getCurrentNhanVien() != null && @get_nhan_vien.getCurrentNhanVien().anh != null && !@get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
-                                     th:src="@{'/uploads/' + ${@get_nhan_vien.getCurrentNhanVien().anh}}"
-                                     alt="profile image"
-                                     style="width: 48px; height: 48px; object-fit: cover; border-radius: 50%;">
-                                <img th:if="${@get_nhan_vien.getCurrentNhanVien() == null || @get_nhan_vien.getCurrentNhanVien().anh == null || @get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
-                                     th:src="@{/images/faces-clipart/pic-1.png}"
-                                     alt="profile image"
-                                     style="width: 48px; height: 48px; object-fit: cover; border-radius: 50%;">
-                            </div>
-                            <div class="text-wrapper">
-                                <p class="profile-name"
-                                   th:text="${@get_nhan_vien.getCurrentNhanVien() != null ? @get_nhan_vien.getCurrentNhanVien().ten : 'Khách'}">
-                                    Tên người dùng</p>
-                                <div>
-                                    <small class="designation text-muted"
-                                           th:text="${@get_nhan_vien.getCurrentNhanVien() != null ? @get_nhan_vien.getCurrentNhanVien().chucVu : 'Khách'}">Chức
-                                        vụ</small>
-                                    <span class="status-indicator online"></span>
-                                </div>
-                            </div>
-                        </div>
-<!--                        <button class="btn btn-success btn-block">New Project-->
-<!--                            <i class="mdi mdi-plus"></i>-->
-<!--                        </button>-->
-                    </div>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/admin/thong-ke}">
                         <i class="menu-icon fas fa-chart-line"></i>
@@ -527,12 +706,6 @@
                                 <a class="nav-link" th:href="@{/admin/danh-muc}">
                                     <i class="menu-icon fas fa-list"></i>
                                     Danh mục
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/admin/loai-thu}">
-                                    <i class="menu-icon fas fa-paw"></i>
-                                    Loại thú
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -670,8 +843,8 @@
 <!--  Thong bao-->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const successMsg = [[${success} == null ? 'null' : '' + ${success} + '']];
-    const errorMsg = [[${error} == null ? 'null' : '' + ${error} + '']];
+    const successMsg = /*[[${success} == null ? 'null' : '']]*/ 'null';
+    const errorMsg = /*[[${error} == null ? 'null' : '']]*/ 'null';
 
     function showCustomToast(type, message) {
         const toastId = type === 'success' ? 'customSuccess' : 'customError';

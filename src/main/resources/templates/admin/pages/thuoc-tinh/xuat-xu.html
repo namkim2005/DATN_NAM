@@ -3,175 +3,98 @@
       layout:decorate="~{admin/layout}">
 <head>
     <title>Quản lý xuất xứ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            prefix: 'tw-',
-            theme: {
-                extend: {
-                    colors: {
-                        'warm-yellow': {
-                            50: '#fffbeb',
-                            100: '#fef3c7',
-                            200: '#fde68a',
-                            300: '#fcd34d',
-                            400: '#fbbf24',
-                            500: '#f59e0b',
-                            600: '#d97706',
-                            700: '#b45309',
-                            800: '#92400e',
-                            900: '#78350f',
-                        }
-                    }
-                },
-            },
-            plugins: [],
-        }
-    </script>
+    <!-- Trang này dùng Bootstrap theo layout admin, tone hồng -->
 </head>
 <body>
 
 <section layout:fragment="content">
-    <div class="tw-container tw-mx-auto tw-px-4 tw-py-6">
-        <!-- Header -->
-        <div class="tw-mb-8">
-            <h1 class="tw-text-3xl tw-font-bold tw-text-gray-900 tw-mb-2">
-                <span th:text="${xuatXu.id == null} ? 'Thêm xuất xứ mới' : 'Cập nhật xuất xứ'"></span>
-            </h1>
-            <p class="tw-text-gray-600">Quản lý thông tin xuất xứ sản phẩm</p>
-        </div>
-
-        <!-- Form -->
-        <div class="tw-bg-white tw-rounded-lg tw-shadow-md tw-p-6 tw-mb-8">
-            <form th:action="@{/admin/xuat-xu/save}" th:object="${xuatXu}" method="post">
-                <input type="hidden" th:field="*{id}">
-
-                <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6 tw-mb-6">
-                    <!-- Tên xuất xứ -->
-                    <div>
-                        <label for="ten" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
-                            Tên xuất xứ <span class="tw-text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               id="ten" 
-                               th:field="*{ten}" 
-                               placeholder="Nhập tên xuất xứ" 
-                               class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-warm-yellow-500 focus:tw-border-transparent"
-                               required>
-                    </div>
-
-                    <!-- Ngày tạo -->
-                    <div>
-                        <label for="ngayTao" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
-                            Ngày tạo
-                        </label>
-                        <input type="text" 
-                               id="ngayTao" 
-                               th:field="*{ngayTao}" 
-                               th:value="${#temporals.format(xuatXu.ngayTao, 'dd/MM/yyyy')}" 
-                               readonly 
-                               class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-bg-gray-50 tw-text-gray-500">
-                    </div>
-
-                    <!-- Ngày sửa -->
-                    <div>
-                        <label for="ngaySua" class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-2">
-                            Ngày sửa
-                        </label>
-                        <input type="text" 
-                               id="ngaySua" 
-                               th:field="*{ngaySua}" 
-                               th:value="${#temporals.format(xuatXu.ngaySua, 'dd/MM/yyyy')}" 
-                               readonly 
-                               class="tw-w-full tw-px-3 tw-py-2 tw-border tw-border-gray-300 tw-rounded-md tw-bg-gray-50 tw-text-gray-500">
-                    </div>
-                </div>
-
-                <!-- Trạng thái -->
-                <div class="tw-mb-6">
-                    <label class="tw-block tw-text-sm tw-font-medium tw-text-gray-700 tw-mb-3">
-                        Trạng thái <span class="tw-text-red-500">*</span>
-                    </label>
-                    <div class="tw-flex tw-space-x-6">
-                        <label class="tw-flex tw-items-center">
-                            <input type="radio" 
-                                   th:field="*{trangThai}" 
-                                   th:value="true" 
-                                   id="active"
-                                   class="tw-w-4 tw-h-4 tw-text-warm-yellow-600 tw-border-gray-300 focus:tw-ring-warm-yellow-500">
-                            <span class="tw-ml-2 tw-text-sm tw-text-gray-700">Hoạt động</span>
-                        </label>
-                        <label class="tw-flex tw-items-center">
-                            <input type="radio" 
-                                   th:field="*{trangThai}" 
-                                   th:value="false" 
-                                   id="inactive"
-                                   class="tw-w-4 tw-h-4 tw-text-warm-yellow-600 tw-border-gray-300 focus:tw-ring-warm-yellow-500">
-                            <span class="tw-ml-2 tw-text-sm tw-text-gray-700">Không hoạt động</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Buttons -->
-                <div class="tw-flex tw-space-x-4">
-                    <button type="submit" 
-                            class="tw-px-6 tw-py-2 tw-bg-warm-yellow-600 tw-text-white tw-rounded-md hover:tw-bg-warm-yellow-700 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-warm-yellow-500 focus:tw-ring-offset-2 tw-transition-colors">
-                        <span th:text="${xuatXu.id == null} ? 'Thêm mới' : 'Cập nhật'"></span>
-                    </button>
-                    <a href="/admin/xuat-xu" 
-                       class="tw-px-6 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded-md hover:tw-bg-gray-600 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-gray-500 focus:tw-ring-offset-2 tw-transition-colors">
-                        Hủy
-                    </a>
-                </div>
-            </form>
-        </div>
-
-        <!-- Danh sách -->
-        <div class="tw-bg-white tw-rounded-lg tw-shadow-md">
-            <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-200">
-                <h2 class="tw-text-xl tw-font-semibold tw-text-gray-900">Danh sách Xuất xứ</h2>
+    <div class="container-fluid py-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h4 class="mb-1">
+                    <span th:text="${xuatXu.id == null} ? 'Thêm xuất xứ mới' : 'Cập nhật xuất xứ'"></span>
+                </h4>
+                <div class="text-muted small">Quản lý thông tin xuất xứ sản phẩm</div>
             </div>
-            
-            <div class="tw-overflow-x-auto">
-                <table class="tw-min-w-full tw-divide-y tw-divide-gray-200">
-                    <thead class="tw-bg-gray-50">
-                        <tr>
-                            <th class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider">#</th>
-                            <th class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider">Mã xuất xứ</th>
-                            <th class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider">Tên xuất xứ</th>
-                            <th class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider">Ngày tạo</th>
-                            <th class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider">Ngày sửa</th>
-                            <th class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider">Trạng thái</th>
-                            <th class="tw-px-6 tw-py-3 tw-text-left tw-text-xs tw-font-medium tw-text-gray-500 tw-uppercase tw-tracking-wider">Hành động</th>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form th:action="@{/admin/xuat-xu/save}" th:object="${xuatXu}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-12 col-md-4">
+                            <label for="ten" class="form-label">Tên xuất xứ <span class="text-danger">*</span></label>
+                            <input type="text" id="ten" th:field="*{ten}" placeholder="Nhập tên xuất xứ" class="form-control" required>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="ngayTao" class="form-label">Ngày tạo</label>
+                            <input type="text" id="ngayTao" th:field="*{ngayTao}" th:value="${#temporals.format(xuatXu.ngayTao, 'dd/MM/yyyy')}" readonly class="form-control-plaintext border rounded px-2">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="ngaySua" class="form-label">Ngày sửa</label>
+                            <input type="text" id="ngaySua" th:field="*{ngaySua}" th:value="${#temporals.format(xuatXu.ngaySua, 'dd/MM/yyyy')}" readonly class="form-control-plaintext border rounded px-2">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" th:field="*{trangThai}" th:value="true" id="active">
+                                <label class="form-check-label" for="active">Hoạt động</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" th:field="*{trangThai}" th:value="false" id="inactive">
+                                <label class="form-check-label" for="inactive">Không hoạt động</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"> 
+                            <span th:text="${xuatXu.id == null} ? 'Thêm mới' : 'Cập nhật'"></span>
+                        </button>
+                        <a href="/admin/xuat-xu" class="btn btn-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Danh sách Xuất xứ</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-striped mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>#</th>
+                            <th>Mã xuất xứ</th>
+                            <th>Tên xuất xứ</th>
+                            <th>Ngày tạo</th>
+                            <th>Ngày sửa</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
-                    <tbody class="tw-bg-white tw-divide-y tw-divide-gray-200">
-                        <tr th:each="th : ${xuatXus}" class="hover:tw-bg-gray-50">
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-900" th:text="${th.id}"></td>
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-font-medium tw-text-gray-900" th:text="${th.ma}"></td>
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-900" th:text="${th.ten}"></td>
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-500" th:text="${#temporals.format(th.ngayTao, 'dd/MM/yyyy')}"></td>
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-text-gray-500" th:text="${#temporals.format(th.ngaySua, 'dd/MM/yyyy')}"></td>
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap">
-                                <span th:if="${th.trangThai}" 
-                                      class="tw-inline-flex tw-px-2 tw-py-1 tw-text-xs tw-font-semibold tw-rounded-full tw-bg-green-100 tw-text-green-800">
-                                    Hoạt động
-                                </span>
-                                <span th:unless="${th.trangThai}" 
-                                      class="tw-inline-flex tw-px-2 tw-py-1 tw-text-xs tw-font-semibold tw-rounded-full tw-bg-red-100 tw-text-red-800">
-                                    Không hoạt động
-                                </span>
+                    <tbody>
+                        <tr th:each="th : ${xuatXus}">
+                            <td th:text="${th.id}"></td>
+                            <td class="fw-semibold" th:text="${th.ma}"></td>
+                            <td th:text="${th.ten}"></td>
+                            <td class="text-muted" th:text="${#temporals.format(th.ngayTao, 'dd/MM/yyyy')}"></td>
+                            <td class="text-muted" th:text="${#temporals.format(th.ngaySua, 'dd/MM/yyyy')}"></td>
+                            <td>
+                                <span th:if="${th.trangThai}" class="badge bg-success-subtle text-success">Hoạt động</span>
+                                <span th:unless="${th.trangThai}" class="badge bg-danger-subtle text-danger">Không hoạt động</span>
                             </td>
-                            <td class="tw-px-6 tw-py-4 tw-whitespace-nowrap tw-text-sm tw-font-medium">
-                                <a th:href="@{/admin/xuat-xu/edit/{id}(id=${th.id})}" 
-                                   class="tw-text-warm-yellow-600 hover:tw-text-warm-yellow-900 tw-mr-4 tw-transition-colors">
-                                    Sửa
-                                </a>
-                                <a th:href="@{/admin/xuat-xu/delete/{id}(id=${th.id})}"
-                                   onclick="return confirm('Bạn có chắc muốn xóa xuất xứ này không?')"
-                                   class="tw-text-red-600 hover:tw-text-red-900 tw-transition-colors">
-                                    Xóa
-                                </a>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/admin/xuat-xu/edit/{id}(id=${th.id})}" class="btn btn-sm btn-outline-primary">Sửa</a>
+                                    <a th:href="@{/admin/xuat-xu/delete/{id}(id=${th.id})}" onclick="return confirm('Bạn có chắc muốn xóa xuất xứ này không?')" class="btn btn-sm btn-outline-danger">Xóa</a>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

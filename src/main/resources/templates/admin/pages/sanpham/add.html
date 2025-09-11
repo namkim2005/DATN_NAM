@@ -19,11 +19,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'project-primary': '#dead6f',
-                        'project-primary-dark': '#c19b5b',
-                        'project-primary-light': '#f0d4a0',
-                        'project-gray': '#f8f9fa',
-                        'project-dark': '#2c3e50'
+                        'project-primary': '#c0577f',
+                        'project-primary-dark': '#744651',
+                        'project-primary-light': '#d88baf',
+                        'project-gray': '#fff0f6',
+                        'project-dark': '#744651'
                     }
                 }
             }
@@ -32,23 +32,23 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/admin/sanpham/add.css}">
 </head>
-<body class="tw-bg-gray-50">
+<body class="tw-bg-[var(--pink-bg,#fff0f6)]">
 <section layout:fragment="content">
-<div class="tw-min-h-screen tw-bg-gradient-to-br tw-from-gray-50 tw-to-gray-100 tw-py-8 tw-px-4">
+<div class="tw-min-h-screen tw-bg-gradient-to-br tw-from-project-primary-light/30 tw-to-project-gray tw-py-8 tw-px-4">
     <div class="tw-max-w-4xl tw-mx-auto">
         <!-- Header -->
         <div class="tw-text-center tw-mb-8">
-            <h1 class="tw-text-3xl tw-font-semibold tw-text-project-dark tw-mb-2">Thêm Sản Phẩm Mới</h1>
+            <h1 class="tw-text-3xl tw-font-semibold tw-text-project-primary tw-mb-2">Thêm Sản Phẩm Mới</h1>
             <p class="tw-text-gray-600">Điền thông tin chi tiết về sản phẩm của bạn</p>
         </div>
 
         <!-- Main Form Card -->
-        <div class="tw-bg-white tw-rounded-2xl tw-shadow-xl tw-border tw-border-gray-100 tw-overflow-hidden">
+        <div class="tw-bg-white tw-rounded-2xl tw-shadow-xl tw-border tw-border-project-primary-light/40 tw-overflow-hidden">
             <form id="formSanPham" th:action="@{/admin/san-pham/them}" th:object="${form}" method="post" enctype="multipart/form-data" class="tw-p-8">
                 
                 <!-- Basic Information Section -->
                 <div class="tw-mb-8">
-                    <h2 class="tw-text-xl tw-font-semibold tw-text-project-dark tw-mb-6 tw-flex tw-items-center">
+                    <h2 class="tw-text-xl tw-font-semibold tw-text-project-primary tw-mb-6 tw-flex tw-items-center">
                         <i class="fas fa-info-circle section-icon tw-mr-3"></i>
                         Thông Tin Cơ Bản
                     </h2>
@@ -96,7 +96,7 @@
 
                 <!-- Product Details Section -->
                 <div class="tw-mb-8">
-                    <h2 class="tw-text-xl tw-font-semibold tw-text-project-dark tw-mb-6 tw-flex tw-items-center">
+                    <h2 class="tw-text-xl tw-font-semibold tw-text-project-primary tw-mb-6 tw-flex tw-items-center">
                         <i class="fas fa-tags section-icon tw-mr-3"></i>
                         Chi Tiết Sản Phẩm
                     </h2>
@@ -169,7 +169,7 @@
 
                 <!-- Image Upload Section -->
                 <div class="tw-mb-8">
-                    <h2 class="tw-text-xl tw-font-semibold tw-text-project-dark tw-mb-6 tw-flex tw-items-center">
+                    <h2 class="tw-text-xl tw-font-semibold tw-text-project-primary tw-mb-6 tw-flex tw-items-center">
                         <i class="fas fa-images section-icon tw-mr-3"></i>
                         Hình Ảnh Sản Phẩm
                     </h2>
