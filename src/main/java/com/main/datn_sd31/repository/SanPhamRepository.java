@@ -33,7 +33,6 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
         WHERE sp.trangThai = true
           AND LOWER(sp.ten) LIKE LOWER(CONCAT('%', COALESCE(:q, ''), '%'))
           AND (:danhMucId IS NULL OR sp.danhMuc.id = :danhMucId)
-          AND (:loaiThuId IS NULL OR sp.loaiThu.id = :loaiThuId)
           AND (:chatLieuId IS NULL OR sp.chatLieu.id = :chatLieuId)
           AND (:kieuDangId IS NULL OR sp.kieuDang.id = :kieuDangId)
           AND (:xuatXuId IS NULL OR sp.xuatXu.id = :xuatXuId)
@@ -43,7 +42,6 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
     List<SanPham> filter(
             @Param("q") String q,
             @Param("danhMucId") Integer danhMucId,
-            @Param("loaiThuId") Integer loaiThuId,
             @Param("chatLieuId") Integer chatLieuId,
             @Param("kieuDangId") Integer kieuDangId,
             @Param("xuatXuId") Integer xuatXuId,

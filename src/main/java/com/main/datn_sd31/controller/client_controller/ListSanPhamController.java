@@ -42,7 +42,7 @@ public class ListSanPhamController {
 
     private final Chitietsanphamrepository chitietsanphamRepo;
     private final Hinhanhrepository hinhanhrepository;
-    private final Loaithurepository loaithurepository;
+    
     private final Dotgiamgiarepository dotgiamgiarepository;
     private final SanPhamRepository sanPhamRepository;
     private final DanhGiaService danhGiaService;
@@ -58,7 +58,6 @@ public class ListSanPhamController {
             @RequestParam(value="q", required=false) String q,
             @RequestParam(value="danhMucId", required=false) Integer danhMucId,
                     @RequestParam(value="priceRange", required=false) Integer priceRange,
-        @RequestParam(value="loaiThuId", required=false) Integer loaiThuId,
         @RequestParam(value="sizeId", required=false) Integer sizeId,
         @RequestParam(value="mauSacId", required=false) Integer mauSacId,
         @RequestParam(value="kieuDangId", required=false) Integer kieuDangId,
@@ -75,13 +74,12 @@ public class ListSanPhamController {
         }
         // Sử dụng method search mới
         List<SanPham> danhSachSanPham = sanPhamService.searchAdvanced(
-            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange, sortBy, sortDir
+            q, danhMucId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange, sortBy, sortDir
         );
         model.addAttribute("danhSachSanPham", danhSachSanPham);
 
         // panel filter data
         model.addAttribute("danhMucs", danhMucRepo.findAll());
-        model.addAttribute("loaiThus", loaithurepository.findAll());      // <-- thêm dòng này
         model.addAttribute("sizes", sizerepository.findAll());
         
         // Process colors with fallback
@@ -176,7 +174,6 @@ public class ListSanPhamController {
         model.addAttribute("q", q);
         model.addAttribute("danhMucId", danhMucId);
         model.addAttribute("priceRange", priceRange);
-        model.addAttribute("loaiThuId", loaiThuId);
         model.addAttribute("sizeId", sizeId);
         model.addAttribute("mauSacId", mauSacId);
         model.addAttribute("kieuDangId", kieuDangId);
@@ -433,7 +430,7 @@ public class ListSanPhamController {
             Model model) {
 
         // Sử dụng service để đảm bảo chỉ lấy sản phẩm đang hoạt động
-        List<SanPham> list = sanPhamService.searchAdvanced(q.trim(), null, null, null, null, null, null, null, null, null, null);
+        List<SanPham> list = sanPhamService.searchAdvanced(q.trim(), null, null, null, null, null, null, null, null, null);
         
         // Tính toán giá và dotGiamGia cho mỗi sản phẩm
         // Chỉ lấy chi tiết của sản phẩm đang hoạt động
@@ -479,7 +476,6 @@ public class ListSanPhamController {
             @RequestParam(value="q", required=false) String q,
             @RequestParam(value="danhMucId", required=false) String danhMucIdStr,
             @RequestParam(value="priceRange", required=false) Integer priceRange,
-            @RequestParam(value="loaiThuId", required=false) Integer loaiThuId,
             @RequestParam(value="sizeId", required=false) Integer sizeId,
             @RequestParam(value="mauSacId", required=false) Integer mauSacId,
             @RequestParam(value="kieuDangId", required=false) Integer kieuDangId,
@@ -517,7 +513,7 @@ public class ListSanPhamController {
 
         // Sử dụng method search mới
         List<SanPham> danhSachSanPham = sanPhamService.searchAdvanced(
-            q, danhMucId, loaiThuId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange, sortBy, sortDir
+            q, danhMucId, sizeId, mauSacId, kieuDangId, thuongHieuId, xuatXuId, priceRange, sortBy, sortDir
         );
 
         model.addAttribute("danhSachSanPham", danhSachSanPham);

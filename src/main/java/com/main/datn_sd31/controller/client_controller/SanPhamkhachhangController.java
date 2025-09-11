@@ -11,7 +11,6 @@ import com.main.datn_sd31.repository.Danhmucrepository;
 import com.main.datn_sd31.repository.Dotgiamgiarepository;
 import com.main.datn_sd31.repository.Hinhanhrepository;
 import com.main.datn_sd31.repository.Kieudangrepository;
-import com.main.datn_sd31.repository.Loaithurepository;
 import com.main.datn_sd31.repository.Mausacrepository;
 import com.main.datn_sd31.repository.NhanVienRepository;
 import com.main.datn_sd31.repository.Sizerepository;
@@ -54,7 +53,6 @@ public class SanPhamkhachhangController {
     private final Xuatxurepository xuatxurepository;
     private final Chitietsanphamrepository chitietsanphamRepo;
     private final Hinhanhrepository hinhanhrepository;
-    private final Loaithurepository loaithurepository;
     private final Dotgiamgiarepository dotgiamgiarepository;
 
     @GetMapping("/danh-sach")

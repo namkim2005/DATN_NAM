@@ -81,10 +81,6 @@ public class SanPham {
     @JoinColumn(name = "xuat_xu_id", nullable = false)
     private XuatXu xuatXu;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "loai_thu_id", nullable = false)
-    private LoaiThu loaiThu;
 
     @OneToMany(mappedBy = "sanPham")
     private Set<ChiTietSanPham> chiTietSanPhams = new LinkedHashSet<>();

@@ -105,14 +105,14 @@ CSS STRUCTURE:
 
 /* Theme Colors */
 :root {
-  --accent-color: #DEAD6F;
+  --accent-color: #c0577f;
   --dark-color: #222222;
   --light-dark-color: #727272;
   --light-color: #fff;
   --grey-color: #dbdbdb;
   --light-grey-color: #fafafa;
-  --primary-color: #6995B1;
-  --light-primary-color: #eef1f3;
+  --primary-color: #c0577f;
+  --light-primary-color: #dbc6cf;
 }
 
 /* Fonts */
@@ -124,8 +124,8 @@ CSS STRUCTURE:
 
 
 body {
-  --bs-link-color: #333;
-  --bs-link-hover-color: #333;
+  --bs-link-color: #c0577f;
+  --bs-link-hover-color: #744651;
 
   --bs-link-color-rgb: 40, 40, 40;
   --bs-link-hover-color-rgb: 0, 0, 0;
@@ -142,10 +142,10 @@ body {
   --bs-body-line-height: 1.5;
   --bs-body-color: #41403E;
 
-  --bs-primary: #DEAD6F;
-  --bs-primary-rgb: 222, 173, 111;
+  --bs-primary: #c0577f;
+  --bs-primary-rgb: 192, 87, 127;
 
-  --bs-primary-bg-subtle: #FFF9EB;
+  --bs-primary-bg-subtle: #fdeef5;
   --bs-border-color: #F7F7F7;
 
   --bs-secondary-rgb: 230, 243, 251;
@@ -159,14 +159,14 @@ body {
 .btn-primary {
   padding: 1.2rem 3rem;
   --bs-btn-color: #fff;
-  --bs-btn-bg: #DEAD6F;
+  --bs-btn-bg: #c0577f;
   --bs-btn-border-color: transparent;
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #e9b775;
+  --bs-btn-hover-bg: #744651;
   --bs-btn-hover-border-color: transparent;
   --bs-btn-focus-shadow-rgb: 49, 132, 253;
   --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #DEAD6F;
+  --bs-btn-active-bg: #c0577f;
   --bs-btn-active-border-color: transparent;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #fff;
@@ -178,19 +178,19 @@ body {
   transition: all 0.3s ease-in;
   padding: 1.2rem 3rem;
   letter-spacing: 0.02375rem;
-  --bs-btn-color: #DEAD6F;
-  --bs-btn-border-color: #DEAD6F;
+  --bs-btn-color: #c0577f;
+  --bs-btn-border-color: #c0577f;
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #DEAD6F;
-  --bs-btn-hover-border-color: #DEAD6F;
+  --bs-btn-hover-bg: #c0577f;
+  --bs-btn-hover-border-color: #c0577f;
   --bs-btn-focus-shadow-rgb: 13, 110, 253;
   --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #DEAD6F;
-  --bs-btn-active-border-color: #DEAD6F;
+  --bs-btn-active-bg: #c0577f;
+  --bs-btn-active-border-color: #c0577f;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #DEAD6F;
+  --bs-btn-disabled-color: #c0577f;
   --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: #DEAD6F;
+  --bs-btn-disabled-border-color: #c0577f;
   --bs-gradient: none;
 }
 
@@ -373,14 +373,14 @@ a {
 
 /* category style */
 iconify-icon.category-icon {
-  color: #DEAD6F99;
+  color: #d88baf99;
   font-size: 100px;
   transition: all 0.3s ease-in;
 
 }
 
 a.categories-item:hover iconify-icon.category-icon {
-  color: #DEAD6F;
+  color: #c0577f;
 }
 
 
@@ -440,7 +440,7 @@ button.filter-button {
 
 button.filter-button.active,
 button.filter-button:hover {
-  border-bottom: 2px solid #DEAD6F;
+  border-bottom: 2px solid #c0577f;
 }
 
 /* testimonial style  */
@@ -547,8 +547,8 @@ iconify-icon.social-icon {
 
 li.social:hover iconify-icon.social-icon {
   color: #FFF;
-  border: 1px solid #DEAD6F;
-  background: #DEAD6F;
+  border: 1px solid #c0577f;
+  background: #c0577f;
 }
 
 iconify-icon.send-icon {
@@ -557,8 +557,8 @@ iconify-icon.send-icon {
   padding: 0.75rem;
   border-radius: 4.375rem;
   color: #FFF;
-  border: 1px solid #DEAD6F;
-  background: #DEAD6F;
+  border: 1px solid #c0577f;
+  background: #c0577f;
 }
 
 
@@ -759,9 +759,9 @@ header .d-flex .badge {
 /* Text glow effect for all nav links */
 .nav-link:hover {
   color: var(--accent-color);
-  text-shadow: 0 0 10px rgba(222, 173, 111, 0.6), 
-               0 0 20px rgba(222, 173, 111, 0.4), 
-               0 0 30px rgba(222, 173, 111, 0.2);
+  text-shadow: 0 0 10px rgba(200, 87, 127, 0.35), 
+               0 0 20px rgba(200, 87, 127, 0.2), 
+               0 0 30px rgba(200, 87, 127, 0.1);
 }
 
 /* Sticky navbar specific styling */
@@ -786,9 +786,9 @@ header .d-flex .badge {
 
 
 .navbar-sticky .nav-link.active {
-  background: rgba(222, 173, 111, 0.2);
+  background: rgba(216, 139, 175, 0.15);
   color: var(--accent-color);
-  box-shadow: 0 4px 15px rgba(222, 173, 111, 0.3);
+  box-shadow: 0 4px 15px rgba(216, 139, 175, 0.25);
 }
 
 /* Dropdown Animation */
@@ -910,7 +910,7 @@ Category Icons Animations
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(222, 173, 111, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(216, 139, 175, 0.15), transparent);
   transition: left 0.5s ease;
 }
 
@@ -919,7 +919,7 @@ Category Icons Animations
 }
 
 .categories-item:hover {
-  background: rgba(222, 173, 111, 0.05);
+  background: rgba(219, 198, 207, 0.35);
 }
 
 .categories-item:hover .category-icon {

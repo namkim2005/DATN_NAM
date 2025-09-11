@@ -249,7 +249,7 @@ class ProductListManager {
         row.setAttribute('data-product-id', product.id);
 
         const danhMuc = product.danhMuc || '';
-        const loaiThu = product.loaiThu || '';
+        
         const tooltip = `Chất liệu: ${product.chatLieu || ''}\nThương hiệu: ${product.thuongHieu || ''}\nXuất xứ: ${product.xuatXu || ''}\nKiểu dáng: ${product.kieuDang || ''}`;
 
         row.innerHTML = `
@@ -271,7 +271,7 @@ class ProductListManager {
             <td class="tw-px-6 tw-py-4">
                 <div class="tw-flex tw-flex-wrap tw-gap-1">
                     ${danhMuc ? `<span class=\"tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-blue-50 tw-text-blue-700\">${danhMuc}</span>` : ''}
-                    ${loaiThu ? `<span class=\"tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-green-50 tw-text-green-700\">${loaiThu}</span>` : ''}
+                    
                     <span class="tw-inline-flex tw-items-center tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[11px] tw-font-medium tw-bg-gray-50 tw-text-gray-600" title="${tooltip}">+ chi tiết</span>
                 </div>
             </td>

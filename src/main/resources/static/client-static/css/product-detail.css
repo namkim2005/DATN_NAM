@@ -1,13 +1,13 @@
 /* Product Detail Page Styles */
 :root {
-    --primary-color: #F9F3EC;
-    --secondary-color: #DEAD6F;
+    --primary-color: #FAF6F8;
+    --secondary-color: #c0577f;
     --text-dark: #333;
     --text-light: #666;
     --border-color: #ddd;
     --success-color: #28a745;
     --error-color: #dc3545;
-    --warning-color: #ffc107;
+    --warning-color: #d88baf;
     --font-family: 'Chivo Mono', monospace, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
@@ -104,7 +104,7 @@
 
 .thumbnail-item.active {
     border-color: var(--secondary-color);
-    box-shadow: 0 2px 8px rgba(222, 173, 111, 0.3);
+    box-shadow: 0 2px 8px rgba(192, 87, 127, 0.3);
 }
 
 .thumbnail-item img {
@@ -174,11 +174,11 @@
 }
 
 .star.filled {
-    color: #ffc107;
+    color: var(--secondary-color);
 }
 
 .star.half {
-    color: #ffc107;
+    color: var(--secondary-color);
     position: relative;
 }
 
@@ -359,13 +359,13 @@
     background-color: var(--secondary-color);
     color: white;
     transform: scale(1.02);
-    box-shadow: 0 2px 6px rgba(222, 173, 111, 0.3);
+    box-shadow: 0 2px 6px rgba(192, 87, 127, 0.3);
 }
 
 .variant-radio:hover + .variant-label-radio {
     border-color: var(--secondary-color);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(222, 173, 111, 0.2);
+    box-shadow: 0 2px 6px rgba(192, 87, 127, 0.25);
 }
 
 /* Disabled state for variants */
@@ -451,7 +451,7 @@
 .variant-option[data-variant-type="color"] .variant-radio:checked + .variant-label-radio.color-square {
     border-color: var(--secondary-color) !important;
     transform: scale(1.1);
-    box-shadow: 0 0 0 2px rgba(222, 173, 111, 0.3);
+    box-shadow: 0 0 0 2px rgba(192, 87, 127, 0.3);
     position: relative;
 }
 
@@ -470,7 +470,7 @@
 .variant-option[data-variant-type="color"] .variant-radio:hover + .variant-label-radio.color-square {
     border-color: var(--secondary-color);
     transform: scale(1.05);
-    box-shadow: 0 2px 6px rgba(222, 173, 111, 0.2);
+    box-shadow: 0 2px 6px rgba(192, 87, 127, 0.25);
 }
 
 /* Disabled state for color variants */
@@ -539,7 +539,7 @@
 .quantity-input:focus {
     outline: none;
     border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(222, 173, 111, 0.1);
+    box-shadow: 0 0 0 3px rgba(216, 139, 175, 0.15);
 }
 
 .stock-info {
@@ -1217,9 +1217,9 @@
 }
 
 .add-to-card-btn:hover:not(:disabled) {
-    background-color: #c99a5f;
+    background-color: #744651;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(222, 173, 111, 0.3);
+    box-shadow: 0 4px 12px rgba(192, 87, 127, 0.35);
 }
 
 .add-to-card-btn:active:not(:disabled) {
@@ -1470,7 +1470,7 @@ body {
 }
 
 .fixed-add-to-card-btn:hover:not(:disabled) {
-    background-color: #c99a5f;
+    background-color: #744651;
     transform: translateY(-1px);
 }
 

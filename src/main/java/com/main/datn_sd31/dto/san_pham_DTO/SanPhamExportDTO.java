@@ -21,7 +21,6 @@ public class SanPhamExportDTO {
     private String chatLieu;
     private String xuatXu;
     private String kieuDang;
-    private String loaiThu;
     private BigDecimal gia;
     private Integer soLuong;
     private String trangThai;

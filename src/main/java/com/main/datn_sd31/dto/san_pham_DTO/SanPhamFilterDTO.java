@@ -17,7 +17,6 @@ public class SanPhamFilterDTO {
     
     // Filter parameters
     private Integer danhMucId;
-    private Integer loaiThuId;
     private Integer chatLieuId;
     private Integer kieuDangId;
     private Integer thuongHieuId;

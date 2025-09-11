@@ -15,7 +15,6 @@ import com.main.datn_sd31.repository.Danhmucrepository;
 import com.main.datn_sd31.repository.Dotgiamgiarepository;
 import com.main.datn_sd31.repository.Hinhanhrepository;
 import com.main.datn_sd31.repository.Kieudangrepository;
-import com.main.datn_sd31.repository.Loaithurepository;
 import com.main.datn_sd31.repository.NhanVienRepository;
 import com.main.datn_sd31.repository.SanPhamRepository;
 import com.main.datn_sd31.repository.Thuonghieurepository;
@@ -49,7 +48,6 @@ public class Sanphamservice {
     @Autowired private NhanVienRepository nhanvienrepository;
     @Autowired private Hinhanhrepository hinhanhrepository;
     @Autowired private Chitietsanphamrepository chitietsanphamrepository;
-    @Autowired private Loaithurepository loaithurepository;
     @Autowired private Dotgiamgiarepository dotgiamgiarepository;
 
     public List<SanPham> getAll() {
@@ -337,8 +335,7 @@ public class Sanphamservice {
                 .kieuDang(sanPham.getKieuDang() != null ? sanPham.getKieuDang().getTen() : "")
                 .thuongHieu(sanPham.getThuongHieu() != null ? sanPham.getThuongHieu().getTen() : "")
                 .xuatXu(sanPham.getXuatXu() != null ? sanPham.getXuatXu().getTen() : "")
-                .loaiThu(sanPham.getLoaiThu() != null ? sanPham.getLoaiThu().getTen() : "")
-                .tongSoLuong(tongSoLuong)
+                                .tongSoLuong(tongSoLuong)
                 .giaGocMin(giaGocMin)
                 .giaGocMax(giaGocMax)
                 .giaBanMin(giaBanMin)
@@ -571,7 +568,6 @@ public class Sanphamservice {
     public List<SanPham> search(
             String q,
             Integer danhMucId,
-            Integer loaiThuId,
             Integer chatLieuId,
             Integer kieuDangId,
             Integer xuatXuId,
@@ -591,11 +587,11 @@ public class Sanphamservice {
         }
 
         // if no filter at all, trả về all
-        if (keyword.isEmpty() && danhMucId == null && loaiThuId == null && chatLieuId == null && kieuDangId == null && xuatXuId == null &&  min == null) {
+        if (keyword.isEmpty() && danhMucId == null && chatLieuId == null && kieuDangId == null && xuatXuId == null &&  min == null) {
             return sanPhamRepo.findByTrangThaiTrue();
         }
 
-        return sanPhamRepo.filter(keyword, danhMucId, loaiThuId, chatLieuId, kieuDangId, xuatXuId, min, max);
+        return sanPhamRepo.filter(keyword, danhMucId, chatLieuId, kieuDangId, xuatXuId, min, max);
     }
 
     public SanPham createSanPham(Sanphamform form) {
@@ -614,8 +610,7 @@ public class Sanphamservice {
         sp.setDanhMuc(danhmucrepository.findById(form.getDanhMucId()).orElse(null));
         sp.setKieuDang(kieudangrepository.findById(form.getKieuDangId()).orElse(null));
         sp.setThuongHieu(thuonghieurepository.findById(form.getThuongHieuId()).orElse(null));
-        sp.setLoaiThu(loaithurepository.findById(form.getLoaiThuId()).orElse(null));
-
+        
          return sanPhamRepo.save(sp);
     }
 
@@ -644,7 +639,6 @@ public class Sanphamservice {
     public List<SanPham> searchAdvanced(
             String q,
             Integer danhMucId,
-            Integer loaiThuId,
             Integer sizeId,
             Integer mauSacId,
             Integer kieuDangId,
@@ -665,7 +659,7 @@ public class Sanphamservice {
         }
 
         // if no filter at all, trả về all
-        if (keyword.isEmpty() && danhMucId == null && loaiThuId == null && 
+        if (keyword.isEmpty() && danhMucId == null && 
             sizeId == null && mauSacId == null && kieuDangId == null && 
             thuongHieuId == null && xuatXuId == null && min == null) {
             return sanPhamRepo.findByTrangThaiTrue();
@@ -673,7 +667,7 @@ public class Sanphamservice {
 
         // Sử dụng method filter cơ bản trước
         List<SanPham> basicFiltered = sanPhamRepo.filter(
-            keyword, danhMucId, loaiThuId, null, kieuDangId, xuatXuId, min, max
+            keyword, danhMucId, null, kieuDangId, xuatXuId, min, max
         );
 
         // Lọc thêm theo thương hiệu nếu có
@@ -809,7 +803,6 @@ public class Sanphamservice {
                 .chatLieu(dto.getChatLieu())
                 .xuatXu(dto.getXuatXu())
                 .kieuDang(dto.getKieuDang())
-                .loaiThu(dto.getLoaiThu())
                 .gia(dto.getGiaGocMin())
                 .soLuong(dto.getTongSoLuong())
                 .trangThai(dto.getTrangThai() ? "Đang hoạt động" : "Ngưng hoạt động")

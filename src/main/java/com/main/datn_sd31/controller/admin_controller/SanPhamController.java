@@ -18,7 +18,7 @@ import com.main.datn_sd31.repository.Danhmucrepository;
 import com.main.datn_sd31.repository.Dotgiamgiarepository;
 import com.main.datn_sd31.repository.Hinhanhrepository;
 import com.main.datn_sd31.repository.Kieudangrepository;
-import com.main.datn_sd31.repository.Loaithurepository;
+
 import com.main.datn_sd31.repository.Mausacrepository;
 import com.main.datn_sd31.repository.NhanVienRepository;
 import com.main.datn_sd31.repository.SanPhamRepository;
@@ -98,7 +98,6 @@ public class SanPhamController {
     private final Xuatxurepository xuatxurepository;
     private final Chitietsanphamrepository chitietsanphamRepo;
     private final Hinhanhrepository hinhanhrepository;
-    private final Loaithurepository loaithurepository;
     private final SanPhamRepository sanPhamRepository;
     private final Dotgiamgiarepository dotgiamgiarepository;
 
@@ -118,7 +117,6 @@ public class SanPhamController {
         model.addAttribute("chatLieus", chatLieuRepo.findAll());
         model.addAttribute("xuatXus", xuatXuRepo.findAll());
         model.addAttribute("kieuDangs", kieuDangRepo.findAll());
-        model.addAttribute("loaiThus", loaithurepository.findAll());
         
         return "admin/pages/sanpham/list";
     }
@@ -130,7 +128,6 @@ public class SanPhamController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer danhMucId,
-            @RequestParam(required = false) Integer loaiThuId,
             @RequestParam(required = false) Integer chatLieuId,
             @RequestParam(required = false) Integer kieuDangId,
             @RequestParam(required = false) Integer thuongHieuId,
@@ -148,7 +145,6 @@ public class SanPhamController {
         SanPhamFilterDTO filter = SanPhamFilterDTO.builder()
                 .keyword(keyword)
                 .danhMucId(danhMucId)
-                .loaiThuId(loaiThuId)
                 .chatLieuId(chatLieuId)
                 .kieuDangId(kieuDangId)
                 .thuongHieuId(thuongHieuId)
@@ -184,7 +180,6 @@ public class SanPhamController {
     public ResponseEntity<List<SanPhamListDTO>> filterProducts(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer danhMucId,
-            @RequestParam(required = false) Integer loaiThuId,
             @RequestParam(required = false) Integer chatLieuId,
             @RequestParam(required = false) Integer kieuDangId,
             @RequestParam(required = false) Integer thuongHieuId,
@@ -201,7 +196,6 @@ public class SanPhamController {
         SanPhamFilterDTO filter = SanPhamFilterDTO.builder()
                 .keyword(keyword)
                 .danhMucId(danhMucId)
-                .loaiThuId(loaiThuId)
                 .chatLieuId(chatLieuId)
                 .kieuDangId(kieuDangId)
                 .thuongHieuId(thuongHieuId)
@@ -229,7 +223,7 @@ public class SanPhamController {
         model.addAttribute("thuongHieus", thuongHieuRepo.findAll());
         model.addAttribute("xuatXus", xuatXuRepo.findAll());
         model.addAttribute("kieuDangs", kieuDangRepo.findAll());
-        model.addAttribute("loaiThus", loaithurepository.findAll());
+        
         return "admin/pages/sanpham/add";
     }
 
@@ -319,7 +313,7 @@ public class SanPhamController {
         model.addAttribute("thuongHieus", thuongHieuRepo.findAll());
         model.addAttribute("xuatXus", xuatXuRepo.findAll());
         model.addAttribute("kieuDangs", kieuDangRepo.findAll());
-        model.addAttribute("loaiThus", loaithurepository.findAll());
+        
         return "admin/pages/sanpham/sua-san-pham"; // HTML path
     }
 
@@ -344,8 +338,7 @@ public class SanPhamController {
         spGoc.setDanhMuc(sanPham.getDanhMuc());
         spGoc.setKieuDang(sanPham.getKieuDang());
         spGoc.setThuongHieu(sanPham.getThuongHieu());
-        spGoc.setLoaiThu(sanPham.getLoaiThu());
-
+        
         // Lưu lại
         sanPhamRepository.save(spGoc);
 
@@ -398,7 +391,7 @@ public class SanPhamController {
         model.addAttribute("dsSize", allSizes);
         model.addAttribute("dsSanPham", sanPhamService.getAll());
         model.addAttribute("hinhanh", hinhanhrepository.findByhinhanhid(id));
-        model.addAttribute("dsLoaiThu", xuatxurepository.findAll());
+        
         model.addAttribute("themMau", themMau != null && themMau);
         model.addAttribute("dsDotGiamGia", dotgiamgiarepository.findAll());
 
@@ -826,7 +819,7 @@ public class SanPhamController {
             Row headerRow = sheet.createRow(1);
             String[] headers = {
                 "Mã SP", "Tên SP", "Mô tả", "Danh mục", "Thương hiệu", "Chất liệu", 
-                "Xuất xứ", "Kiểu dáng", "Loại thú", "Giá gốc", "Số lượng", "Trạng thái", "Ngày tạo"
+                "Xuất xứ", "Kiểu dáng", "Giá gốc", "Số lượng", "Trạng thái", "Ngày tạo"
             };
             
             for (int i = 0; i < headers.length; i++) {
@@ -848,11 +841,10 @@ public class SanPhamController {
                 row.createCell(5).setCellValue(sp.getChatLieu() != null ? sp.getChatLieu() : "");
                 row.createCell(6).setCellValue(sp.getXuatXu() != null ? sp.getXuatXu() : "");
                 row.createCell(7).setCellValue(sp.getKieuDang() != null ? sp.getKieuDang() : "");
-                row.createCell(8).setCellValue(sp.getLoaiThu() != null ? sp.getLoaiThu() : "");
-                row.createCell(9).setCellValue(sp.getGia() != null ? sp.getGia().doubleValue() : 0.0);
-                row.createCell(10).setCellValue(sp.getSoLuong() != null ? sp.getSoLuong() : 0);
-                row.createCell(11).setCellValue(sp.getTrangThai() != null ? sp.getTrangThai() : "");
-                row.createCell(12).setCellValue(sp.getNgayTao() != null ? sp.getNgayTao().toString() : "");
+                row.createCell(8).setCellValue(sp.getGia() != null ? sp.getGia().doubleValue() : 0.0);
+                row.createCell(9).setCellValue(sp.getSoLuong() != null ? sp.getSoLuong() : 0);
+                row.createCell(10).setCellValue(sp.getTrangThai() != null ? sp.getTrangThai() : "");
+                row.createCell(11).setCellValue(sp.getNgayTao() != null ? sp.getNgayTao().toString() : "");
             }
             
             // Auto-fit columns

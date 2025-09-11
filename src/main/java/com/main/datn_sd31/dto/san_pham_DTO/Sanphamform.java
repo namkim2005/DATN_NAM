@@ -19,7 +19,6 @@ public class Sanphamform {
     private Integer kieuDangId;
     private Integer thuongHieuId;
     private Integer xuatXuId;
-    private Integer loaiThuId;
 
     private List<ChiTietSanPham> chiTietList = new ArrayList<>();
 }

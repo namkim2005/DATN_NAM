@@ -27,7 +27,6 @@ public class SanPhamListDTO {
     private String kieuDang;
     private String thuongHieu;
     private String xuatXu;
-    private String loaiThu;
     
     // Thông tin số lượng và giá
     private Integer tongSoLuong;

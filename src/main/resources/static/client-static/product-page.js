@@ -1,7 +1,6 @@
 // Global variables
 let currentFilters = {
     q: '',
-    loaiThuId: '',
     danhMucId: [],
     sizeId: '',
     mauSacId: '',
@@ -13,7 +12,6 @@ let currentFilters = {
 
 let filterLabels = {
     q: 'Tìm kiếm',
-    loaiThuId: 'Loại thú',
     danhMucId: 'Danh mục',
     sizeId: 'Kích cỡ',
     mauSacId: 'Màu sắc',
@@ -61,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadInitialFilters();
     
     // Initialize accordion states - default is open
-    ['size-accordion', 'color-accordion', 'loaithu-accordion', 'danhmuc-accordion', 'thuonghieu-accordion', 'price-accordion'].forEach(accordionId => {
+    ['size-accordion', 'color-accordion', 'danhmuc-accordion', 'thuonghieu-accordion', 'price-accordion'].forEach(accordionId => {
         const accordion = document.getElementById(accordionId);
         const icon = document.getElementById(accordionId + '-icon');
         
@@ -171,7 +169,6 @@ function getDataAttribute(filterType) {
     const mapping = {
         'sizeId': 'data-size-id',
         'mauSacId': 'data-color-id',
-        'loaiThuId': 'data-loai-thu-id',
         'danhMucId': 'data-danh-muc-id',
         'thuongHieuId': 'data-thuong-hieu-id',
         'priceRange': 'data-price-range'
@@ -311,24 +308,6 @@ function setupEventListeners() {
             
             // Update visual state
             document.querySelectorAll('button[data-color-id]').forEach(btn => {
-                btn.classList.remove('selected');
-                updateButtonStyle(btn, false);
-            });
-            this.classList.add('selected');
-            updateButtonStyle(this, true);
-            
-            applyFilters();
-        });
-    });
-
-    // Animal type filter buttons (radio buttons)
-    document.querySelectorAll('button[data-loai-thu-id]').forEach(button => {
-        button.addEventListener('click', function() {
-            const loaiThuId = this.getAttribute('data-loai-thu-id');
-            currentFilters.loaiThuId = loaiThuId;
-            
-            // Update visual state
-            document.querySelectorAll('button[data-loai-thu-id]').forEach(btn => {
                 btn.classList.remove('selected');
                 updateButtonStyle(btn, false);
             });
@@ -491,12 +470,13 @@ function applyFilters() {
 
 // Update result count
 function updateResultCount(html) {
-    // Count product cards in the returned HTML
+    // Count product cards in the returned HTML (robust to style changes)
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
-    const productCards = tempDiv.querySelectorAll('.tw-bg-white.tw-rounded-lg');
+    const grid = tempDiv.querySelector('#productGrid');
+    const productCards = grid ? grid.querySelectorAll('a[href*="/san-pham/chi-tiet/"]') : [];
     const count = productCards.length;
-    
+
     const resultCountElement = document.getElementById('filterResultCount');
     if (resultCountElement) {
         resultCountElement.textContent = `${count} kết quả`;
@@ -666,7 +646,6 @@ function removeFilter(filterType, value = null) {
 function clearAllFilters() {
     currentFilters = {
         q: '',
-        loaiThuId: '',
         danhMucId: [],
         sizeId: '',
         mauSacId: '',
@@ -683,7 +662,7 @@ function clearAllFilters() {
     }
 
     // Reset all radio button filters to "All" option
-    ['sizeId', 'mauSacId', 'loaiThuId'].forEach(filterType => {
+    ['sizeId', 'mauSacId'].forEach(filterType => {
         const dataAttr = getDataAttribute(filterType);
         
         // Clear all selections
@@ -735,28 +714,18 @@ function updateProductGrid(html) {
     console.log('noProducts element:', noProducts);
     
     // Check if there are products
-    if (html.includes('tw-bg-white tw-rounded-2xl')) {
-        console.log('Found products in HTML');
-        // Parse HTML và lấy content bên trong
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        
-        console.log('Parsed HTML, looking for #productGrid');
-        // Lấy nội dung bên trong div productGrid từ response
-        const newContent = tempDiv.querySelector('#productGrid');
-        console.log('Found newContent:', newContent);
-        
-        if (newContent) {
-            console.log('Using newContent.innerHTML');
-            productGrid.innerHTML = newContent.innerHTML;
-        } else {
-            console.log('Using full HTML');
-            productGrid.innerHTML = html;
-        }
-        
-        // Force lại CSS grid classes
-        productGrid.className = 'tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 xl:tw-grid-cols-4 tw-gap-6';
-        
+    // Parse response and detect products robustly
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    const newContent = tempDiv.querySelector('#productGrid');
+    const productLinks = newContent ? newContent.querySelectorAll('a[href*="/san-pham/chi-tiet/"]') : [];
+    const wishlistButtons = newContent ? newContent.querySelectorAll('button[data-wishlist-id]') : [];
+    const hasProducts = newContent && (productLinks.length > 0 || wishlistButtons.length > 0);
+
+    if (hasProducts) {
+        productGrid.innerHTML = newContent.innerHTML;
+        // Keep current grid classes from template (do not override)
         productGrid.classList.remove('tw-hidden');
         noProducts.classList.add('tw-hidden');
     } else {

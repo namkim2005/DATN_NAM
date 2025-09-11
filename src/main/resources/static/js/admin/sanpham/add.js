@@ -34,7 +34,6 @@ class ProductAddForm {
             danhMucId: document.getElementById('danhMucId'),
             kieuDangId: document.getElementById('kieuDangId'),
             thuongHieuId: document.getElementById('thuongHieuId'),
-            loaiThuId: document.getElementById('loaiThuId'),
             anhChinh: document.getElementById('anhChinh'),
             anhPhu: document.getElementById('anhPhu')
         };
@@ -50,7 +49,6 @@ class ProductAddForm {
             danhMucId: document.getElementById('danhMucError'),
             kieuDangId: document.getElementById('kieuDangError'),
             thuongHieuId: document.getElementById('thuongHieuError'),
-            loaiThuId: document.getElementById('loaiThuError'),
             anhChinh: document.getElementById('anhChinhError'),
             anhPhu: document.getElementById('anhPhuError')
         };
@@ -67,7 +65,6 @@ class ProductAddForm {
             danhMucId: (value) => this.validateRequired(value, 'danh mục'),
             kieuDangId: (value) => this.validateRequired(value, 'kiểu dáng'),
             thuongHieuId: (value) => this.validateRequired(value, 'thương hiệu'),
-            loaiThuId: (value) => this.validateRequired(value, 'loại thú'),
             anhChinh: (value) => this.validateMainImage(value),
             anhPhu: (value) => this.validateSubImages(value)
         };
