@@ -79,6 +79,9 @@ public class VnpayController {
         String transactionStatus = request.getParameter("vnp_TransactionStatus");
         // Processing payment for order: " + maHoaDon
         HoaDon hoaDon = hoaDonRepository.findByMa(maHoaDon);
+        if (hoaDon != null && hoaDon.getKhachHang() != null) {
+            model.addAttribute("khachHangId", hoaDon.getKhachHang().getId());
+        }
 
         if (hoaDon == null) {
             model.addAttribute("error", "Hóa đơn không tồn tại.");

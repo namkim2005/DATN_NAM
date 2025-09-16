@@ -1076,3 +1076,19 @@ Category Icons Animations
     padding: 15px;
   }
 }
+
+/* Đặt nền cho nav chính */
+.main-menu.navbar.navbar-expand-lg {
+  background-color: #dbc6cf !important;
+}
+
+/* Nền cho phần nội dung offcanvas (menu mobile) */
+.offcanvas .offcanvas-body.justify-content-center {
+  background-color: #dbc6cf !important;
+}
+
+/* Đảm bảo dropdown nổi trên thanh nav */
+header .dropdown-menu {
+  z-index: 2000 !important;
+  position: absolute;
+}

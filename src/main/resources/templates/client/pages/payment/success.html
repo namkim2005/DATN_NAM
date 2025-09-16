@@ -1,29 +1,35 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Kết quả thanh toán - D&C Fashions</title>
+    <title>Kết quả thanh toán - Yuki Dresses</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/client-static/css/stepper.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --primary: #DEAD6F;
-            --primary-light: #EDB867;
-            --primary-dark: #C19A5F;
-            --primary-bg: #fbedd9;
-            --primary-bg-light: #F9F3EC;
-            --accent: #f2cd95;
-            --text-dark: #41403E;
+            --primary: #c0577f;
+            --primary-light: #d88baf;
+            --primary-dark: #744651;
+            --primary-bg: #dab0c4;
+            --primary-bg-light: #dbc6cf;
+            --accent: #d88baf;
+            --text-dark: #2c3e50;
             --text-muted: #6c757d;
+            --success: #28a745;
+            --success-light: #d4edda;
             --danger: #dc3545;
             --danger-light: #f8d7da;
+            --warning: #ffc107;
+            --warning-light: #fff3cd;
         }
 
         body {
             margin: 0;
             padding: 20px;
-            background-color: var(--primary-bg-light);
+            background: linear-gradient(135deg, var(--primary-bg-light) 0%, #f8f9fa 100%);
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
         
         @media (min-width: 768px) {
@@ -33,82 +39,282 @@
         }
         
         .main-container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
         }
         
-        .stepper-wrapper {
-            margin-bottom: 2rem;
-        }
-        
-        .fail-card {
+        .payment-card {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
-        .alert-danger {
-            border: none;
+        .payment-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+        }
+        
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-success {
+            background: linear-gradient(135deg, var(--success-light) 0%, #c3e6cb 100%);
+            color: var(--success);
+        }
+        
+        .status-error {
             background: linear-gradient(135deg, var(--danger-light) 0%, #f5c6cb 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
             color: var(--danger);
         }
         
-        .btn-primary {
-            background-color: var(--primary);
-            border-color: var(--primary);
-            padding: 12px 30px;
-            border-radius: 8px;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .order-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .order-code {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-message {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 25px;
             font-weight: 600;
+            text-decoration: none;
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
         }
         
         .btn-primary:hover {
-            background-color: var(--primary-dark);
-            border-color: var(--primary-dark);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(222, 173, 111, 0.3);
+            box-shadow: 0 8px 25px rgba(192, 87, 127, 0.3);
+            color: white;
         }
-
-        .text-primary {
-            color: var(--primary) !important;
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
         }
-
-        .text-danger {
-            color: var(--danger) !important;
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100px;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+        
+        .step.completed:not(:last-child)::after {
+            background: var(--primary);
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            background: #e9ecef;
+            color: #6c757d;
+        }
+        
+        .step.completed .step-circle {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step.active .step-circle {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .step-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .step.completed .step-label,
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        @media (max-width: 576px) {
+            .payment-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="main-container">
-        <div class="stepper-wrapper">
-            <div class="progress" style="height: 2px;">
-                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-circle">1</div>
+                <div class="step-label">Thanh toán</div>
             </div>
-            <div class="stepper-items">
-                <div class="stepper-item">
-                    <div class="step-counter">1</div>
-                    <div class="step-name">Thanh toán</div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <div class="step-label">Hoàn tất</div>
+            </div>
+        </div>
+        
+        <!-- Payment Result Card -->
+        <div class="payment-card">
+            <!-- Success State -->
+            <div th:if="${message != null and message.contains('thành công')}">
+                <div class="status-icon status-success">
+                    <i class="fas fa-check"></i>
                 </div>
-                <div class="stepper-item active">
-                    <div class="step-counter">2</div>
-                    <div class="step-name">Hoàn tất thanh toán</div>
+                <h2 class="mb-3" style="color: var(--success);">Thanh toán thành công!</h2>
+                <p class="order-message">Cảm ơn bạn đã mua sắm tại Yuki Dresses. Đơn hàng của bạn đã được xác nhận và sẽ được xử lý trong thời gian sớm nhất.</p>
+                
+                <div class="order-info" th:if="${ma != null}">
+                    <div class="order-code">Mã đơn hàng: <span th:text="${ma}"></span></div>
+                    <small class="text-muted">Vui lòng lưu lại mã đơn hàng để theo dõi trạng thái giao hàng</small>
+                </div>
+                
+                <div class="action-buttons">
+                    <a th:href="@{/khach-hang/don-hang/{id}(id=${khachHangId})}" class="btn btn-primary">
+                        <i class="fas fa-list"></i>
+                        Xem đơn hàng
+                    </a>
+                    <a th:href="@{/san-pham/danh-sach}" class="btn btn-outline">
+                        <i class="fas fa-shopping-bag"></i>
+                        Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Error/Failure State -->
+            <div th:unless="${message != null and message.contains('thành công')}">
+                <div class="status-icon status-error">
+                    <i class="fas fa-times"></i>
+                </div>
+                <h2 class="mb-3" style="color: var(--danger);">Thanh toán thất bại</h2>
+                <p class="order-message" th:text="${message}">Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.</p>
+                
+                <div class="order-info" th:if="${ma != null}">
+                    <div class="order-code">Mã đơn hàng: <span th:text="${ma}"></span></div>
+                    <small class="text-muted">Liên hệ hỗ trợ nếu bạn cần hỗ trợ về đơn hàng này</small>
+                </div>
+                
+                <div class="action-buttons">
+                    <a th:href="@{/gio-hang/thanh-toan}" class="btn btn-primary">
+                        <i class="fas fa-redo"></i>
+                        Thử lại thanh toán
+                    </a>
+                    <a th:href="@{/gio-hang/hien_thi}" class="btn btn-outline">
+                        <i class="fas fa-shopping-cart"></i>
+                        Xem giỏ hàng
+                    </a>
                 </div>
             </div>
         </div>
         
-        <div class="fail-card">
-            <h3 class="text-center mb-4 text-danger">❌ Kết quả thanh toán</h3>
-            <div class="alert alert-danger text-center">
-                <h5 class="mb-3">Mã đơn hàng: <span class="fw-bold text-primary" th:text="${ma}"></span></h5>
-                <div class="mt-3" th:text="${message}"></div>
-            </div>
-
-            <div class="text-center mt-4">
-                <a th:href="@{/san-pham/danh-sach}" class="btn btn-primary btn-lg">🏠 Quay về trang chủ</a>
-            </div>
+        <!-- Additional Info -->
+        <div class="text-center mt-4">
+            <p class="text-muted">
+                <i class="fas fa-headset me-2"></i>
+                Cần hỗ trợ? Liên hệ hotline: <strong>+84 1800 33355</strong>
+            </p>
         </div>
     </div>
 </body>

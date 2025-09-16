@@ -446,11 +446,15 @@ public class GiohangController {
         hoaDon.setThanhTien(thanhTien);
 
         KhachHang kh = getCurrentKhachHang();
-        NhanVien nv = nhanvienrepository.find(1);
+        NhanVien nv = nhanvienrepository.findById(1).orElseGet(() -> nhanvienrepository.findAll().stream().findFirst().orElse(null));
+        if (nv == null) {
+            ThongBaoUtils.addError(redirectAttributes, "Không tìm thấy nhân viên mặc định để lập hóa đơn. Vui lòng cấu hình nhân viên hệ thống (ID=1) hoặc tạo ít nhất 1 nhân viên.");
+            return "redirect:/gio-hang/thanh-toan";
+        }
         hoaDon.setKhachHang(kh);
         hoaDon.setNhanVien(nv);
-        hoaDon.setNguoiTao(1);
-        hoaDon.setNguoiSua(1);
+        hoaDon.setNguoiTao(nv.getId());
+        hoaDon.setNguoiSua(nv.getId());
 //        System.out.println("pgg: " + formData);
 
         if (formData.containsKey("phieuGiamGia") && !formData.get("phieuGiamGia").isBlank()) {

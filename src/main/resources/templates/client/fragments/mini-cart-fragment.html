@@ -53,6 +53,12 @@
             </div>
         </div>
     </div>
+    
+    <div class="mini-cart-footer" th:if="${@cartService.getMiniCartData().items.size() > 0}">
+        <div class="mini-cart-footer-content">
+            <a class="mini-cart-checkout-btn" th:href="@{/gio-hang/hien_thi}">Xem giỏ hàng</a>
+        </div>
+    </div>
 </div>
 
 <!-- Cart Count Badge Fragment -->
@@ -64,5 +70,4 @@
 <!-- Header Cart Count Fragment -->
 <div th:fragment="header-cart-count" class="position-absolute translate-middle badge rounded-circle bg-primary pt-2 cart-count-badge" id="headerCartCount" th:text="${@cartService.getMiniCartData().totalItems}">0</div>
 
-</html> 
 </html> 

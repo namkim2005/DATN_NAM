@@ -1,22 +1,22 @@
 /* Mini Cart Styles - Template Design with Project Main Colors */
 :root {
-    --primary-color: #DEAD6F;
-    --primary-hover: #C19B5B;
-    --primary-light: #E8C088;
-    --primary-dark: #B8945A;
+    --primary-color: #c0577f;
+    --primary-hover: #744651;
+    --primary-light: #d88baf;
+    --primary-dark: #744651;
     --secondary-color: #6c757d;
     --success-color: #28a745;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
     --info-color: #17a2b8;
-    --light-color: #f9f3ec;
+    --light-color: #dbc6cf;
     --dark-color: #2C2C2C;
     --white-color: #ffffff;
-    --border-color: #E8D4B8;
+    --border-color: #dab0c4;
     --text-primary: #2C2C2C;
     --text-secondary: #5A5A5A;
     --text-muted: #8A8A8A;
-    --shadow-color: rgba(222, 173, 111, 0.15);
+    --shadow-color: rgba(192, 87, 127, 0.15);
 }
 
 /* Header Cart Count - Đảm bảo luôn hiển thị trên navbar sticky */

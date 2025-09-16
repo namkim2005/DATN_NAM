@@ -2,12 +2,12 @@
 
 /* CSS Variables for warm golden theme */
 :root {
-    --primary: #DEAD6F;
-    --primary-light: #EDB867;
-    --primary-dark: #C19A5F;
-    --primary-bg: #fbedd9;
-    --primary-bg-light: #F9F3EC;
-    --accent: #f2cd95;
+    --primary: #c0577f;
+    --primary-light: #d88baf;
+    --primary-dark: #744651;
+    --primary-bg: #dab0c4;
+    --primary-bg-light: #dbc6cf;
+    --accent: #d88baf;
     --text-dark: #41403E;
     --text-muted: #6c757d;
     --border-light: #e9ecef;
@@ -33,7 +33,7 @@ body.checkout-page {
 
 .checkout-step.active {
     border-color: var(--primary);
-    box-shadow: 0 4px 20px rgba(222, 173, 111, 0.15);
+    box-shadow: 0 4px 20px rgba(192, 87, 127, 0.15);
 }
 
 /* Product Cards */
@@ -167,13 +167,13 @@ body.checkout-page {
 .payment-card:hover {
     border-color: var(--primary);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(222, 173, 111, 0.15);
+    box-shadow: 0 4px 15px rgba(192, 87, 127, 0.15);
 }
 
 .payment-card.selected {
     border-color: var(--primary);
     background-color: var(--primary-bg);
-    box-shadow: 0 4px 20px rgba(222, 173, 111, 0.2);
+    box-shadow: 0 4px 20px rgba(192, 87, 127, 0.2);
 }
 
 .payment-card .form-check-input:checked {
@@ -244,7 +244,7 @@ body.checkout-page {
     background-color: var(--primary-dark);
     border-color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(222, 173, 111, 0.3);
+    box-shadow: 0 4px 15px rgba(192, 87, 127, 0.3);
 }
 
 .btn-secondary {
@@ -366,3 +366,10 @@ body.checkout-page {
 .form-select::-webkit-scrollbar-thumb:hover {
     background: var(--primary-dark);
 }
+
+/* Bootstrap component overrides to match pink theme */
+.badge.bg-primary { background-color: var(--primary) !important; }
+.text-primary { color: var(--primary) !important; }
+.btn-secondary { background-color: #744651; border-color: #744651; }
+.btn-secondary:hover { background-color: #5f3a45; border-color: #5f3a45; }
+.progress-bar { background-color: var(--primary) !important; }

@@ -58,17 +58,17 @@
 
 /* CSS Variables for Warm Yellow Theme */
 :root {
-    --border-primary: #e8e0d0;
-    --border-secondary: #d2b48c;
-    --border-brand: #f4a261;
+    --border-primary: #dab0c4;
+    --border-secondary: #d88baf;
+    --border-brand: #c0577f;
     --border-negative: #e74c3c;
-    --theme-bg: #faf9f6;
-    --theme-surface: #f5f5f0;
-    --theme-surface-hover: #f0e6d2;
+    --theme-bg: #ffffff;
+    --theme-surface: #ffffff;
+    --theme-surface-hover: #dbc6cf;
     --theme-text: #2c3e50;
     --theme-text-secondary: #7f8c8d;
-    --brand-surface: #f4a261;
-    --brand-surface-hover: #e67e22;
+    --brand-surface: #c0577f;
+    --brand-surface-hover: #744651;
     --text-label-sm: 0.75rem;
     --text-label-md: 0.875rem;
     --text-body-sm: 0.875rem;

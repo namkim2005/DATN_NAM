@@ -319,6 +319,8 @@ public class SanPhamController {
 
     @PostMapping("/sua")
     public String suaSanPham(@ModelAttribute("sanpham") SanPham sanPham,
+                             @RequestParam(value = "anhChinh", required = false) MultipartFile anhChinh,
+                             @RequestParam(value = "anhPhu", required = false) List<MultipartFile> anhPhuList,
                              RedirectAttributes redirectAttributes) {
 
         SanPham spGoc = sanPhamService.findbyid(sanPham.getId());
@@ -338,8 +340,80 @@ public class SanPhamController {
         spGoc.setDanhMuc(sanPham.getDanhMuc());
         spGoc.setKieuDang(sanPham.getKieuDang());
         spGoc.setThuongHieu(sanPham.getThuongHieu());
-        
-        // Lưu lại
+
+        // Xử lý cập nhật ảnh nếu có upload
+        try {
+            // Thư mục lưu ảnh (đồng bộ với cấu hình resource handler)
+            String uploadDir = "src/main/resources/static/uploads/";
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // 1) Ảnh chính: nếu có file mới thì thay thế URL ảnh chính hiện tại hoặc tạo mới
+            if (anhChinh != null && !anhChinh.isEmpty()) {
+                String tenFileMoi = UUID.randomUUID().toString() + "_" + anhChinh.getOriginalFilename().replaceAll("[^a-zA-Z0-9.\\-]", "_");
+                Path pathMoi = uploadPath.resolve(tenFileMoi);
+                Files.copy(anhChinh.getInputStream(), pathMoi, StandardCopyOption.REPLACE_EXISTING);
+
+                // Lấy danh sách ảnh hiện có (đã sắp theo loaiAnh asc, ngayTao asc)
+                List<HinhAnh> hinhAnhs = hinhanhrepository.findByhinhanhid(spGoc.getId());
+                HinhAnh anhChinhHienTai = null;
+                for (HinhAnh ha : hinhAnhs) {
+                    if (ha.getLoaiAnh() != null && ha.getLoaiAnh() == 0) {
+                        anhChinhHienTai = ha;
+                        break;
+                    }
+                }
+
+                if (anhChinhHienTai != null) {
+                    // Có ảnh chính -> cập nhật URL và thời gian sửa
+                    anhChinhHienTai.setUrl("/uploads/" + tenFileMoi);
+                    anhChinhHienTai.setNgaySua(LocalDateTime.now());
+                    anhChinhHienTai.setTrangThai(true);
+                    hinhanhrepository.save(anhChinhHienTai);
+                } else {
+                    // Chưa có ảnh chính -> tạo mới
+                    HinhAnh anh = new HinhAnh();
+                    anh.setSanPham(spGoc);
+                    anh.setMa("ANHCHINH_" + System.currentTimeMillis());
+                    anh.setTen("Ảnh chính");
+                    anh.setUrl("/uploads/" + tenFileMoi);
+                    anh.setLoaiAnh(0);
+                    anh.setNgayTao(LocalDateTime.now());
+                    anh.setNgaySua(LocalDateTime.now());
+                    anh.setTrangThai(true);
+                    hinhanhrepository.save(anh);
+                }
+            }
+
+            // 2) Ảnh phụ: thêm mới (không xóa ảnh phụ cũ nếu không được yêu cầu)
+            if (anhPhuList != null) {
+                for (MultipartFile file : anhPhuList) {
+                    if (file != null && !file.isEmpty()) {
+                        String tenFile = UUID.randomUUID().toString() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.\\-]", "_");
+                        Path path = uploadPath.resolve(tenFile);
+                        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+                        HinhAnh anhPhu = new HinhAnh();
+                        anhPhu.setSanPham(spGoc);
+                        anhPhu.setMa("ANHPHU_" + System.currentTimeMillis());
+                        anhPhu.setTen("Ảnh phụ");
+                        anhPhu.setUrl("/uploads/" + tenFile);
+                        anhPhu.setLoaiAnh(1);
+                        anhPhu.setNgayTao(LocalDateTime.now());
+                        anhPhu.setNgaySua(LocalDateTime.now());
+                        anhPhu.setTrangThai(true);
+                        hinhanhrepository.save(anhPhu);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi lưu ảnh: " + e.getMessage());
+            return "redirect:/admin/san-pham/hien_thi";
+        }
+
+        // Lưu lại thông tin sản phẩm
         sanPhamRepository.save(spGoc);
 
         redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công.");

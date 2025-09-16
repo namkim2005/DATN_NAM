@@ -1,9 +1,9 @@
 :root {
-    --primary: #DEAD6F;
+    --primary: #c0577f;
     --primary-foreground: #ffffff;
     --secondary: #f5f5f5;
     --secondary-foreground: #111111;
-    --accent: #EDB867;
+    --accent: #d88baf;
     --accent-foreground: #ffffff;
     --background: #ffffff;
     --foreground: #111111;
@@ -11,7 +11,7 @@
     --card-foreground: #111111;
     --border: #e5e5e5;
     --input: #ffffff;
-    --ring: #DEAD6F;
+    --ring: #744651;
     --radius: 0.5rem;
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }

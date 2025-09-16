@@ -148,9 +148,9 @@
     transition: all 0.3s ease;
 }
 
-.step-counter.active {
-    background-color: #007bff;
-    border-color: #007bff;
+ .step-counter.active {
+    background-color: #c0577f;
+    border-color: #c0577f;
     color: white;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .stepper-item.active .step-name {
-    color: #007bff;
+    color: #c0577f;
     font-weight: 600;
 }
 
@@ -172,8 +172,8 @@
 
 .form-floating .form-control:focus,
 .form-floating .form-select:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #c0577f;
+    box-shadow: 0 0 0 0.2rem rgba(192, 87, 127, 0.25);
 }
 
 /* Payment method cards */
@@ -184,13 +184,13 @@
 }
 
 .payment-card:hover {
-    border-color: #007bff;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+    border-color: #c0577f;
+    box-shadow: 0 4px 15px rgba(192, 87, 127, 0.1);
 }
 
 .payment-card.selected {
-    border-color: #007bff;
-    background-color: #f8f9ff;
+    border-color: #c0577f;
+    background-color: #dbc6cf;
 }
 
 /* Order summary improvements */
