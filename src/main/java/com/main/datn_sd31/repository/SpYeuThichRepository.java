@@ -1,4 +1,4 @@
-﻿package com.main.datn_sd31.repository;
+package com.main.datn_sd31.repository;
 
 import com.main.datn_sd31.entity.SpYeuThich;
 import org.springframework.data.jpa.repository.JpaRepository;
