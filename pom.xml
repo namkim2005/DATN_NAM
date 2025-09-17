@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.main</groupId>
-    <artifactId>DATN_SD31</artifactId>
+    <artifactId>DATN_SD113</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>DATN_SD31</name>
-    <description>DATN_SD31</description>
+    <name>DATN_SD113</name>
+    <description>DATN_SD113</description>
     <url/>
     <licenses>
         <license/>

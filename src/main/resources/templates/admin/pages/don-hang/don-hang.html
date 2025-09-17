@@ -364,7 +364,7 @@
                 <button class="btn btn-outline-primary">
                     <a th:href="@{/admin/don-hang}">Tất cả</a>
                 </button>
-                <button th:each="status : ${T(com.main.datn_sd31.Enum.TrangThaiLichSuHoaDon).values()}"
+                <button th:each="status : ${T(com.main.datn_SD113.Enum.TrangThaiLichSuHoaDon).values()}"
                         th:if="${status.value != 5 and status.value != 8 and status.value != 9 and status.value != 10}"
                         class="btn btn-outline-primary position-relative">
                     <a th:href="@{/admin/don-hang(trang-thai=${status.name()})}" th:text="${status.moTa}"></a>
