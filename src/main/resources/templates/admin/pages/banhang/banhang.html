@@ -326,8 +326,14 @@
                             <div id="qrChuyenKhoan" style="display: none;">
                                 <div class="text-center">
                                     <p class="fw-bold mb-2">Quét mã QR để chuyển khoản</p>
-                                    <img th:src="@{/uploads/z6920997851681_38d746ac107d5a6ef13b1522945fa2c5.jpg}" alt="QR chuyển khoản"
-                                         style="max-width: 150px;" class="img-fluid border rounded">
+                                    <img th:src="@{/images/qrbanking.jpg}" alt="QR chuyển khoản"
+                                         style="max-width: 150px;" class="img-fluid border rounded"
+                                         onerror="if(this.src.indexOf('default-avatar.png')==-1){this.src='/images/default-avatar.png';}else{this.style.display='none';this.nextElementSibling.style.display='block';}">
+                                    <div style="display: none; padding: 20px; border: 2px dashed #ccc; border-radius: 8px; background: #f8f9fa;">
+                                        <div style="font-size: 48px; color: #6c757d;">📱</div>
+                                        <p class="mb-1"><strong>QR Code Chuyển Khoản</strong></p>
+                                        <small class="text-muted">Liên hệ để được hướng dẫn thanh toán</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
