@@ -3,26 +3,29 @@ package com.main.datn_SD113.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.resource.VersionResourceResolver;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Cấu hình cho uploads
+        // Cấu hình cho uploads với cache validation
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("classpath:/static/uploads/")
-                .setCachePeriod(3600);
+                .setCachePeriod(300) // Giảm cache xuống 5 phút
+                .resourceChain(true)
+                .addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"));
 
-        // Cấu hình cho images
+        // Cấu hình cho images với cache tối ưu
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("classpath:/static/images/")
-                .setCachePeriod(3600);
+                .setCachePeriod(1800); // 30 phút cho static images
 
-        // Cấu hình cho client-static (thêm mới)
+        // Client-static với cache ngắn hạn
         registry.addResourceHandler("/client-static/**")
                 .addResourceLocations("classpath:/static/client-static/")
-                .setCachePeriod(0); // Tắt cache cho development
+                .setCachePeriod(60); // 1 phút thay vì 0
 
         // Cấu hình cho static resources khác
         registry.addResourceHandler("/css/**")

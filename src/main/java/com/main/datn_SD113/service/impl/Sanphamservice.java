@@ -221,12 +221,15 @@ public class Sanphamservice {
             return "/images/favicon.png";
         }
         
-        // Nếu là ảnh upload, kiểm tra file có tồn tại không
+        // Cache validation results
         if (imageUrl.startsWith("/uploads/")) {
-            String filePath = "src/main/resources/static" + imageUrl;
-            if (!Files.exists(Paths.get(filePath))) {
-                return "/images/favicon.png"; // Fallback về ảnh mặc định
-            }
+            // Async validation, return URL immediately
+            CompletableFuture.runAsync(() -> {
+                String filePath = "src/main/resources/static" + imageUrl;
+                if (!Files.exists(Paths.get(filePath))) {
+                    log.warn("Image not found: " + imageUrl);
+                }
+            });
         }
         
         return imageUrl;

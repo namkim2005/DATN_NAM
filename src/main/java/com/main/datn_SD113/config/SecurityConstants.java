@@ -47,7 +47,8 @@ public final class SecurityConstants {
         "/uploads/**", "/css/**", "/js/**", "/images/**",
         "/vendors/**", "/webjars/**", "/static/**", "/favicon.ico",
         "/san-pham/**", "/san-pham/chi-tiet/**", "/client-static/**", "/bootstrap-5.3.7-dist/**",
-        "/api/auth/**"
+        "/api/auth/**",
+        "/gioi-thieu", "/lien-he", "/lien-he/gui"
     };
     
     public static final String[] ADMIN_PERMIT_ALL = {
