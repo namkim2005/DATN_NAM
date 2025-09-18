@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layout}">
+<head>
+    <title>Giới thiệu - Yuki Dresses</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container py-5">
+        <!-- Hero Section -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-3" style="color: #e4a896;">Về Yuki Dresses</h1>
+                <p class="lead text-muted">Nơi khởi nguồn vẻ đẹp thanh lịch cho phái nữ</p>
+            </div>
+        </div>
+
+        <!-- Story Section -->
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-6">
+                <h2 class="h3 mb-4">Câu chuyện của chúng tôi</h2>
+                <p>Yuki Dresses được thành lập với niềm đam mê mang đến những thiết kế váy độc đáo, 
+                   thanh lịch cho phụ nữ Việt Nam. Chúng tôi tin rằng mỗi chiếc váy không chỉ là trang phục, 
+                   mà còn là cách thể hiện cá tính và phong cách riêng của từng người phụ nữ.</p>
+                <p>Với hơn 5 năm kinh nghiệm trong ngành thời trang, chúng tôi luôn chú trọng đến 
+                   chất lượng vải, form dáng và sự thoải mái khi mặc.</p>
+            </div>
+            <div class="col-lg-6">
+                <img th:src="@{/images/shop.webp}" alt="Câu chuyện Yuki Dresses"
+                     class="img-fluid rounded shadow"
+                     onerror="this.src='/images/default-avatar.png';">
+            </div>
+        </div>
+
+        <!-- Values Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="h3 text-center mb-5">Giá trị cốt lõi</h2>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="p-4">
+                    <div class="mb-3" style="font-size: 3rem; color: #e4a896;">👗</div>
+                    <h4>Chất lượng</h4>
+                    <p>Sử dụng chất liệu cao cấp, bền đẹp và thân thiện với làn da</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="p-4">
+                    <div class="mb-3" style="font-size: 3rem; color: #e4a896;">✨</div>
+                    <h4>Phong cách</h4>
+                    <p>Thiết kế hiện đại, thanh lịch phù hợp với xu hướng thời trang</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="p-4">
+                    <div class="mb-3" style="font-size: 3rem; color: #e4a896;">💝</div>
+                    <h4>Dịch vụ</h4>
+                    <p>Tư vấn tận tình, giao hàng nhanh chóng và chính sách đổi trả linh hoạt</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h3 text-center mb-5">Đội ngũ của chúng tôi</h2>
+            </div>
+            <div class="col-md-6 col-lg-3 text-center mb-4">
+                <img th:src="@{/images/faces-clipart/pic-1.png}" alt="CEO" 
+                     class="rounded-circle mb-3" width="120" height="120">
+                <h5>Nguyễn Thị Yuki</h5>
+                <p class="text-muted">Founder & CEO</p>
+            </div>
+            <div class="col-md-6 col-lg-3 text-center mb-4">
+                <img th:src="@{/images/faces-clipart/pic-2.png}" alt="Designer" 
+                     class="rounded-circle mb-3" width="120" height="120">
+                <h5>Trần Văn Nam</h5>
+                <p class="text-muted">Head Designer</p>
+            </div>
+            <div class="col-md-6 col-lg-3 text-center mb-4">
+                <img th:src="@{/images/faces-clipart/pic-3.png}" alt="Marketing" 
+                     class="rounded-circle mb-3" width="120" height="120">
+                <h5>Lê Thị Hoa</h5>
+                <p class="text-muted">Marketing Manager</p>
+            </div>
+            <div class="col-md-6 col-lg-3 text-center mb-4">
+                <img th:src="@{/images/faces-clipart/pic-4.png}" alt="Customer Service" 
+                     class="rounded-circle mb-3" width="120" height="120">
+                <h5>Phạm Văn Đức</h5>
+                <p class="text-muted">Customer Service</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Đặt script vào fragment scripts -->
+<th:block layout:fragment="scripts">
+    <script>
+        // Debug preloader - jQuery đã được load ở đây
+        $(document).ready(function() {
+            console.log('About page loaded');
+            console.log('Body classes:', $('body').attr('class'));
+            console.log('Preloader wrapper:', $('.preloader-wrapper').length);
+            
+            // Force remove preloader nếu cần
+            $('.preloader-wrapper').fadeOut();
+            $('body').removeClass('preloader-site');
+        });
+    </script>
+</th:block>
+</body>
+</html>
+
+
+
+
