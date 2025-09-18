@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<!--Cấu hình layout cho Thymleaf-->
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Star Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+            crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/vendors/iconfonts/mdi/css/materialdesignicons.min.css}">
+    <!--    <link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.base.css}">-->
+    <!--    <link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.addons.css}">-->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/font-override.css}">
+    <link rel="shortcut icon" th:href="@{/images/favicon.png}"/>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* Icon Animation for Main Menu and Submenu */
+        .sidebar .nav-item .nav-link .menu-icon {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-item .nav-link:hover .menu-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* Ẩn nút tăng giảm trên Chrome, Edge, Safari */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Submenu Icon Animation */
+        .sidebar .sub-menu .nav-item .nav-link .menu-icon {
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin-right: 8px;
+        }
+
+        .sidebar .sub-menu .nav-item .nav-link:hover .menu-icon {
+            transform: scale(1.3) rotate(15deg);
+        }
+
+        /* Navbar Depth and Shadow Effects */
+        .navbar.default-layout {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            height: 70px !important;
+            min-height: 70px !important;
+        }
+
+        .navbar-brand-wrapper {
+            position: relative;
+            background: linear-gradient(135deg, #dead6f 0%, #c19b5b 100%);
+            width: 280px !important;
+            height: 70px !important;
+            min-height: 70px !important;
+            flex: 0 0 280px !important;
+        }
+
+        .navbar-menu-wrapper {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            height: 70px !important;
+            min-height: 70px !important;
+            flex: 1 1 auto !important;
+            width: calc(100% - 280px) !important;
+        }
+        .navbar-menu-wrapper .navbar-nav { align-items: center !important; }
+        .navbar .navbar-toggler { height: 40px; width: 40px; }
+
+        .nav-link.dropdown-toggle {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 5px;
+        }
+
+        .nav-link.dropdown-toggle:hover {
+            background: rgba(222, 173, 111, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(222, 173, 111, 0.2);
+        }
+
+        .dropdown-menu {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: none;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .dropdown-item {
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            margin: 2px 8px;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #dead6f 0%, #c19b5b 100%);
+            color: white !important;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(222, 173, 111, 0.3);
+        }
+
+        .img-xs.rounded-circle {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .img-xs.rounded-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        /*CSS Thong bao*/
+        .custom-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 40px 12px 18px; /* hoặc: padding: 12px 18px; */
+            border-radius: 6px;
+            color: white;
+            z-index: 9999;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            animation: fadeIn 0.3s ease-in-out;
+            overflow: hidden;
+        }
+
+
+        .custom-toast.success {
+            background-color: #28a745;
+        }
+
+        .custom-toast.error {
+            background-color: #dc3545;
+        }
+
+        .custom-toast .close-btn {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .custom-toast .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            animation: progressBar 4s linear forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes progressBar {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0%;
+            }
+        }
+
+        /*CSS Thong bao*/
+
+        /* Force submenu display fix */
+        .sidebar .nav .nav-item .collapse.show {
+            display: block !important;
+        }
+
+        .sidebar .nav .nav-item.active > .nav-link {
+            color: #dead6f !important;
+        }
+
+        /* Sidebar Background Color Override */
+        .sidebar {
+            background: #2d3f51 !important;
+            position: fixed !important;
+            top: 70px !important; /* Chiều cao của navbar */
+            left: 0 !important;
+            height: calc(100vh - 70px) !important; /* Chiều cao viewport trừ navbar */
+            overflow-y: auto !important; /* Cho phép scroll nếu menu dài */
+            z-index: 1000 !important;
+            width: 280px !important; /* Khớp với navbar-brand-wrapper */
+            transition: transform 0.3s ease !important;
+        }
+
+        /* Đảm bảo main panel không bị che bởi sidebar */
+        .main-panel {
+            margin-left: 280px !important; /* Bằng chiều rộng sidebar */
+            transition: margin-left 0.3s ease !important;
+        }
+
+        /* Fix overflow and wrapping issues for navbar on narrow widths */
+        @media (max-width: 991.98px) {
+            .navbar-brand-wrapper { width: 220px !important; flex-basis: 220px !important; }
+            .navbar-menu-wrapper { width: calc(100% - 220px) !important; }
+            .sidebar { width: 260px !important; }
+            .main-panel { margin-left: 0 !important; }
+        }
+
+        /* Responsive cho mobile */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%) !important;
+            }
+
+            .sidebar.show {
+                transform: translateX(0) !important;
+            }
+
+            .main-panel {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Đảm bảo container-scroller và page-body-wrapper hoạt động đúng */
+        .container-scroller {
+            overflow-x: hidden !important;
+        }
+
+        .page-body-wrapper {
+            padding-top: 70px !important; /* Chiều cao navbar */
+        }
+
+        /* Custom scrollbar cho sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #34495e;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #dead6f;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #c19b5b;
+        }
+
+        .sidebar .nav .nav-item .collapse.show,
+        .sidebar .nav .nav-item .collapsing {
+            background: #34495e !important;
+        }
+
+        .sidebar .nav .nav-item .nav-link {
+            color: #ecf0f1 !important;
+        }
+
+        .sidebar .nav .nav-item .nav-link:hover {
+            color: #ffffff !important;
+            background: #34495e !important;
+        }
+
+        .sidebar .nav .nav-item .nav-link[aria-expanded="true"] {
+            background: #34495e !important;
+        }
+
+        .sidebar .nav .nav-item .nav-link .menu-icon {
+            color: #bdc3c7 !important;
+        }
+
+        .sidebar .nav .nav-item .nav-link:hover .menu-icon {
+            color: #ffffff !important;
+        }
+
+        .sidebar .nav.sub-menu .nav-item .nav-link {
+            color: #bdc3c7 !important;
+        }
+
+        .sidebar .nav.sub-menu .nav-item .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        .sidebar .nav.sub-menu .nav-item .nav-link.active {
+            color: #dead6f !important;
+        }
+
+        .sidebar .nav:not(.sub-menu) > .nav-item:hover:not(.nav-profile) > .nav-link {
+            background: #34495e !important;
+            color: #ffffff !important;
+        }
+
+        /* Nav Profile Height and Balance Adjustments */
+        .sidebar .nav .nav-item.nav-profile .nav-link {
+            padding: 1.5rem !important;
+            height: auto !important;
+            min-height: 80px !important;
+            background: #34495e !important;
+            border-bottom: 1px solid #4a5f7a !important;
+        }
+
+        .sidebar .nav .nav-item.nav-profile .nav-link .user-wrapper {
+            margin-bottom: 0 !important;
+            align-items: center !important;
+        }
+
+        .sidebar .nav .nav-item.nav-profile .nav-link .user-wrapper .profile-image {
+            width: 48px !important;
+            height: 48px !important;
+            flex-shrink: 0 !important;
+        }
+
+        .sidebar .nav .nav-item.nav-profile .nav-link .user-wrapper .profile-image img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .sidebar .nav .nav-item.nav-profile .nav-link .user-wrapper .text-wrapper {
+            margin-left: 12px !important;
+            flex: 1 !important;
+        }
+
+        .sidebar .nav .nav-item.nav-profile .nav-link .user-wrapper .text-wrapper .profile-name {
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            margin-bottom: 4px !important;
+            font-size: 14px !important;
+            line-height: 1.2 !important;
+        }
+
+        .sidebar .nav .nav-item.nav-profile .nav-link .user-wrapper .text-wrapper .designation {
+            color: #bdc3c7 !important;
+            font-size: 12px !important;
+            line-height: 1.2 !important;
+        }
+
+        .sidebar .nav .nav-item.nav-profile .nav-link .user-wrapper .text-wrapper .status-indicator {
+            display: inline-block !important;
+            width: 8px !important;
+            height: 8px !important;
+            border-radius: 50% !important;
+            background: #27ae60 !important;
+            margin-left: 8px !important;
+        }
+    </style>
+    <style>
+        :root {
+            --clr-deep: #744651;
+            --clr-primary: #c0577f;
+            --clr-accent: #d88baf;
+            --clr-soft: #dab0c4;
+            --clr-soft-10: rgba(218, 176, 196, 0.1);
+            --clr-primary-10: rgba(192, 87, 127, 0.1);
+            --clr-deep-90: rgba(116, 70, 81, 0.9);
+        }
+
+        body {
+            background: linear-gradient(180deg, #fff 0%, var(--clr-soft) 100%) !important;
+        }
+
+        .navbar.default-layout {
+            background: linear-gradient(135deg, #ffffff 0%, var(--clr-soft) 100%) !important;
+            border-bottom: 1px solid rgba(116, 70, 81, 0.12) !important;
+            box-shadow: 0 6px 22px rgba(116, 70, 81, 0.12) !important;
+        }
+
+        .navbar-brand-wrapper {
+            background: linear-gradient(135deg, var(--clr-deep) 0%, var(--clr-primary) 100%) !important;
+        }
+        .navbar-menu-wrapper {
+            background: transparent !important;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--clr-deep) 0%, var(--clr-primary) 100%) !important;
+            box-shadow: 6px 0 24px rgba(116, 70, 81, 0.25) !important;
+            width: 280px !important;
+        }
+        .main-panel { margin-left: 280px !important; }
+
+        .sidebar .nav .nav-item .nav-link {
+            color: #f7eaf0 !important;
+            border-radius: 10px !important;
+            margin: 2px 8px !important;
+            transition: all .2s ease !important;
+        }
+        .sidebar .nav:not(.sub-menu) > .nav-item:hover:not(.nav-profile) > .nav-link {
+            background: var(--clr-primary-10) !important;
+            color: #ffffff !important;
+        }
+        .sidebar .nav .nav-item.active > .nav-link,
+        .sidebar .nav .nav-item .nav-link[aria-expanded="true"] {
+            background: rgba(192, 87, 127, .25) !important;
+            color: #ffffff !important;
+        }
+        .sidebar .nav .nav-item .nav-link .menu-icon {
+            color: #ffe2ee !important;
+            background: rgba(255,255,255,.12);
+            border-radius: 8px;
+            width: 28px; height: 28px;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-right: 10px;
+        }
+        .sidebar .nav .nav-item .nav-link:hover .menu-icon { color: #ffffff !important; }
+
+        .sidebar .nav .nav-item .collapse.show,
+        .sidebar .nav .nav-item .collapsing {
+            background: rgba(255,255,255, .06) !important;
+        }
+        .sidebar .nav.sub-menu .nav-item .nav-link {
+            color: #f2dae4 !important;
+            border-radius: 8px !important;
+            margin: 2px 16px !important;
+        }
+        .sidebar .nav.sub-menu .nav-item .nav-link:hover {
+            background: var(--clr-primary-10) !important;
+            color: #ffffff !important;
+        }
+        .sidebar .nav.sub-menu .nav-item .nav-link.active {
+            color: #ffffff !important;
+            background: rgba(192, 87, 127, .3) !important;
+        }
+
+        /* Scrollbar */
+        .sidebar::-webkit-scrollbar-thumb { background: var(--clr-primary) !important; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(0,0,0,.1) !important; }
+
+        /* Dropdown */
+        .dropdown-menu {
+            background: rgba(255,255,255,0.95) !important;
+            box-shadow: 0 12px 32px rgba(116, 70, 81, 0.25) !important;
+            border: 1px solid rgba(116, 70, 81, .12) !important;
+        }
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-soft) 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 14px rgba(116, 70, 81, .24) !important;
+        }
+
+        /* Chips & badges in navbar */
+        .nav-link.dropdown-toggle:hover {
+            background: var(--clr-soft-10) !important;
+            box-shadow: 0 2px 10px rgba(116, 70, 81, .15) !important;
+        }
+
+        /* Toast accents */
+        .custom-toast.success { background-color: var(--clr-deep) !important; }
+        .custom-toast.error { background-color: var(--clr-primary) !important; }
+        .custom-toast .progress-bar { background-color: rgba(255,255,255,.8) !important; }
+
+        /* Card surface on admin pages */
+        .content-wrapper .card,
+        .content-wrapper .table,
+        .content-wrapper .form-control {
+            border-radius: 12px !important;
+            border-color: rgba(116, 70, 81, 0.15) !important;
+        }
+        .btn-primary,
+        .btn.btn-primary {
+            background: var(--clr-primary) !important;
+            border-color: var(--clr-primary) !important;
+        }
+        .btn-primary:hover,
+        .btn.btn-primary:hover {
+            background: var(--clr-deep) !important;
+            border-color: var(--clr-deep) !important;
+        }
+    </style>
+    <style>
+        /* Fix sidebar alignment after removing profile block */
+        .sidebar { top: 70px !important; left: 0 !important; }
+        .sidebar .nav { margin: 0 !important; padding: 12px 10px 20px !important; }
+        .sidebar .nav .nav-item { margin: 6px 0 !important; }
+        .sidebar .nav .nav-item .nav-link { display: flex !important; align-items: center !important; gap: 10px !important; padding: 12px 14px !important; }
+        .sidebar .nav .nav-item .nav-link .menu-icon { margin-right: 0 !important; }
+        /* Ensure main panel aligns with new sidebar width */
+        .main-panel { margin-left: 280px !important; }
+        /* Remove unintended horizontal scroll/offsets */
+        .container-scroller { overflow-x: hidden !important; }
+        .page-body-wrapper { padding-top: 70px !important; }
+    </style>
+    <style>
+        /* Force background for the composite navbar class */
+        .navbar.default-layout.col-lg-12.col-12.p-0.fixed-top.d-flex.flex-row {
+            background: #744651 !important; /* solid tone from palette */
+            background-color: #744651 !important;
+        }
+    </style>
+    <style>
+        /* Global focus styles - pink ring */
+        input.form-control:focus,
+        textarea.form-control:focus,
+        select.form-select:focus,
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #c0577f !important;
+            box-shadow: 0 0 0 0.25rem rgba(192, 87, 127, 0.25) !important;
+            outline: 0 !important;
+        }
+
+        .btn:focus,
+        .btn:focus-visible {
+            box-shadow: 0 0 0 0.25rem rgba(192, 87, 127, 0.35) !important;
+            outline: 0 !important;
+        }
+
+        .btn-outline-primary { border-color: #c0577f !important; color: #c0577f !important; }
+        .btn-outline-primary:hover { background: #c0577f !important; color: #fff !important; border-color: #c0577f !important; }
+
+        /* Sidebar link focus/hover effects */
+        .sidebar .nav .nav-item .nav-link { transition: transform .15s ease, box-shadow .2s ease !important; }
+        .sidebar .nav .nav-item .nav-link:focus,
+        .sidebar .nav .nav-item .nav-link:focus-visible {
+            background: rgba(192, 87, 127, 0.15) !important;
+            transform: translateX(2px);
+            box-shadow: inset 0 0 0 1px rgba(192, 87, 127, 0.25);
+        }
+
+        /* Icon interactions */
+        .sidebar .nav .nav-item .nav-link .menu-icon {
+            transition: transform .2s ease, color .2s ease, filter .2s ease !important;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,.15));
+        }
+        .sidebar .nav .nav-item .nav-link:hover .menu-icon,
+        .sidebar .nav .nav-item .nav-link:focus .menu-icon {
+            transform: scale(1.12) rotate(4deg);
+            color: #ffffff !important;
+            filter: drop-shadow(0 2px 6px rgba(192,87,127,.45));
+        }
+
+        /* Table action icon buttons */
+        .table .btn.btn-sm i { transition: transform .15s ease, color .15s ease; }
+        .table .btn.btn-sm:hover i { transform: translateY(-1px); }
+    </style>
+</head>
+
+<body>
+<div class="container-scroller">
+
+    <!-- Success Toast -->
+    <div id="customSuccess" class="custom-toast success" style="display:none;">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span id="successMsg"></span>
+        <button class="close-btn" onclick="closeToast('customSuccess')">&times;</button>
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="customError" class="custom-toast error" style="display:none;">
+        <i class="bi bi-x-circle-fill me-2"></i>
+        <span id="errorMsg"></span>
+        <button class="close-btn" onclick="closeToast('customError')">&times;</button>
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- partial:partials/_navbar.html -->
+    <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
+            <a class="navbar-brand brand-logo" th:href="@{/admin/thong-ke}">
+                <img th:src="@{/images/logo-h.png}" alt="logo" style="width: 7rem; height: 4rem; padding: 0 0"/>
+            </a>
+            <a class="navbar-brand brand-logo-mini" th:href="@{/admin/thong-ke}">
+                <img th:src="@{/images/logo-mini.svg}" alt="logo"/>
+            </a>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center">
+            <button class="navbar-toggler navbar-toggler d-none d-lg-block navbar-dark align-self-center mr-3"
+                    type="button" data-toggle="minimize">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item dropdown d-none d-xl-inline-block">
+
+                    <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
+                        <span class="profile-text" th:if="${@get_nhan_vien.getCurrentNhanVien() != null}">
+                            Xin chào, <span th:text="${@get_nhan_vien.getCurrentNhanVien().ten}"></span>!
+                        </span>
+                        <span class="profile-text" th:if="${@get_nhan_vien.getCurrentNhanVien() == null}">
+                            Xin chào, Khách!
+                        </span>
+                        <img class="img-xs rounded-circle"
+                             th:if="${@get_nhan_vien.getCurrentNhanVien() != null && @get_nhan_vien.getCurrentNhanVien().anh != null && !@get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
+                             th:src="@{'/uploads/' + ${@get_nhan_vien.getCurrentNhanVien().anh}}"
+                             alt="Ảnh đại diện">
+                        <img class="img-xs rounded-circle"
+                             th:if="${@get_nhan_vien.getCurrentNhanVien() == null || @get_nhan_vien.getCurrentNhanVien().anh == null || @get_nhan_vien.getCurrentNhanVien().anh.isEmpty()}"
+                             th:src="@{/images/faces-clipart/pic-1.png}"
+                             alt="Ảnh mặc định">
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-3 px-4" th:href="@{/admin/logout}" style="color: #dead6f; font-weight: 500; border-radius: 8px; transition: background 0.2s;">
+                            <i class="fas fa-sign-out-alt" style="font-size: 1.2rem;"></i>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+                    data-toggle="offcanvas">
+                <span class="icon-menu"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/thong-ke}">
+                        <i class="menu-icon fas fa-chart-line"></i>
+                        <span class="menu-title">Tổng quan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/ban-hang}">
+                        <i class="menu-icon fas fa-cash-register"></i>
+                        <span class="menu-title">Bán hàng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/hoa-don}">
+                        <i class="menu-icon fas fa-receipt"></i>
+                        <span class="menu-title">Hoá đơn</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/don-hang}">
+                        <i class="menu-icon fas fa-shopping-cart"></i>
+                        <span class="menu-title">Đơn hàng</span>
+                    </a>
+                </li>
+                <!-- Menu Sản phẩm - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
+                    <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
+                       aria-controls="ui-basic">
+                        <i class="menu-icon mdi mdi-content-copy"></i>
+                        <span class="menu-title">Sản phẩm</span>
+                        <i class="menu-arrow fas fa-chevron-down"></i>
+                    </a>
+                    <div class="collapse" id="ui-basic">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/hien_thi}">
+                                    <i class="menu-icon fas fa-tshirt"></i>
+                                    Sản phẩm
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/thuong-hieu}">
+                                    <i class="menu-icon fas fa-award"></i>
+                                    Thương hiệu
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/kieu-dang}">
+                                    <i class="menu-icon fas fa-cut"></i>
+                                    Kiểu dáng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/xuat-xu}">
+                                    <i class="menu-icon fas fa-globe"></i>
+                                    Xuất xứ
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/chat-lieu}">
+                                    <i class="menu-icon fas fa-leaf"></i>
+                                    Chất liệu
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/danh-muc}">
+                                    <i class="menu-icon fas fa-list"></i>
+                                    Danh mục
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/mau-sac}">
+                                    <i class="menu-icon fas fa-palette"></i>
+                                    Màu sắc
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/size}">
+                                    <i class="menu-icon fas fa-ruler"></i>
+                                    Size
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!-- Menu Đợt giảm giá - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
+                    <a class="nav-link" th:href="@{/admin/dot-giam-gia}">
+                        <i class="menu-icon fas fa-percentage"></i>
+                        <span class="menu-title">Đợt giảm giá</span>
+                    </a>
+                </li>
+                <!-- Menu Phiếu giảm giá - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
+                    <a class="nav-link" th:href="@{/admin/phieu-giam-gia}">
+                        <i class="menu-icon fas fa-ticket-alt"></i>
+                        <span class="menu-title">Phiếu giảm giá</span>
+                    </a>
+                </li>
+                <!-- Menu Nhân viên - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
+                    <a class="nav-link" th:href="@{/admin/quanlytaikhoan/nhanvien}">
+                        <i class="menu-icon fas fa-users-cog"></i>
+                        <span class="menu-title">Nhân viên</span>
+                    </a>
+                </li>
+                <!-- Menu Khách hàng - Chỉ hiển thị cho ADMIN -->
+                <li class="nav-item" th:if="${@securityUtils.hasRoleAdmin()}">
+                    <a class="nav-link" th:href="@{/admin/quanlytaikhoan/khachhang}">
+                        <i class="menu-icon fas fa-users"></i>
+                        <span class="menu-title">Khách hàng</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- partial -->
+        <div class="main-panel">
+            <!--            Các màn sẽ được đặt ở đây-->
+            <div class="content-wrapper" layout:fragment="content">
+                <!-- Nội dung từ các trang con sẽ được nhúng vào đây -->
+            </div>
+            <!-- content-wrapper ends -->
+
+            <!-- partial:partials/_footer.html -->
+            <footer class="footer">
+                <div class="container-fluid clearfix">
+            <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © 2025
+              <span>Bootstrapdash</span>. All rights reserved.</span>
+                    <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with
+              <i class="mdi mdi-heart text-danger"></i>
+            </span>
+                </div>
+            </footer>
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+
+    </div>
+
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- plugins:js -->
+<script th:src="@{/vendors/js/vendor.bundle.base.js}"></script>
+<script th:src="@{/vendors/js/vendor.bundle.addons.js}"></script>
+<script th:src="@{/js/off-canvas.js}"></script>
+<script th:src="@{/js/misc.js}"></script>
+<script th:src="@{/js/dashboard.js}"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        funApplicationDisabled();
+
+        funContactDisabled();
+
+        funProductDisabled();
+
+    });
+
+    function funApplicationDisabled() {
+        $('#app-input-service-id').prop('readOnly', true);
+        $('#app-input-name').prop('disabled', true);
+        $('#app-input-icon').prop('disabled', true);
+        $('#app-input-meta-desc').prop('disabled', true);
+        $('#app-input-meta-key').prop('disabled', true);
+        $('#app-input-meta-google-site').prop('disabled', true);
+        $('#app-btn-cancel').prop('disabled', true);
+        $('#app-btn-save').prop('disabled', true);
+        $('#app-btn-edit').prop('disabled', false);
+    }
+
+    function funContactDisabled() {
+        $('#contact-input-service-id').prop('readOnly', true);
+        $('#contact-name').prop('disabled', true);
+        $('#contact-phone').prop('disabled', true);
+        $('#contact-sms').prop('disabled', true);
+        $('#contact-hiMessage').prop('disabled', true);
+        $('#contact-address').prop('disabled', true);
+        $('#contact-email').prop('disabled', true);
+        $('#contact-btn-cancel').prop('disabled', true);
+        $('#contact-btn-save').prop('disabled', true);
+        $('#contact-btn-edit').prop('disabled', false);
+    }
+
+    function funProductDisabled() {
+        $('#product-input-uuid').prop('readOnly', true);
+        $('#product-input-name').prop('disabled', true);
+        $('#product-input-img-src').prop('disabled', true);
+        $('#product-input-img-alt').prop('disabled', true);
+        $('#product-input-href').prop('disabled', true);
+        $('#product-input-price').prop('disabled', true);
+        $('#product-input-brochure').prop('disabled', true);
+        $('#product-btn-cancel').prop('disabled', true);
+        $('#product-btn-save').prop('disabled', true);
+        $('#product-btn-edit').prop('disabled', false);
+    }
+
+</script>
+
+<!--  Thong bao-->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const successMsg = /*[[${success} == null ? 'null' : '']]*/ 'null';
+    const errorMsg = /*[[${error} == null ? 'null' : '']]*/ 'null';
+
+    function showCustomToast(type, message) {
+        const toastId = type === 'success' ? 'customSuccess' : 'customError';
+        const toastEl = document.getElementById(toastId);
+        const msgEl = document.getElementById(type === 'success' ? 'successMsg' : 'errorMsg');
+        const progressBar = toastEl.querySelector('.progress-bar');
+
+        msgEl.textContent = message;
+        toastEl.style.display = 'block';
+
+        // Khởi động lại animation nếu toast được hiển thị lại
+        progressBar.style.animation = 'none';
+        void progressBar.offsetWidth; // force reflow
+        progressBar.style.animation = null;
+
+        // Auto close sau 4s
+        setTimeout(() => {
+            toastEl.style.display = 'none';
+        }, 4000);
+    }
+
+    function closeToast(toastId) {
+        const toastEl = document.getElementById(toastId);
+        toastEl.style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        if (successMsg && successMsg !== "null") showCustomToast('success', successMsg);
+        if (errorMsg && errorMsg !== "null") showCustomToast('error', errorMsg);
+    });
+    /*]]>*/
+</script>
+<!--  Thong bao-->
+
+<!-- Fix submenu display for product pages -->
+<script>
+$(document).ready(function() {
+    // Additional fix for submenu display
+    var currentPath = window.location.pathname;
+    console.log('Layout script - Current path:', currentPath);
+
+    // Force show product submenu if on product-related pages
+    if (currentPath.includes('/admin/san-pham') ||
+        currentPath.includes('/admin/thuong-hieu') ||
+        currentPath.includes('/admin/kieu-dang') ||
+        currentPath.includes('/admin/xuat-xu') ||
+        currentPath.includes('/admin/chat-lieu') ||
+        currentPath.includes('/admin/danh-muc') ||
+        currentPath.includes('/admin/loai-thu') ||
+        currentPath.includes('/admin/mau-sac') ||
+        currentPath.includes('/admin/size')) {
+
+        console.log('Product-related page detected, forcing submenu show');
+
+        setTimeout(function() {
+            $('#ui-basic').addClass('show');
+            $('#ui-basic').closest('.nav-item').addClass('active');
+
+            // Also activate the specific menu item
+            $('a[href="' + currentPath + '"]').addClass('active').closest('.nav-item').addClass('active');
+
+            console.log('Submenu forced to show');
+        }, 100);
+    }
+
+    // Handle sidebar toggle for mobile
+    $('.navbar-toggler').on('click', function() {
+        $('.sidebar').toggleClass('show');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    $(document).on('click', function(e) {
+        if ($(window).width() <= 991.98) {
+            if (!$(e.target).closest('.sidebar, .navbar-toggler').length) {
+                $('.sidebar').removeClass('show');
+            }
+        }
+    });
+
+    // Handle window resize
+    $(window).on('resize', function() {
+        if ($(window).width() > 991.98) {
+            $('.sidebar').removeClass('show');
+        }
+    });
+});
+</script>
+
+</body>
+</html>

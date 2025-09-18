@@ -1,0 +1,53 @@
+:root {
+	--ld-primary-dark: #744651;
+	--ld-primary: #c0577f;
+	--ld-accent: #d88baf;
+	--ld-tint: #dab0c4;
+	--ld-soft: #dbc6cf;
+	/* Bootstrap primary override */
+	--bs-primary: var(--ld-primary);
+	--bs-primary-rgb: 192, 87, 127;
+}
+
+/* Text & background utilities */
+.text-primary { color: var(--ld-primary) !important; }
+.bg-primary { background-color: var(--ld-primary) !important; }
+.border-primary { border-color: var(--ld-primary) !important; }
+
+/* Buttons */
+.btn-primary {
+	color: #fff;
+	background-color: var(--ld-primary) !important;
+	border-color: var(--ld-primary) !important;
+}
+.btn-primary:hover,
+.btn-primary:focus { background-color: var(--ld-primary-dark) !important; border-color: var(--ld-primary-dark) !important; }
+.btn-outline-primary { color: var(--ld-primary) !important; border-color: var(--ld-primary) !important; }
+.btn-outline-primary:hover { color: #fff !important; background-color: var(--ld-primary) !important; border-color: var(--ld-primary) !important; }
+
+/* Badges, pagination, alerts, form focus */
+.badge.bg-primary { background-color: var(--ld-primary) !important; }
+.page-item.active .page-link { background-color: var(--ld-primary) !important; border-color: var(--ld-primary) !important; }
+.form-control:focus { border-color: var(--ld-accent) !important; box-shadow: 0 0 0 .25rem rgba(216, 139, 175, .25) !important; }
+.alert-primary { background-color: color-mix(in srgb, var(--ld-primary) 10%, white); border-color: var(--ld-primary); color: var(--ld-primary-dark); }
+
+/* Links / hover accents */
+a { color: var(--ld-primary); }
+a:hover { color: var(--ld-primary-dark); }
+
+/* Custom components that used warm yellow → gently tint */
+.navbar .nav-link.active, .menu-list .nav-link.active { color: var(--ld-primary) !important; }
+hr { border-top: 1px solid var(--ld-soft); }
+
+/* Cards & soft areas */
+.card { border-color: var(--ld-soft); }
+.card .text-primary { color: var(--ld-primary) !important; }
+
+/* Mini-cart accents */
+.cart-count-badge { background-color: var(--ld-primary) !important; }
+
+/* Star rating if colored via .text-primary */
+.rating .text-primary { color: var(--ld-accent) !important; }
+
+/* Optional tints for sections */
+.section-tint { background: linear-gradient(180deg, #fff 0, var(--ld-soft) 100%); } 

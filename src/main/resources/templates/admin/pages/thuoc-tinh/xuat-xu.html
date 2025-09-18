@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Quản lý xuất xứ</title>
+    <!-- Trang này dùng Bootstrap theo layout admin, tone hồng -->
+</head>
+<body>
+
+<section layout:fragment="content">
+    <div class="container-fluid py-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h4 class="mb-1">
+                    <span th:text="${xuatXu.id == null} ? 'Thêm xuất xứ mới' : 'Cập nhật xuất xứ'"></span>
+                </h4>
+                <div class="text-muted small">Quản lý thông tin xuất xứ sản phẩm</div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form th:action="@{/admin/xuat-xu/save}" th:object="${xuatXu}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-12 col-md-4">
+                            <label for="ten" class="form-label">Tên xuất xứ <span class="text-danger">*</span></label>
+                            <input type="text" id="ten" th:field="*{ten}" placeholder="Nhập tên xuất xứ" class="form-control" required>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="ngayTao" class="form-label">Ngày tạo</label>
+                            <input type="text" id="ngayTao" th:field="*{ngayTao}" th:value="${#temporals.format(xuatXu.ngayTao, 'dd/MM/yyyy')}" readonly class="form-control-plaintext border rounded px-2">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="ngaySua" class="form-label">Ngày sửa</label>
+                            <input type="text" id="ngaySua" th:field="*{ngaySua}" th:value="${#temporals.format(xuatXu.ngaySua, 'dd/MM/yyyy')}" readonly class="form-control-plaintext border rounded px-2">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" th:field="*{trangThai}" th:value="true" id="active">
+                                <label class="form-check-label" for="active">Hoạt động</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" th:field="*{trangThai}" th:value="false" id="inactive">
+                                <label class="form-check-label" for="inactive">Không hoạt động</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"> 
+                            <span th:text="${xuatXu.id == null} ? 'Thêm mới' : 'Cập nhật'"></span>
+                        </button>
+                        <a href="/admin/xuat-xu" class="btn btn-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Danh sách Xuất xứ</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle table-striped mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>#</th>
+                            <th>Mã xuất xứ</th>
+                            <th>Tên xuất xứ</th>
+                            <th>Ngày tạo</th>
+                            <th>Ngày sửa</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="th : ${xuatXus}">
+                            <td th:text="${th.id}"></td>
+                            <td class="fw-semibold" th:text="${th.ma}"></td>
+                            <td th:text="${th.ten}"></td>
+                            <td class="text-muted" th:text="${#temporals.format(th.ngayTao, 'dd/MM/yyyy')}"></td>
+                            <td class="text-muted" th:text="${#temporals.format(th.ngaySua, 'dd/MM/yyyy')}"></td>
+                            <td>
+                                <span th:if="${th.trangThai}" class="badge bg-success-subtle text-success">Hoạt động</span>
+                                <span th:unless="${th.trangThai}" class="badge bg-danger-subtle text-danger">Không hoạt động</span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/admin/xuat-xu/edit/{id}(id=${th.id})}" class="btn btn-sm btn-outline-primary">Sửa</a>
+                                    <a th:href="@{/admin/xuat-xu/delete/{id}(id=${th.id})}" onclick="return confirm('Bạn có chắc muốn xóa xuất xứ này không?')" class="btn btn-sm btn-outline-danger">Xóa</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

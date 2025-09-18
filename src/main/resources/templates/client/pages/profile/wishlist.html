@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{client/layout}">
+
+<head>
+    <title>Sản phẩm yêu thích - Yuki Dresses</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/client-static/css/wishlist.css}">
+    <!-- CSRF Meta Tags -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container wishlist-container">
+            <!-- Header Section -->
+            <div class="wishlist-header">
+                <h1><i class="fas fa-heart me-2"></i>Sản phẩm yêu thích</h1>
+                <p class="text-muted mb-0">Những sản phẩm bạn đã lưu để mua sau</p>
+                
+                <div class="wishlist-stats" th:if="${wishlist != null and !wishlist.isEmpty()}">
+                    <div class="stat-item">
+                        <div class="stat-number" th:text="${wishlist.size()}">0</div>
+                        <div class="stat-label">Sản phẩm</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div th:if="${wishlist != null and !wishlist.isEmpty()}">
+                <div class="product-grid">
+                    <div class="product-card" th:each="item : ${wishlist}">
+                        
+                        <!-- Product Image -->
+                        <div class="product-image">
+                            <!-- Tìm ảnh chính (loaiAnh = 0) trước -->
+                            <img th:if="${item.sanPham.hinhAnhs != null and !item.sanPham.hinhAnhs.isEmpty() and img.loaiAnh != null and img.loaiAnh == 0}"
+                                 th:each="img : ${item.sanPham.hinhAnhs}" 
+                                 th:src="@{${img.url}}"
+                                 th:alt="${item.sanPham.ten}"
+                                 class="w-full h-56 object-cover rounded-md mb-4"
+                                 onerror="this.src='/images/default-product.jpg'"/>
+                            
+                            <!-- Nếu không có ảnh chính, hiển thị ảnh đầu tiên -->
+                            <img th:if="${item.sanPham.hinhAnhs != null and !item.sanPham.hinhAnhs.isEmpty() and (item.sanPham.hinhAnhs.?[loaiAnh == 0].isEmpty())}"
+                                 th:src="@{${item.sanPham.hinhAnhs[0].url}}"
+                                 th:alt="${item.sanPham.ten}"
+                                 class="w-full h-56 object-cover rounded-md mb-4"
+                                 onerror="this.src='/images/default-product.jpg'"/>
+                            
+                            <!-- Ảnh mặc định nếu không có ảnh nào -->
+                            <img th:if="${item.sanPham.hinhAnhs == null or item.sanPham.hinhAnhs.isEmpty()}"
+                                 src="/images/default-product.jpg"
+                                 th:alt="${item.sanPham.ten}"
+                                 class="w-full h-56 object-cover rounded-md mb-4"/>
+                            
+                            <!-- Remove from wishlist badge -->
+                            <div class="wishlist-badge"
+                                 th:data-product-id="${item.sanPham.id}"
+                                 onclick="removeFromWishlist(this)"
+                                 title="Xóa khỏi danh sách yêu thích">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            
+                            <!-- Added date badge -->
+                            <div class="added-date"
+                                 th:if="${item.thoiGianThem != null}">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                <span>Đã thêm</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Product Info -->
+                        <div class="product-info">
+                            <h3 class="product-name" th:text="${item.sanPham.ten}">Tên sản phẩm</h3>
+                            
+                            <p class="product-description" th:text="${item.sanPham.moTa}">Mô tả sản phẩm</p>
+                            
+                            <!-- Price -->
+                            <div class="product-price">
+                                <span th:text="${giaBanMinMap[item.sanPham.id] != null ? giaBanMinMap[item.sanPham.id] + ' đ' : 'Liên hệ'}">
+                                    Liên hệ
+                                </span>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="product-actions">
+                                <a th:href="@{/san-pham/chi-tiet/{id}(id=${item.sanPham.id})}"
+                                   class="btn-cart">
+                                    <i class="fas fa-eye"></i>
+                                    Xem chi tiết
+                                </a>
+                                <button class="btn-remove"
+                                        th:data-product-id="${item.sanPham.id}"
+                                        onclick="removeFromWishlist(this)"
+                                        title="Xóa khỏi danh sách yêu thích">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-wishlist" th:if="${wishlist == null or wishlist.isEmpty()}">
+                <div class="empty-icon">
+                    <i class="fas fa-heart-broken"></i>
+                </div>
+                <div class="empty-message">
+                    Danh sách yêu thích của bạn đang trống
+                </div>
+                <p>
+                    Hãy khám phá các sản phẩm tuyệt vời và thêm vào danh sách yêu thích để mua sau nhé!
+                </p>
+                <a href="/san-pham/danh-sach" class="btn-browse">
+                    <i class="fas fa-shopping-bag"></i>
+                    Khám phá sản phẩm
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+<!-- Scripts section -->
+<th:block layout:fragment="scripts">
+    <script>
+        // Wishlist functionality
+        function removeFromWishlist(element) {
+            const productId = element.getAttribute('data-product-id');
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?')) {
+                // Show loading state
+                const card = element.closest('.product-card');
+                card.style.opacity = '0.5';
+                card.style.pointerEvents = 'none';
+                
+                // Lấy CSRF token an toàn
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                
+                // Chuẩn bị headers
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                // Thêm CSRF token nếu có
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader] = csrfToken;
+                } else {
+                    console.warn('CSRF token not found, request may fail');
+                }
+                
+                // Sử dụng endpoint toggle hiện có
+                fetch('/wishlist/toggle?productId=' + productId, {
+                    method: 'POST',
+                    headers: headers
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.status === 'removed') {
+                        // Animation khi xóa
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.transform = 'scale(0.8)';
+                        card.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // Cập nhật số lượng sản phẩm
+                            const statNumber = document.querySelector('.stat-number');
+                            if (statNumber) {
+                                const currentCount = parseInt(statNumber.textContent);
+                                statNumber.textContent = currentCount - 1;
+                            }
+                            
+                            // Kiểm tra nếu danh sách trống
+                            const productGrid = document.querySelector('.product-grid');
+                            if (productGrid && productGrid.children.length === 0) {
+                                location.reload(); // Reload để hiển thị empty state
+                            }
+                        }, 500);
+                    } else {
+                        // Reset loading state nếu lỗi
+                        card.style.opacity = '1';
+                        card.style.pointerEvents = 'auto';
+                        alert(data.error || 'Có lỗi xảy ra khi xóa sản phẩm khỏi danh sách yêu thích');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Reset loading state nếu lỗi
+                    card.style.opacity = '1';
+                    card.style.pointerEvents = 'auto';
+                    alert('Có lỗi xảy ra khi xóa sản phẩm khỏi danh sách yêu thích');
+                });
+            }
+        }
+        
+        function viewProduct(productId) {
+            window.location.href = '/san-pham/chi-tiet/' + productId;
+        }
+        
+        // Thêm hiệu ứng hover cho các button
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click effects to buttons
+            const buttons = document.querySelectorAll('.btn-cart, .btn-remove, .wishlist-badge');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Tạo hiệu ứng ripple
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+    
+    <!-- Ripple effect CSS -->
+    <style>
+        .btn-cart, .btn-remove, .wishlist-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</th:block>
+
+</html>
