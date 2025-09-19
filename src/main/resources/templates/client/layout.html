@@ -254,10 +254,10 @@
                 <a th:href="@{/san-pham/danh-sach(priceRange=500000, sortBy='price', sortDir='asc')}" class="nav-link" th:classappend="${activePage} == 'sale' ? 'active' : ''">Khuyến mãi</a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link" th:classappend="${activePage} == 'about' ? 'active' : ''">Giới thiệu</a>
+                <a th:href="@{/gioi-thieu}" class="nav-link" th:classappend="${activePage} == 'about' ? 'active' : ''">Giới thiệu</a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link" th:classappend="${activePage} == 'contact' ? 'active' : ''">Liên hệ</a>
+                <a th:href="@{/lien-he}" class="nav-link" th:classappend="${activePage} == 'contact' ? 'active' : ''">Liên hệ</a>
               </li>
             </ul>
 
@@ -285,7 +285,8 @@
               <div class="small text-muted">© 2025 Yuki Dresses. All rights reserved.</div>
       <div class="mt-2">
         <a th:href="@{/san-pham/danh-sach}" class="text-muted me-3">Sản phẩm</a>
-        <a href="#" class="text-muted">Liên hệ</a>
+        <a th:href="@{/gioi-thieu}" class="text-muted me-3">Giới thiệu</a>
+        <a th:href="@{/lien-he}" class="text-muted">Liên hệ</a>
       </div>
     </div>
   </footer>

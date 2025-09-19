@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layout}">
+<head>
+    <title>Liên hệ - Yuki Dresses</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container py-5">
+        <!-- Success Message -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Header -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-3" style="color: #e4a896;">Liên hệ với chúng tôi</h1>
+                <p class="lead text-muted">Chúng tôi luôn sẵn sàng hỗ trợ bạn</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Contact Info -->
+            <div class="col-lg-4 mb-5">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-4">Thông tin liên hệ</h3>
+                        
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="me-3" style="color: #e4a896;">
+                                <i class="fas fa-map-marker-alt fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Địa chỉ</h6>
+                                <p class="text-muted mb-0">123 Đường ABC, Quận 1, TP.HCM</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="me-3" style="color: #e4a896;">
+                                <i class="fas fa-phone fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Điện thoại</h6>
+                                <p class="text-muted mb-0">+84 1800 33355</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="me-3" style="color: #e4a896;">
+                                <i class="fas fa-envelope fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Email</h6>
+                                <p class="text-muted mb-0">info@yukidresses.com</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start">
+                            <div class="me-3" style="color: #e4a896;">
+                                <i class="fas fa-clock fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Giờ làm việc</h6>
+                                <p class="text-muted mb-0">8:00 - 22:00 hằng ngày</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-4">Gửi tin nhắn cho chúng tôi</h3>
+                        
+                        <form th:action="@{/lien-he/gui}" method="post">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Họ và tên *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Tin nhắn *</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" 
+                                         placeholder="Nhập nội dung tin nhắn của bạn..." required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary px-4" 
+                                    style="background-color: #e4a896; border-color: #e4a896;">
+                                <i class="fas fa-paper-plane me-2"></i>Gửi tin nhắn
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div style="height: 300px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-map fa-3x mb-3"></i>
+                                <p>Bản đồ sẽ được tích hợp sau</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

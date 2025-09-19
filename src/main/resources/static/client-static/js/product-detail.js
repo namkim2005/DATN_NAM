@@ -866,3 +866,18 @@ function createSimpleNotification(message, type) {
         }
     }, 3000);
 }
+
+// Thêm image preloading
+function preloadImages(imageUrls) {
+    imageUrls.forEach(url => {
+        const img = new Image();
+        img.src = url;
+    });
+}
+
+// Gọi khi load trang
+document.addEventListener('DOMContentLoaded', function() {
+    const imageUrls = document.querySelectorAll('img[data-src]');
+    const urls = Array.from(imageUrls).map(img => img.dataset.src);
+    preloadImages(urls);
+});
