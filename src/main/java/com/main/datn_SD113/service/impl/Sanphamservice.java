@@ -214,28 +214,6 @@ public class Sanphamservice {
     }
 
     /**
-     * Kiểm tra xem file ảnh có tồn tại không
-     */
-    private String validateImageUrl(String imageUrl) {
-        if (imageUrl == null || imageUrl.trim().isEmpty()) {
-            return "/images/favicon.png";
-        }
-        
-        // Cache validation results
-        if (imageUrl.startsWith("/uploads/")) {
-            // Async validation, return URL immediately
-            CompletableFuture.runAsync(() -> {
-                String filePath = "src/main/resources/static" + imageUrl;
-                if (!Files.exists(Paths.get(filePath))) {
-                    log.warn("Image not found: " + imageUrl);
-                }
-            });
-        }
-        
-        return imageUrl;
-    }
-
-    /**
      * Chuyển đổi SanPham entity thành SanPhamListDTO
      */
     private SanPhamListDTO convertToSanPhamListDTO(SanPham sanPham) {
@@ -301,25 +279,13 @@ public class Sanphamservice {
                 .map(HinhAnh::getUrl)
                 .findFirst()
                 .orElse("/images/favicon.png");
-        
-        // Kiểm tra và validate ảnh chính
-        anhChinh = validateImageUrl(anhChinh);
+
         
         List<String> anhPhu = hinhAnhs.stream()
                 .filter(anh -> anh.getLoaiAnh() == 1) // Ảnh phụ
                 .map(HinhAnh::getUrl)
                 .collect(Collectors.toList());
-        
-        // Kiểm tra và validate ảnh phụ
-        List<String> anhPhuValid = anhPhu.stream()
-                .map(this::validateImageUrl)
-                .filter(url -> !url.equals("/images/favicon.png") || anhPhu.size() == 1) // Giữ lại ít nhất 1 ảnh
-                .collect(Collectors.toList());
-        
-        // Nếu không có ảnh phụ nào hợp lệ, sử dụng ảnh mặc định
-        if (anhPhuValid.isEmpty()) {
-            anhPhuValid = Arrays.asList("/images/favicon.png");
-        }
+
         
         // Chuyển đổi chi tiết sản phẩm
         List<SanPhamListDTO.ChiTietSanPhamDTO> chiTietDTOs = chiTietSanPhams.stream()
@@ -351,7 +317,6 @@ public class Sanphamservice {
                 .trangThaiHienThi(trangThaiHienThi)
                 .trangThaiClass(trangThaiClass)
                 .anhChinh(anhChinh)
-                .anhPhu(anhPhuValid) // Sử dụng ảnh phụ đã validate
                 .chiTietSanPhams(chiTietDTOs)
                 .build();
     }
