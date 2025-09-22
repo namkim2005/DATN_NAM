@@ -13,9 +13,8 @@ public class WebConfig implements WebMvcConfigurer {
         // Cấu hình cho uploads với cache validation
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("classpath:/static/uploads/")
-                .setCachePeriod(300) // Giảm cache xuống 5 phút
-                .resourceChain(true)
-                .addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"));
+                .setCachePeriod(0) // Tắt cache
+                .resourceChain(false); // Tắt resource chain
 
         // Cấu hình cho images với cache tối ưu
         registry.addResourceHandler("/images/**")

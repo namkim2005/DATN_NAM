@@ -43,9 +43,9 @@ public class SizeController {
             Size last = sizeRepository.findTopByOrderByMaDesc();
             int nextNumber = 1;
 
-            if (last != null && last.getMa() != null && last.getMa().startsWith("SZZ")) {
+            if (last != null && last.getMa() != null && last.getMa().startsWith("SZ")) {
                 try {
-                    // Cắt phần số sau "TH"
+                    // Cắt phần số sau "SZ"
                     nextNumber = Integer.parseInt(last.getMa().substring(2)) + 1;
                 } catch (NumberFormatException e) {
                     nextNumber = 1;
